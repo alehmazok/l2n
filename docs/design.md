@@ -654,7 +654,7 @@ holds the prompt, model, seed and post-processing of every image, and
 API, or by hand in Venice Studio with the same prompt and seed. Art arrives in
 batches, so every lookup in `packages/client/src/art.ts` has a fallback (a
 letter on a tile) and a client test checks that the manifest covers every
-mob and every race and archetype pair.
+mob, every node, every race and archetype pair, and the map.
 
 A trial of six images (2026-11-25) showed that Z-Image Turbo holds the style
 on scenes and beasts, draws portraits flatter than a print but well enough
@@ -684,6 +684,21 @@ third of a second per step. More than eight new entries at once (an
 auto-battle) are not played, and nothing is played for players who ask their
 system for reduced motion. When the fight ends the loser's card falls and
 greys out above the result. The log stays as text below.
+
+### Places and the world map
+
+Every node has a scene: a wide picture across the top of its panel, also the
+backdrop of fights there. The mobs "seen here" are listed with thumbnails.
+
+Travel is done on a map of Hollowreach (`packages/client/src/map.ts`): a
+picture with the roads drawn over it and a marker for each of ten places,
+the nine hunting nodes and Brackwell. The town is one place on the map; its
+market, smithy, warehouse and notice board are a list of buttons shown while
+in town. Places one road away are lit and can be tapped to go there, the
+character's own place is green, and the rest are shown dimmed with their
+level range. Markers carry the living world: a green count of other players
+there and a red mark where someone fell. Until the map backdrop is
+generated, the roads and markers sit on a plain dark parchment tone.
 
 ## 15. Technical shape
 

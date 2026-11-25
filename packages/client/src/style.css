@@ -197,3 +197,31 @@ ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
   .fight .scene .mob-card { animation: breathe 3.2s ease-in-out infinite; }
 }
 @keyframes breathe { 50% { transform: scale(1.025); } }
+
+/* A place: its picture across the top of the panel, and thumbnails of what lives there. */
+.panel:has(> .place-art) { overflow: hidden; }
+.place-art { aspect-ratio: 21 / 9; margin: -12px -16px 10px; background: #16120d center 40% / cover no-repeat; }
+ul.mobs:has(.mob-thumb) { list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 4px; }
+.mob-thumb { width: 36px; height: 36px; margin-right: 8px; vertical-align: middle; border-radius: 5px; border: 1px solid #4a3f30; object-fit: cover; }
+.mob-thumb.role-elite { border-color: var(--accent); }
+
+/* The world map: a picture, the roads drawn over it and a marker for every place. */
+.map { position: relative; aspect-ratio: 3 / 2; border-radius: 8px; border: 1px solid #4a3f30; overflow: hidden; background: #3a2f22 radial-gradient(ellipse at 30% 40%, #5a4a34, #2a2219 75%) center / cover no-repeat; }
+.map::before { content: ""; position: absolute; inset: 0; background: rgb(27 23 18 / 0.35); }
+.map svg { position: absolute; inset: 0; width: 100%; height: 100%; }
+.map line { stroke: #1b1712; stroke-width: 2.5; stroke-dasharray: 5 4; stroke-linecap: round; vector-effect: non-scaling-stroke; opacity: 0.75; }
+.map line.open { stroke: var(--accent); opacity: 1; }
+.place { position: absolute; transform: translate(-50%, -11px); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: none; background: none; color: var(--text); font: inherit; min-width: 44px; }
+button.place { cursor: pointer; }
+.place .pin { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #1b1712; background: #8a7a5c; box-shadow: 0 2px 4px rgb(0 0 0 / 0.6); }
+.place .name { font-size: 0.72em; line-height: 1.2; white-space: nowrap; padding: 0 4px; border-radius: 3px; background: rgb(27 23 18 / 0.72); }
+.place .lv { color: var(--muted); }
+.place-far { opacity: 0.8; }
+.place-far .name { color: var(--muted); }
+.place-near .pin { background: var(--accent); box-shadow: 0 0 0 3px rgb(216 180 106 / 0.3), 0 2px 4px rgb(0 0 0 / 0.6); }
+.place-near:hover .pin, .place-near:focus-visible .pin { box-shadow: 0 0 0 5px rgb(216 180 106 / 0.5); }
+.place-here .pin { background: var(--good); border-color: var(--text); }
+.place-here .name { font-weight: bold; }
+.zone-cinder_barrows.place-far .pin { background: #6f6a66; }
+.zone-thornwood_hollow.place-far .pin { background: #5f7350; }
+.zone-brackwell.place-far .pin { background: #a8884f; }

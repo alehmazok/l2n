@@ -24,6 +24,7 @@ import {
 import { api, ApiError, type CraftResult, type FightAction, type FightView, type GameView, type QuestResult } from "../api.js";
 import { archetypeName, esc, raceName, sheetHtml } from "../ui.js";
 import { mobArt, portrait, sceneArt } from "../art.js";
+import { mapHtml } from "../map.js";
 import { plan, play, playable, type Side } from "../fightfx.js";
 import { skillIcon } from "../icons.js";
 import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
@@ -224,20 +225,23 @@ function placeHtml(view: GameView) {
   const zone = ZONES[node.zone];
   const levels = nodeLevels(node);
   const full = c.hp >= view.sheet.maxHp && (view.sheet.resource.kind !== "mana" || c.resource >= view.sheet.resource.max);
+  // Roads to other zones are on the map; the list is for the places inside the town.
   const roads = node.links
-    .map((l) => {
-      const n = NODES[l]!;
+    .map((l) => NODES[l]!)
+    .filter((n) => n.zone === node.zone && node.kind === "town")
+    .map((n) => {
       const lv = nodeLevels(n);
       return `<button class="road" data-go="${esc(n.id)}">${esc(n.name)}${n.zone !== node.zone ? ` <span class="small">(${esc(ZONES[n.zone].name)})</span>` : ""}${lv ? ` <span class="small">L${lv[0]}–${lv[1]}</span>` : ""}<span class="small fallen-mark" data-fallen="${esc(n.id)}"></span> <span class="small online" data-online="${esc(n.id)}"></span></button>`;
     })
     .join("");
   const mobs = node.mobs
     .map((m) => MOBS[m]!)
-    .map((m) => `<li>${esc(m.name)} <span class="muted small">L${m.level}${m.role === "elite" ? " · elite" : ""}</span></li>`)
+    .map((m) => `<li>${mobArt(m.id) ? `<img class="mob-thumb role-${m.role}" src="${mobArt(m.id)}" alt="" loading="lazy" decoding="async" />` : ""}${esc(m.name)} <span class="muted small">L${m.level}${m.role === "elite" ? " · elite" : ""}</span></li>`)
     .join("");
   const boss = challengeAt(node, c.quests);
   return `
     <section class="panel">
+      ${sceneArt(node.id) ? `<div class="place-art" style="background-image:url('${sceneArt(node.id)}')" aria-hidden="true"></div>` : ""}
       <p class="muted small">${esc(zone.name)}${levels ? ` · levels ${levels[0]}–${levels[1]}` : " · safe"}</p>
       <h3>${esc(node.name)}</h3>
       <p>${esc(node.description)}</p>
@@ -257,7 +261,9 @@ function placeHtml(view: GameView) {
     ${node.service === "warehouse" ? warehouseHtml(c, view.items) : ""}
     ${node.service === "crafting" ? smithyHtml(c, view.items) : ""}
     ${node.service === "quests" ? boardHtml(c, view.items) : ""}
-    <section class="panel"><h3>Roads</h3><div class="roads">${roads}</div></section>`;
+    ${roads ? `<section class="panel"><h3>In ${esc(zone.name)}</h3><div class="roads">${roads}</div></section>` : ""}
+    <section class="panel"><h3>Map</h3>${mapHtml(c.location)}
+      <p class="muted small">Tap a lit place to travel there.</p></section>`;
 }
 
 const SERVICE_NAMES = { shop: "Shop", warehouse: "Warehouse", crafting: "Crafting", quests: "Quests" } as const;
