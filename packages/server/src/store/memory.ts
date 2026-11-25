@@ -1,8 +1,9 @@
-import { START_NODE, type CharacterSummary, type FightState } from "@l2n/shared";
+import { START_NODE, slotOf, type CharacterSummary, type FightState, type Item } from "@l2n/shared";
 import type { Account, CharacterTx, NewCharacter, Store, StoredFight } from "./types.js";
 
 type CharRow = CharacterSummary & { accountId: number };
 type FightRow = StoredFight & { outcome: FightState["outcome"] };
+type ItemRow = Item & { characterId: number };
 
 const clone = <T>(v: T): T => structuredClone(v);
 
@@ -11,6 +12,7 @@ export class MemoryStore implements Store {
   private sessions = new Map<string, { accountId: number; expiresAt: Date }>();
   private characters: CharRow[] = [];
   private fights: FightRow[] = [];
+  private items: ItemRow[] = [];
   private nextId = 1;
   /** Per-character queue standing in for Postgres row locks. */
   private locks = new Map<number, Promise<unknown>>();
@@ -67,15 +69,21 @@ export class MemoryStore implements Store {
       resource: n.resource,
       silver: 0,
       location: START_NODE,
+      autoCharges: true,
       createdAt: new Date().toISOString(),
     };
     this.characters.push(c);
+    for (const i of n.items) this.items.push({ ...clone(i), id: this.nextId++, characterId: c.id });
     return strip(c);
   }
 
   async getOngoingFight(characterId: number) {
     const f = this.fights.find((x) => x.characterId === characterId && x.outcome === "ongoing");
     return f && stripFight(f);
+  }
+
+  async listItems(characterId: number) {
+    return this.items.filter((i) => i.characterId === characterId).map(stripItem);
   }
 
   async withCharacter<T>(accountId: number, id: number, fn: (tx: CharacterTx) => Promise<T>): Promise<T | undefined> {
@@ -98,6 +106,12 @@ export class MemoryStore implements Store {
     const existingDraft = existing && clone(existing);
     let fight: FightRow | undefined = existingDraft;
     const created: FightRow[] = [];
+    let items = this.items.filter((i) => i.characterId === id).map(clone);
+    const findItem = (itemId: number) => {
+      const i = items.find((x) => x.id === itemId);
+      if (!i) throw new Error(`No item ${itemId}`);
+      return i;
+    };
     const tx: CharacterTx = {
       character: strip(draft),
       fight: fight && stripFight(fight),
@@ -117,9 +131,30 @@ export class MemoryStore implements Store {
         fight.outcome = state.outcome;
         return stripFight(fight);
       },
+      get items() {
+        return items.map(stripItem);
+      },
+      addItem: async (i) => {
+        const r = { ...clone(i), id: this.nextId++, characterId: id };
+        items.push(r);
+        checkItems(items);
+        return stripItem(r);
+      },
+      updateItem: async (itemId, patch) => {
+        const i = findItem(itemId);
+        if (patch.quantity !== undefined && patch.quantity <= 0) throw new Error("Quantity must be positive");
+        Object.assign(i, patch);
+        checkItems(items);
+        return stripItem(i);
+      },
+      deleteItem: async (itemId) => {
+        findItem(itemId);
+        items = items.filter((x) => x.id !== itemId);
+      },
     };
     const result = await fn(tx);
     Object.assign(row, draft);
+    this.items = [...this.items.filter((i) => i.characterId !== id), ...items];
     if (existing && existingDraft) Object.assign(existing, existingDraft);
     this.fights.push(...created);
     return result;
@@ -128,3 +163,16 @@ export class MemoryStore implements Store {
 
 const strip = ({ accountId: _, ...c }: CharRow): CharacterSummary => ({ ...c });
 const stripFight = ({ outcome: _, ...f }: FightRow): StoredFight => clone(f);
+/** The same rules as the Postgres unique indexes: one item per slot, one stack per place. */
+function checkItems(items: ItemRow[]) {
+  const seen = new Set<string>();
+  for (const i of items) {
+    const key =
+      i.location === "equipped" ? `slot:${slotOf(i.templateId)}` : i.itemLevel === null ? `stack:${i.location}:${i.templateId}` : undefined;
+    if (!key) continue;
+    if (seen.has(key)) throw new Error(`Duplicate ${key}`);
+    seen.add(key);
+  }
+}
+
+const stripItem = ({ characterId: _, ...i }: ItemRow): Item => ({ ...i });

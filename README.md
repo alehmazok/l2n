@@ -4,7 +4,7 @@ A turn-based fantasy RPG with the feel of early-2000s online RPGs, for the
 browser and mobile. Original world, names and data; see the
 [design document](docs/design.md).
 
-Status: early prototype (MVP stage 2: map, real fights and leveling).
+Status: early prototype (MVP stage 3: loot, gear, market and warehouse).
 
 ## Docs
 
@@ -35,7 +35,7 @@ pnpm dev            # server on :3000, client on :5173
 ```
 
 Open http://localhost:5173, create an account and a character, walk from
-Brackwell Square to the Old Road and hunt.
+Brackwell Square to the Old Road and hunt. Sell the loot at the Market.
 
 Without `DATABASE_URL` the dev server falls back to an in-memory store and
 warns about it: handy for a quick look, but accounts vanish on restart.
@@ -57,10 +57,18 @@ All game endpoints take and return JSON. Errors look like
 | POST | `/api/characters/:id/move` | `{ to }`: walk to an adjacent map node. |
 | POST | `/api/characters/:id/rest` | Restore HP and Mana; town nodes only. |
 | POST | `/api/characters/:id/hunt` | Start a fight with a mob of the current hunting node. |
-| POST | `/api/characters/:id/fight` | `{ action: { type: "attack" \| "skill" \| "flee" \| "auto", skillId? } }`. Resolves one round (or the whole fight for `auto`). When the fight ends the answer adds `result` (XP, level-ups, death) and `ended` (the final fight state). |
-| GET | `/api/meta` | Races, archetypes, skills, zones, map nodes, mobs. |
+| POST | `/api/characters/:id/fight` | `{ action: { type: "attack" \| "skill" \| "item" \| "flee" \| "auto", skillId?, itemId? } }`. `itemId` is `healing_draught` or `mana_draught`. Resolves one round (or the whole fight for `auto`). When the fight ends the answer adds `result` (XP, level-ups, death, loot) and `ended` (the final fight state). |
+| POST | `/api/characters/:id/equip` | `{ itemId }`: wear a piece from the bag, swapping out the worn one. |
+| POST | `/api/characters/:id/unequip` | `{ slot }`: take a piece off into the bag. |
+| POST | `/api/characters/:id/use` | `{ itemId }`: drink a draught outside a fight. |
+| POST | `/api/characters/:id/buy` | `{ stockId, quantity? }`: at the Market. Stock ids are in `/api/meta`. |
+| POST | `/api/characters/:id/sell` | `{ itemId, quantity? }`: at the Market, from the bag. |
+| POST | `/api/characters/:id/deposit` | `{ itemId, quantity? }`: at the Warehouse, for a fee. |
+| POST | `/api/characters/:id/withdraw` | `{ itemId, quantity? }`: at the Warehouse. |
+| POST | `/api/characters/:id/settings` | `{ autoCharges }`: load charges into fights automatically. |
+| GET | `/api/meta` | Races, archetypes, skills, zones, map nodes, mobs, items, market stock, inventory limits. |
 
-Game actions answer with `{ character, sheet, fight }`. They return 409
+Game actions answer with `{ character, sheet, items, fight }`. They return 409
 `in_fight` when a fight is in progress and the action needs you to be free.
 
 ## Checks

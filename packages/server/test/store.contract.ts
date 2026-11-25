@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
-import { buildMob, buildPlayer, playerInputFor, resolveRound, startFight, type FightState } from "@l2n/shared";
+import { buildMob, buildPlayer, playerInputFor, resolveRound, startFight, starterItems, type FightState, type NewItem } from "@l2n/shared";
 import type { NewCharacter, Store } from "../src/store/index.js";
 
 /** Behaviour every Store must have. Run against MemoryStore and PgStore. */
@@ -18,6 +18,7 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       hp: 72,
       resource: 0,
       maxPerAccount: 4,
+      items: [],
       ...extra,
     });
 
@@ -47,7 +48,7 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       const b = await store.createAccount("d@example.com", "h");
       if (a === "email_taken" || b === "email_taken") throw new Error("unexpected");
       const c = await store.createCharacter(char(a.id, "Grosh"));
-      expect(c).toMatchObject({ name: "Grosh", race: "orc", archetype: "warrior", level: 1, xp: 0, hp: 72, silver: 0, location: "brackwell_square", profession: null });
+      expect(c).toMatchObject({ name: "Grosh", race: "orc", archetype: "warrior", level: 1, xp: 0, hp: 72, silver: 0, location: "brackwell_square", profession: null, autoCharges: true });
       if (typeof c === "string") throw new Error("unexpected");
       await store.createCharacter(char(a.id, "Ilwen", { race: "dawn_elf", archetype: "mage", hp: 38, resource: 33 }));
       expect((await store.listCharacters(a.id)).map((x) => x.name)).toEqual(["Grosh", "Ilwen"]);
@@ -142,6 +143,80 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
         });
       await Promise.all([bump(), bump(), bump(), bump()]);
       expect((await store.getCharacter(accountId, id))?.xp).toBe(4);
+    });
+    const stack = (templateId: string, quantity: number, location: NewItem["location"] = "bag"): NewItem => ({
+      templateId,
+      itemLevel: null,
+      rarity: null,
+      bonus: null,
+      quantity,
+      location,
+    });
+
+    it("creates characters with their starting items", async () => {
+      const a = await store.createAccount("i@example.com", "h");
+      if (a === "email_taken") throw new Error("unexpected");
+      const c = await store.createCharacter(char(a.id, "Kitted", { items: starterItems("warrior") }));
+      if (typeof c === "string") throw new Error("unexpected");
+      const items = await store.listItems(c.id);
+      expect(items.map(({ id: _, ...rest }) => rest)).toEqual(starterItems("warrior"));
+      expect(await store.withCharacter(a.id, c.id, async (tx) => tx.items)).toEqual(items);
+    });
+
+    it("adds, updates and deletes items inside an action", async () => {
+      const { accountId, id } = await hero();
+      const silver = await store.withCharacter(accountId, id, (tx) => tx.updateCharacter({ silver: 120, autoCharges: false }));
+      expect(silver).toMatchObject({ silver: 120, autoCharges: false });
+      const sword: NewItem = { templateId: "ironbound_warrior_weapon", itemLevel: 4, rarity: "rare", bonus: "crit", quantity: 1, location: "bag" };
+      const added = await store.withCharacter(accountId, id, async (tx) => {
+        const s = await tx.addItem(sword);
+        const h = await tx.addItem(stack("rough_hide", 3));
+        expect(tx.items).toHaveLength(2);
+        await tx.updateItem(h.id, { quantity: 5, location: "warehouse" });
+        await tx.updateItem(s.id, { location: "equipped" });
+        return tx.items;
+      });
+      expect(added).toEqual([
+        { ...sword, id: added![0]!.id, location: "equipped" },
+        { ...stack("rough_hide", 5, "warehouse"), id: added![1]!.id },
+      ]);
+      expect(await store.listItems(id)).toEqual(added);
+      await store.withCharacter(accountId, id, async (tx) => {
+        await tx.deleteItem(added![1]!.id);
+        expect(tx.items).toHaveLength(1);
+      });
+      expect(await store.listItems(id)).toHaveLength(1);
+      await expect(store.withCharacter(accountId, id, (tx) => tx.deleteItem(99999))).rejects.toThrow();
+      await expect(store.withCharacter(accountId, id, (tx) => tx.updateItem(99999, { quantity: 1 }))).rejects.toThrow();
+    });
+
+    it("allows one worn item per slot and one stack per place", async () => {
+      const { accountId, id } = await hero();
+      const helm = (location: NewItem["location"]): NewItem => ({
+        templateId: "ironbound_warrior_head",
+        itemLevel: 1,
+        rarity: "common",
+        bonus: null,
+        quantity: 1,
+        location,
+      });
+      await store.withCharacter(accountId, id, (tx) => tx.addItem(helm("equipped")));
+      await expect(store.withCharacter(accountId, id, (tx) => tx.addItem(helm("equipped")))).rejects.toThrow();
+      await store.withCharacter(accountId, id, (tx) => tx.addItem(stack("bone_shard", 1)));
+      await expect(store.withCharacter(accountId, id, (tx) => tx.addItem(stack("bone_shard", 2)))).rejects.toThrow();
+      await store.withCharacter(accountId, id, (tx) => tx.addItem(stack("bone_shard", 2, "warehouse")));
+      expect(await store.listItems(id)).toHaveLength(3);
+    });
+
+    it("rolls back item changes from an action that throws", async () => {
+      const { accountId, id } = await hero();
+      await expect(
+        store.withCharacter(accountId, id, async (tx) => {
+          await tx.addItem(stack("marsh_herb", 2));
+          throw new Error("boom");
+        }),
+      ).rejects.toThrow("boom");
+      expect(await store.listItems(id)).toEqual([]);
     });
   });
 }

@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.2 (2026-11-25). Short name: **L2N**.
+Status: draft v0.3 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -63,8 +63,8 @@ Market   Smithy   Warehouse   Notice Board
 ```
 
 - **Town nodes** are safe. Resting there restores HP and Mana to full, free
-  and instantly. Market, Smithy, Warehouse and Notice Board are placeholders
-  until their services arrive (stages 3–5).
+  and instantly. The Market and Warehouse are open (stage 3, see "Items" and
+  "Economy"); the Smithy and Notice Board are placeholders until stages 4–5.
 - **Hunting nodes** have a pool of mobs. Hunting starts a fight with one of
   them, weighted towards the player's level: a mob at or below your level has
   weight 3, one level above 2, two or more levels above 1.
@@ -93,8 +93,9 @@ but none is locked.
 | Dwarf | +2 | −2 | +3 | | +1 | **Forge-born**: +5% craft success, +10% resource drops |
 
 Passives apply to the numbers on the sheet and in fights (see
-`racialBonuses` in `packages/shared/src/progression.ts`). Forge-born takes effect
-when crafting and resource drops arrive (stages 3–4).
+`racialBonuses` in `packages/shared/src/progression.ts`). Forge-born's resource
+bonus multiplies each resource drop chance by 1.1; its crafting bonus arrives
+with crafting in stage 4.
 
 Short lore notes (to expand later):
 
@@ -116,7 +117,9 @@ name, a race and an archetype; there are no stat points to spend, so every
 character of a given race and archetype starts with the same numbers. Names are
 3–16 letters (A–Z), shown capitalised, and unique across the server regardless
 of case. A new character starts at level 1 in Brackwell Square with full HP, 0 silver,
-full mana (mages) or 0 Focus (warriors).
+full mana (mages) or 0 Focus (warriors), wearing a full common Ironbound set of
+item level 1 and carrying 3 healing draughts, 50 charges of the first grade and
+(mages) 3 mana draughts.
 
 The character sheet shows the stats, derived numbers (HP, Mana or Focus,
 attack and defence, crit chance, all with the racial passive applied), the
@@ -189,7 +192,7 @@ All skills are implemented by the engine (stage 2). Timing rules:
 ## 5. Combat
 
 One player against one enemy, in rounds. Each round the player picks one action:
-**Attack**, **Skill**, **Item** (planned), or **Flee**. A round goes: mage Mana
+**Attack**, **Skill**, **Item** (a draught), or **Flee**. A round goes: mage Mana
 regeneration, the player's action, the enemy's action (if both still stand and
 it is not stunned), then end of round (damage over time ticks, buffs count
 down). (Agility-based initiative is a candidate for later.)
@@ -203,6 +206,11 @@ server validate everything and lets tests pin exact outcomes.
 A fight starts with the character's current HP and Mana; Focus starts at 0.
 When it ends, the remaining HP and Mana are kept, so a run of fights wears you
 down until you rest in town.
+
+At the start of a fight the character takes their draughts and (if auto-use is
+on) the charges matching the weapon's grade out of the bag; whatever is left
+goes back when the fight ends, however it ends. The inventory cannot change
+during a fight.
 
 ### Formulas
 
@@ -249,17 +257,18 @@ matching tier, played by the auto-battle policy:
 - Mobs two levels above you are a real risk: a level 1 mage on full HP wins
   only about 60% of fights against a level 3 mob. Encounter weighting keeps
   them rare.
-- Elites should need a potion or a careful skill rotation; the boss should need
-  preparation (charges, potions, a level or two of margin).
+- Elites should need a draught or a careful skill rotation; the boss should need
+  preparation (charges, draughts, a level or two of margin).
 
 ### Fast fights and auto-battle
 
 - Target 20–30 seconds per normal fight, including reading the log.
 - **Auto-battle** (decided 2026-11-25) for mobs 4 or more levels below the
   player: the server resolves the rest of the fight in one request with the
-  built-in policy (heal below 35% HP, else the affordable skill with the most
-  expected damage, counting damage over time not yet on the target, else
-  attack). This keeps farming quick without removing the danger of
+  built-in policy (below 35% HP heal with a skill or else a healing draught,
+  else the affordable skill with the most expected damage, counting damage over
+  time not yet on the target, if it beats a basic attack, which is worth ×1.3
+  while a charge is loaded; else attack). This keeps farming quick without removing the danger of
   even-level mobs.
 
 ### Death
@@ -287,39 +296,74 @@ fear of dying is part of the genre.
 
 ## 7. Items
 
+Item data lives in `packages/shared/src/data/items.ts`, the rules in
+`packages/shared/src/items.ts`.
+
 ### Slots
 
-Weapon, head, chest, legs, gloves, boots. Accessories come later.
+Weapon, head, chest, legs, gloves, boots. Accessories come later. Equipment is
+made for one archetype: warriors wear mail and swords, mages robes and staves.
 
 ### Grades
 
-| Tier | Name | Required level | Weapon power | Armour per slot set |
+| Tier | Name | Item levels | Weapon power | Armour of a full set |
 | --- | --- | --- | --- | --- |
-| I | **Ironbound** | 1 | `4 + itemLevel` | `2 + 0.8·itemLevel` |
-| II | **Steelsworn** | 10 | `8 + itemLevel` | `4 + 0.8·itemLevel` |
+| I | **Ironbound** | 1–9 | `4 + itemLevel` | `2 + 0.8·itemLevel` |
+| II | **Steelsworn** | 10–20 | `8 + itemLevel` | `4 + 0.8·itemLevel` |
 
-Armour values are the total for a full set; each piece carries a share.
+Every piece has an **item level**; wearing it needs that character level (so
+Steelsworn needs at least 10). Each armour piece carries a share of the set's
+armour: chest 35%, legs 25%, head 15%, gloves and boots 12.5% each. A full common
+set of your own level is the gear the balance simulation assumes.
 
-### Until equipment exists
+Names: Ironbound Sword, Helm, Hauberk, Greaves, Gauntlets, Boots (warrior) and
+Staff, Hood, Robe, Breeches, Gloves, Shoes (mage); Steelsworn Blade, Helm,
+Cuirass, Greaves, Gauntlets, Sabatons and Staff, Cowl, Vestments, Leggings,
+Gloves, Boots.
 
-Stage 2 has no inventory yet. Until stage 3, every character fights with a
-**provisional starter kit**: weapon power and armour of Ironbound gear at the
-character's level (Steelsworn from level 10), the same gear the balance
-simulation assumes. Stage 3 replaces it with real equipped items.
+Characters from stage 2, who fought with a provisional kit of their level,
+were given that kit as worn common gear by the stage 3 migration.
 
 ### Rarity
 
-**Proposal: keep item rarity.** Common (×1.00), Uncommon (×1.08) and Rare
-(×1.16) multiply the item's base stats. Rare items also roll one small bonus
-(for example +2% crit or +3% max HP). Rarity is rolled on drops and crafts.
+**Proposal: keep item rarity** (built in stage 3, awaiting Aleh's confirmation).
+Common (×1.00), Uncommon (×1.08) and Rare (×1.16) multiply the item's base
+stats. Rare items also roll one bonus, +2% crit chance or +3% max HP, with equal
+odds. Dropped equipment is 80% common, 17% uncommon, 3% rare. Shop gear is
+always common; crafts will roll rarity in stage 4.
 
 ### Consumables
 
-- **Whetstone charges** (warriors) and **ember vials** (mages): each charge
-  boosts one basic attack by ×1.3. Bought or crafted per tier, toggled to
-  auto-use. They are the main coin sink.
+- **Whetstones** (warriors) and **ember vials** (mages), grades I and II: each
+  charge boosts one basic attack by ×1.3. A charge works only with a weapon of
+  the same grade. With auto-use on (the default), every matching charge in the
+  bag is loaded into each fight. They are the main coin sink.
 - **Healing draughts** and **mana draughts**: restore 30% of the bar,
   usable in and out of combat (in combat it takes the turn).
+
+### Inventory
+
+- The **bag** holds 40 stacks or pieces; worn gear does not count. Charges,
+  draughts and resources stack without limit.
+- The **warehouse** in Brackwell holds 60 per character and charges 2 silver
+  for each stack or piece stored; taking things out is free.
+- Loot that does not fit in the bag is left behind (the fight result lists it).
+
+### Loot
+
+Every won fight pays silver and rolls the mob's drop table, continuing the
+fight's own server-side RNG:
+
+- **Silver**: `(4 + L) · role · rand(0.8, 1.2)`, rounded; role ×1 normal, ×3
+  elite, ×15 boss.
+- **Resources**: each mob lists 2–3 resources with a chance per kill (20–50%),
+  usually 1, sometimes up to 2.
+- **Healing draught**: 3% on any kill.
+- **Equipment**: 3% normal, 20% elite, 100% boss. A random slot, for the
+  killer's archetype, with the mob's level as item level and a rarity roll.
+
+Mossgate Fields resources: Rough Hide, Bone Shard, Iron Scrap, Resin Lump,
+Marsh Herb. They are sold for now and feed crafting in stage 4.
 
 ## 8. Crafting
 
@@ -348,12 +392,32 @@ Currency: **silver**.
 - **Sources**: mob coin drops, quest rewards, selling items to NPCs.
 - **Sinks**: charges and draughts, crafting fees, recipes, warehouse storage
   fee, gear from the shop.
-- NPCs buy items at 30% of their shop price, so selling is a trickle, not an
-  income stream.
+- NPCs buy items at 30% of their value (at least 1 silver each), so selling is a
+  trickle, not an income stream.
 - Rule of thumb: an even-level kill should pay slightly more silver than the
-  charges it used, so hunting with charges is affordable but not free.
-  Exact drop tables are set in MVP stage 3 with a spreadsheet-style simulation
-  in tests.
+  charges it used, so hunting with charges is affordable but not free. The
+  economy test in `packages/shared/test/items.test.ts` checks that a warrior's
+  even-level kill pays 1.1–3.5× the charges spent on it at every level.
+  Currently warriors spend about 2 charges per fight: ratio 1.3 at level 1
+  rising to 3.2 at level 9, then 1.4 at level 10 rising to 2.2 at 20.
+
+### Brackwell market prices
+
+| Item | Price |
+| --- | --- |
+| Whetstone / Ember Vial (I) | 2 |
+| Whetstone / Ember Vial (II) | 5 |
+| Healing / Mana Draught | 10 |
+| Weapon, or a full armour set | `(4·iL² + 30)`, ×1.5 for Steelsworn |
+
+Armour pieces cost their share of the set. The market sells gear of item
+levels 1, 5, 10 and 15 (e.g. an iL 5 sword is 130, an iL 10 Steelsworn blade
+645). Uncommon items are valued ×1.5 and rare ×2.5 when sold. Resources are
+worth 3–6 silver.
+
+**Open question:** charges only boost basic attacks, and mages almost never
+make one while they have mana, so ember vials are close to useless for them
+and mages keep more of their silver than warriors.
 - Player trading is deferred, so there is no market to balance in the MVP.
 
 ## 10. Quests

@@ -42,14 +42,23 @@ applying racial passives to numbers (stage 2).
 - [x] Auto-battle for mobs 4+ levels below.
 
 Left for later: town services behind the Market, Smithy, Warehouse and Notice
-Board nodes; a provisional starter kit stands in for gear until stage 3.
+Board nodes (Market and Warehouse done in stage 3).
 
-## Stage 3 — Loot, gear and town
+## Stage 3 — Loot, gear and town (done)
 
-- Inventory, equipment slots, item tiers and rarity.
-- Mob drop tables for silver, resources and items.
-- Shop, warehouse.
-- Charges and draughts.
+- [x] Inventory (bag of 40), six equipment slots, Ironbound and Steelsworn
+      gear with item levels, rarity (Common, Uncommon, Rare with a bonus).
+- [x] Starter kit for new characters; stage 2 characters get their
+      provisional kit as real worn gear.
+- [x] Mob drop tables for silver, resources, draughts and equipment.
+- [x] Brackwell market (buy charges, draughts and gear; sell anything) and
+      warehouse (60 per character, storage fee).
+- [x] Charges with auto-use matched to the weapon's grade; healing and mana
+      draughts in and out of fights; auto-battle drinks when low.
+- [x] Economy test: silver per kill against charges spent.
+
+Left for later: account-wide warehouse, gear for the other archetype in drops,
+item icons (placeholders for now), the ember vial question in design.md §9.
 
 ## Stage 4 — Crafting and the rest of the world
 

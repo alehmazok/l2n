@@ -1,92 +1,38 @@
 /**
  * Game actions for one character: moving on the map, resting, hunting and
- * fighting. Every action runs inside `store.withCharacter`, so it sees a
- * consistent character and fight and commits atomically.
+ * fighting. Every action runs through `act` (see act.ts), so it sees a
+ * consistent character, fight and inventory and commits atomically.
  */
 import {
-  InvalidAction,
+  MOBS,
   NODES,
   autoResolve,
   buildMob,
   buildPlayer,
   canAutoBattle,
+  createRng,
+  gearStats,
   pickEncounter,
   playerInputFor,
   resolveRound,
   restedVitals,
+  rollLoot,
   settleFight,
   startFight,
   type Action,
-  type FightResult,
+  type DraughtId,
+  type NewItem,
 } from "@l2n/shared";
-import type { FastifyInstance, FastifyReply } from "fastify";
-import type { CharacterTx, Store, StoredFight } from "../store/index.js";
+import type { FastifyInstance } from "fastify";
+import type { Store } from "../store/index.js";
+import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
-import { fightView, gameView } from "./view.js";
-
-class GameError extends Error {
-  constructor(
-    readonly status: number,
-    readonly code: string,
-    message: string,
-  ) {
-    super(message);
-  }
-}
-
-const idParam = {
-  type: "object",
-  required: ["id"],
-  properties: { id: { type: "string", pattern: "^[1-9][0-9]{0,15}$" } },
-} as const;
+import { Inventory } from "./inventory.js";
 
 export async function gameRoutes(app: FastifyInstance, opts: { store: Store; random: () => number }) {
   const { store, random } = opts;
   app.addHook("preHandler", requireAccount);
-
-  /** Run one action on the caller's character and answer with the new game view. */
-  async function act(
-    req: { account: { id: number } | null; params: { id: string } },
-    reply: FastifyReply,
-    fn: (tx: CharacterTx) => Promise<FightResult | void>,
-  ) {
-    try {
-      const out = await store.withCharacter(req.account!.id, Number(req.params.id), async (tx) => {
-        // Track the latest character and fight so the answer reflects this action exactly.
-        let character = tx.character;
-        let fight = tx.fight;
-        let ended: StoredFight | undefined;
-        const tracked: CharacterTx = {
-          get character() {
-            return character;
-          },
-          get fight() {
-            return fight;
-          },
-          updateCharacter: async (p) => (character = await tx.updateCharacter(p)),
-          createFight: async (f) => (fight = await tx.createFight(f)),
-          saveFight: async (s) => {
-            const saved = await tx.saveFight(s);
-            fight = s.outcome === "ongoing" ? saved : undefined;
-            if (!fight) ended = saved;
-            return saved;
-          },
-        };
-        const result = await fn(tracked);
-        return { ...gameView(character, fight), ...(result && ended ? { result, ended: fightView(ended) } : {}) };
-      });
-      if (!out) return reply.code(404).send({ error: "not_found", message: "Character not found." });
-      return out;
-    } catch (err) {
-      if (err instanceof GameError) return reply.code(err.status).send({ error: err.code, message: err.message });
-      if (err instanceof InvalidAction) return reply.code(400).send({ error: "invalid_action", message: err.message });
-      throw err;
-    }
-  }
-
-  const notFighting = (tx: CharacterTx) => {
-    if (tx.fight) throw new GameError(409, "in_fight", "Finish the fight first.");
-  };
+  const act = makeAct(store);
 
   app.post<{ Params: { id: string }; Body: { to: string } }>(
     "/api/characters/:id/move",
@@ -112,7 +58,7 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
       notFighting(tx);
       const c = tx.character;
       if (NODES[c.location]?.kind !== "town") throw new GameError(400, "not_in_town", "You can only rest in town.");
-      await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level));
+      await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus));
     }),
   );
 
@@ -124,12 +70,14 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
       if (!node || node.kind !== "hunt") throw new GameError(400, "not_hunting_ground", "There is nothing to hunt here.");
       const mob = pickEncounter(node, c.level, random());
       const seed = Math.floor(random() * 2 ** 32);
-      const state = startFight(buildPlayer(playerInputFor(c)), buildMob(mob.name, mob.level, mob.role), seed);
+      const gear = gearStats(tx.items);
+      const loadout = await new Inventory(tx).packBelt(c, gear);
+      const state = startFight(buildPlayer(playerInputFor({ ...c, gear }, loadout)), buildMob(mob.name, mob.level, mob.role), seed);
       await tx.createFight({ mobId: mob.id, nodeId: node.id, state });
     }),
   );
 
-  app.post<{ Params: { id: string }; Body: { action: { type: string; skillId?: string } } }>(
+  app.post<{ Params: { id: string }; Body: { action: { type: string; skillId?: string; itemId?: DraughtId } } }>(
     "/api/characters/:id/fight",
     {
       schema: {
@@ -144,8 +92,9 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
               required: ["type"],
               additionalProperties: false,
               properties: {
-                type: { type: "string", enum: ["attack", "skill", "flee", "auto"] },
+                type: { type: "string", enum: ["attack", "skill", "item", "flee", "auto"] },
                 skillId: { type: "string", maxLength: 64 },
+                itemId: { type: "string", enum: ["healing_draught", "mana_draught"] },
               },
             },
           },
@@ -165,13 +114,32 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
           if (state.outcome === "ongoing") throw new GameError(500, "auto_stalled", "Auto-battle did not finish.");
         } else {
           if (a.type === "skill" && !a.skillId) throw new GameError(400, "invalid", "skillId is required for a skill.");
-          const action: Action = a.type === "skill" ? { type: "skill", skillId: a.skillId! } : { type: a.type as "attack" | "flee" };
+          if (a.type === "item" && !a.itemId) throw new GameError(400, "invalid", "itemId is required for an item.");
+          const action: Action =
+            a.type === "skill"
+              ? { type: "skill", skillId: a.skillId! }
+              : a.type === "item"
+                ? { type: "item", itemId: a.itemId! }
+                : { type: a.type as "attack" | "flee" };
           state = resolveRound(fight.state, action);
         }
         await tx.saveFight(state);
         if (state.outcome === "ongoing") return;
-        const { patch, result } = settleFight(tx.character, state);
-        await tx.updateCharacter(patch);
+
+        const inv = new Inventory(tx);
+        await inv.unpackBelt(state.player);
+        const c = tx.character;
+        const { patch, result } = settleFight({ ...c, gear: gearStats(tx.items) }, state);
+        const mob = MOBS[fight.mobId];
+        if (state.outcome === "won" && mob) {
+          // Loot rolls continue the fight's own RNG, which the client never sees.
+          const loot = rollLoot(mob, c, createRng(state.rngState));
+          const kept: NewItem[] = [];
+          const lost: NewItem[] = [];
+          for (const i of loot.items) ((await inv.put(i)) ? kept : lost).push(i);
+          result.loot = { silver: loot.silver, items: kept, lost };
+          await tx.updateCharacter({ ...patch, silver: c.silver + loot.silver });
+        } else await tx.updateCharacter(patch);
         return result;
       }),
   );

@@ -1,10 +1,10 @@
-import type { CharacterSummary, FightState } from "@l2n/shared";
+import { slotOf, type CharacterSummary, type FightState, type Item, type ItemLocation, type NewItem } from "@l2n/shared";
 import type pg from "pg";
-import type { Account, CharacterPatch, CharacterTx, NewCharacter, Store, StoredFight } from "./types.js";
+import type { Account, CharacterPatch, CharacterTx, ItemPatch, NewCharacter, Store, StoredFight } from "./types.js";
 
 const UNIQUE_VIOLATION = "23505";
 
-const CHARACTER_COLUMNS = `id, name, race, archetype, profession, level, xp, hp, resource, silver, location, created_at`;
+const CHARACTER_COLUMNS = `id, name, race, archetype, profession, level, xp, hp, resource, silver, location, auto_charges, created_at`;
 
 interface CharacterRow {
   id: string;
@@ -18,6 +18,7 @@ interface CharacterRow {
   resource: number;
   silver: string;
   location: string;
+  auto_charges: boolean;
   created_at: Date;
 }
 
@@ -33,6 +34,7 @@ const toCharacter = (r: CharacterRow): CharacterSummary => ({
   resource: r.resource,
   silver: Number(r.silver),
   location: r.location,
+  autoCharges: r.auto_charges,
   createdAt: r.created_at.toISOString(),
 });
 
@@ -54,6 +56,40 @@ const toFight = (r: FightRow): StoredFight => ({
   state: r.state,
 });
 
+interface ItemRow {
+  id: string;
+  template_id: string;
+  item_level: number | null;
+  rarity: Item["rarity"];
+  bonus: Item["bonus"];
+  quantity: number;
+  location: ItemLocation;
+}
+
+const ITEM_COLUMNS = "id, template_id, item_level, rarity, bonus, quantity, location";
+
+const toItem = (r: ItemRow): Item => ({
+  id: Number(r.id),
+  templateId: r.template_id,
+  itemLevel: r.item_level,
+  rarity: r.rarity,
+  bonus: r.bonus,
+  quantity: r.quantity,
+  location: r.location,
+});
+
+/** The slot column is set only while an item is worn (see migrations/004_items.sql). */
+const slotFor = (templateId: string, location: ItemLocation) => (location === "equipped" ? slotOf(templateId) : null);
+
+async function insertItem(client: pg.PoolClient, characterId: number, i: NewItem): Promise<Item> {
+  const { rows } = await client.query<ItemRow>(
+    `INSERT INTO items (character_id, template_id, item_level, rarity, bonus, quantity, location, slot)
+     VALUES ($1, $2, $3, $4, $5, $6, $7, $8) RETURNING ${ITEM_COLUMNS}`,
+    [characterId, i.templateId, i.itemLevel, i.rarity, i.bonus, i.quantity, i.location, slotFor(i.templateId, i.location)],
+  );
+  return toItem(rows[0]!);
+}
+
 /** Column names a CharacterPatch may set; keys are checked against this list before going into SQL. */
 const PATCH_COLUMNS: Record<keyof CharacterPatch, string> = {
   level: "level",
@@ -61,6 +97,8 @@ const PATCH_COLUMNS: Record<keyof CharacterPatch, string> = {
   hp: "hp",
   resource: "resource",
   location: "location",
+  silver: "silver",
+  autoCharges: "auto_charges",
 };
 
 export class PgStore implements Store {
@@ -143,6 +181,7 @@ export class PgStore implements Store {
          VALUES ($1, $2, $3, $4, $5, $6) RETURNING ${CHARACTER_COLUMNS}`,
         [n.accountId, n.name, n.race, n.archetype, n.hp, n.resource],
       );
+      for (const i of n.items) await insertItem(client, Number(rows[0]!.id), i);
       await client.query("COMMIT");
       return toCharacter(rows[0]!);
     } catch (err) {
@@ -160,6 +199,13 @@ export class PgStore implements Store {
       [characterId],
     );
     return rows[0] && toFight(rows[0]);
+  }
+
+  async listItems(characterId: number) {
+    const { rows } = await this.pool.query<ItemRow>(`SELECT ${ITEM_COLUMNS} FROM items WHERE character_id = $1 ORDER BY id`, [
+      characterId,
+    ]);
+    return rows.map(toItem);
   }
 
   async withCharacter<T>(accountId: number, id: number, fn: (tx: CharacterTx) => Promise<T>): Promise<T | undefined> {
@@ -180,6 +226,14 @@ export class PgStore implements Store {
         [id],
       );
       let fightId = ongoing.rows[0] ? Number(ongoing.rows[0].id) : undefined;
+      let items = (
+        await client.query<ItemRow>(`SELECT ${ITEM_COLUMNS} FROM items WHERE character_id = $1 ORDER BY id`, [id])
+      ).rows.map(toItem);
+      const known = (itemId: number) => {
+        const i = items.find((x) => x.id === itemId);
+        if (!i) throw new Error(`No item ${itemId}`);
+        return i;
+      };
       const tx: CharacterTx = {
         character: toCharacter(found.rows[0]),
         fight: ongoing.rows[0] && toFight(ongoing.rows[0]),
@@ -215,6 +269,30 @@ export class PgStore implements Store {
           );
           if (state.outcome !== "ongoing") fightId = undefined;
           return toFight(rows[0]!);
+        },
+        get items() {
+          return items.map((i) => ({ ...i }));
+        },
+        addItem: async (i) => {
+          const added = await insertItem(client, id, i);
+          items.push(added);
+          return { ...added };
+        },
+        updateItem: async (itemId, patch: ItemPatch) => {
+          const cur = known(itemId);
+          const location = patch.location ?? cur.location;
+          const { rows } = await client.query<ItemRow>(
+            `UPDATE items SET quantity = $2, location = $3, slot = $4 WHERE id = $1 RETURNING ${ITEM_COLUMNS}`,
+            [itemId, patch.quantity ?? cur.quantity, location, slotFor(cur.templateId, location)],
+          );
+          const updated = toItem(rows[0]!);
+          items = items.map((x) => (x.id === itemId ? updated : x));
+          return { ...updated };
+        },
+        deleteItem: async (itemId) => {
+          known(itemId);
+          await client.query("DELETE FROM items WHERE id = $1", [itemId]);
+          items = items.filter((x) => x.id !== itemId);
         },
       };
       const result = await fn(tx);

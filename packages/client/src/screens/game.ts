@@ -1,8 +1,12 @@
 import {
   ARCHETYPES,
+  ITEMS,
   MOBS,
   NODES,
+  OPEN_SERVICES,
   ZONES,
+  draughtsLeft,
+  itemName,
   manaRegen,
   nodeLevels,
   skillById,
@@ -10,9 +14,11 @@ import {
   type FightResult,
   type LogEntry,
   type PublicFightState,
+  type Slot,
 } from "@l2n/shared";
 import { api, ApiError, type FightAction, type GameView } from "../api.js";
-import { $, archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
+import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
+import { inventoryHtml, itemIcon, marketHtml, warehouseHtml } from "./items.js";
 
 /**
  * The main game screen for one character: status bars, then either the
@@ -71,8 +77,9 @@ export async function renderGame(root: HTMLElement, id: number) {
       ${fight ? fightHtml(view) : ""}
       ${last ? resultHtml(last.result, last.fight) : ""}
       ${fight ? "" : placeHtml(view)}
+      ${fight ? "" : inventoryHtml(c, view.items)}
       <details class="panel"><summary>Character sheet</summary>${sheetHtml(sheet)}
-        <p class="muted small">Until equipment arrives, attack and defence include a provisional starter kit of your level.</p>
+        <p class="muted small">Attack and defence include your worn gear.</p>
       </details>
       <p><a href="#/">← All characters</a></p>`;
 
@@ -82,13 +89,40 @@ export async function renderGame(root: HTMLElement, id: number) {
     root.querySelectorAll<HTMLButtonElement>("button[data-act]").forEach((b) =>
       b.addEventListener("click", () => {
         const t = b.dataset.act!;
-        const action: FightAction = t === "skill" ? { type: "skill", skillId: b.dataset.skill! } : { type: t as "attack" | "flee" | "auto" };
+        const action: FightAction =
+          t === "skill"
+            ? { type: "skill", skillId: b.dataset.skill! }
+            : t === "item"
+              ? { type: "item", itemId: b.dataset.draught as "healing_draught" | "mana_draught" }
+              : { type: t as "attack" | "flee" | "auto" };
         void run(() => api.act(id, action));
       }),
     );
+    root.querySelectorAll<HTMLButtonElement>("button[data-item]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const d = b.dataset;
+        const itemId = Number(d.id);
+        const qty = d.qty ? Number(d.qty) : undefined;
+        const calls: Record<string, () => Promise<GameView>> = {
+          equip: () => api.equip(id, itemId),
+          unequip: () => api.unequip(id, d.slot as Slot),
+          use: () => api.use(id, itemId),
+          buy: () => api.buy(id, d.stock!, qty),
+          sell: () => api.sell(id, itemId, qty),
+          deposit: () => api.deposit(id, itemId, qty),
+          withdraw: () => api.withdraw(id, itemId, qty),
+        };
+        const call = calls[d.item!];
+        if (call) void run(call);
+      }),
+    );
+    root.querySelector<HTMLInputElement>("input[data-item=charges]")?.addEventListener("change", (e) => {
+      const on = (e.target as HTMLInputElement).checked;
+      void run(() => api.settings(id, on));
+    });
     root.querySelector("#hunt")?.addEventListener("click", () => run(() => api.hunt(id)));
     root.querySelector("#rest")?.addEventListener("click", () => run(() => api.rest(id)));
-    root.querySelectorAll<HTMLButtonElement>("button").forEach((b) => {
+    root.querySelectorAll<HTMLButtonElement | HTMLInputElement>("button, input").forEach((b) => {
       if (busy && !b.classList.contains("link")) b.disabled = true;
     });
     const log = root.querySelector(".log");
@@ -124,15 +158,19 @@ function placeHtml(view: GameView) {
       <p class="muted small">${esc(zone.name)}${levels ? ` · levels ${levels[0]}–${levels[1]}` : " · safe"}</p>
       <h3>${esc(node.name)}</h3>
       <p>${esc(node.description)}</p>
-      ${node.service ? `<p class="muted small">${esc(node.service)}: opens in a later update.</p>` : ""}
+      ${node.service && !OPEN_SERVICES.includes(node.service) ? `<p class="muted small">${esc(SERVICE_NAMES[node.service])}: opens in a later update.</p>` : ""}
       ${mobs ? `<p class="small muted">Seen here:</p><ul class="small mobs">${mobs}</ul>` : ""}
       <div class="row">
         ${node.kind === "hunt" ? `<button id="hunt">Hunt</button>` : ""}
         ${node.kind === "town" ? `<button id="rest" ${full ? "disabled" : ""}>${full ? "Rested" : "Rest"}</button>` : ""}
       </div>
     </section>
+    ${node.service === "shop" ? marketHtml(c, view.items) : ""}
+    ${node.service === "warehouse" ? warehouseHtml(c, view.items) : ""}
     <section class="panel"><h3>Roads</h3><div class="roads">${roads}</div></section>`;
 }
+
+const SERVICE_NAMES = { shop: "Shop", warehouse: "Warehouse", crafting: "Crafting", quests: "Quests" } as const;
 
 const effectLabel = (e: Effect) => {
   switch (e.kind) {
@@ -166,6 +204,14 @@ function fightHtml(view: GameView) {
         `<button data-act="skill" data-skill="${esc(k.id)}" title="${esc(k.description)}" ${k.cost > available ? "disabled" : ""}>${esc(k.name)} <span class="small">${k.cost}</span></button>`,
     )
     .join("");
+  const draughts = (["healing_draught", "mana_draught"] as const)
+    .filter((d) => draughtsLeft(p, d) > 0)
+    .map(
+      (d) =>
+        `<button data-act="item" data-draught="${d}" class="quiet" title="${esc(ITEMS[d]!.description)}">${esc(ITEMS[d]!.name)} <span class="small">×${draughtsLeft(p, d)}</span></button>`,
+    )
+    .join("");
+  const charges = p.charges > 0 && p.chargeItem ? ` ${esc(ITEMS[p.chargeItem]?.name ?? "Charges")}: ${p.charges} left.` : "";
   const mob = MOBS[f.mobId];
   return `
     <section class="panel fight">
@@ -180,10 +226,11 @@ function fightHtml(view: GameView) {
       <div class="row actions">
         <button data-act="attack">Attack</button>
         ${skills}
+        ${draughts}
         <button data-act="flee" class="quiet">Flee</button>
         ${f.canAuto ? `<button data-act="auto" class="quiet" title="Resolve the whole fight at once">Auto-battle</button>` : ""}
       </div>
-      <p class="muted small">Round ${s.round}.${isMage ? ` Mana regenerates ${manaRegen(p.maxResource)} per turn.` : " Focus builds with each attack and each hit taken."}</p>
+      <p class="muted small">Round ${s.round}.${isMage ? ` Mana regenerates ${manaRegen(p.maxResource)} per turn.` : " Focus builds with each attack and each hit taken."}${charges}</p>
       ${logHtml(s)}
     </section>`;
 }
@@ -195,6 +242,12 @@ function resultHtml(r: FightResult, s: PublicFightState) {
   if (r.outcome === "lost")
     lines.push(`<b class="bad">You have fallen</b> to ${esc(s.enemy.name)}.${r.xpLost ? ` You lose ${r.xpLost} XP.` : ""} You wake up in Brackwell Square, bruised.`);
   if (r.levelsGained) lines.push(`<b class="good">Level up!</b> You are now level ${r.level}. HP and Mana are restored.`);
+  if (r.loot) {
+    const got = r.loot.items.map((i) => `${itemIcon(i)} ${esc(itemName(i))}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`);
+    lines.push(`Loot: ${[`${r.loot.silver} silver`, ...got].join(", ")}.`);
+    if (r.loot.lost.length)
+      lines.push(`<span class="bad">Your bag is full. Left behind: ${r.loot.lost.map((i) => esc(itemName(i))).join(", ")}.</span>`);
+  }
   return `<section class="panel result">${lines.map((l) => `<p>${l}</p>`).join("")}
     <details><summary class="small">Fight log</summary>${logHtml(s)}</details></section>`;
 }
@@ -216,6 +269,8 @@ function describe(e: LogEntry, s: PublicFightState): string {
       return e.who === "player" ? `Your ${esc(skillName(e.source))} misses.` : `${enemy} misses.`;
     case "heal":
       return `${esc(skillName(e.source))}: you recover <b class="good">${e.amount}</b> HP.`;
+    case "draught":
+      return `You drink a ${esc(ITEMS[e.item]?.name ?? "draught")}: <b class="good">+${e.amount}</b> ${e.item === "healing_draught" ? "HP" : "Mana"}.`;
     case "flee":
       return e.success ? "You escape." : "You fail to escape.";
     case "stun":

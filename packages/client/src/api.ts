@@ -1,4 +1,4 @@
-import type { ArchetypeId, CharacterSheet, CharacterSummary, FightResult, PublicFightState, RaceId } from "@l2n/shared";
+import type { ArchetypeId, CharacterSheet, CharacterSummary, DraughtId, FightResult, Item, PublicFightState, RaceId, Slot } from "@l2n/shared";
 
 export class ApiError extends Error {
   constructor(
@@ -44,12 +44,17 @@ export interface FightView {
 }
 /** Answer to every game action: the character after it, and the fight in progress if any. */
 export interface GameView extends CharacterWithSheet {
+  /** Everything the character owns: worn, in the bag and in the warehouse. */
+  items: Item[];
   fight: FightView | null;
   /** Present when the action ended a fight: what it gave or cost, and its final state. */
   result?: FightResult;
   ended?: FightView;
 }
-export type FightAction = { type: "attack" | "flee" | "auto" } | { type: "skill"; skillId: string };
+export type FightAction =
+  | { type: "attack" | "flee" | "auto" }
+  | { type: "skill"; skillId: string }
+  | { type: "item"; itemId: DraughtId };
 
 export const api = {
   me: () => call<{ account: AccountInfo }>("GET", "/api/auth/me"),
@@ -64,4 +69,14 @@ export const api = {
   rest: (id: number) => call<GameView>("POST", `/api/characters/${id}/rest`),
   hunt: (id: number) => call<GameView>("POST", `/api/characters/${id}/hunt`),
   act: (id: number, action: FightAction) => call<GameView>("POST", `/api/characters/${id}/fight`, { action }),
+  equip: (id: number, itemId: number) => call<GameView>("POST", `/api/characters/${id}/equip`, { itemId }),
+  unequip: (id: number, slot: Slot) => call<GameView>("POST", `/api/characters/${id}/unequip`, { slot }),
+  use: (id: number, itemId: number) => call<GameView>("POST", `/api/characters/${id}/use`, { itemId }),
+  buy: (id: number, stockId: string, quantity = 1) => call<GameView>("POST", `/api/characters/${id}/buy`, { stockId, quantity }),
+  sell: (id: number, itemId: number, quantity?: number) => call<GameView>("POST", `/api/characters/${id}/sell`, { itemId, quantity }),
+  deposit: (id: number, itemId: number, quantity?: number) =>
+    call<GameView>("POST", `/api/characters/${id}/deposit`, { itemId, quantity }),
+  withdraw: (id: number, itemId: number, quantity?: number) =>
+    call<GameView>("POST", `/api/characters/${id}/withdraw`, { itemId, quantity }),
+  settings: (id: number, autoCharges: boolean) => call<GameView>("POST", `/api/characters/${id}/settings`, { autoCharges }),
 };
