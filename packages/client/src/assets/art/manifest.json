@@ -15,7 +15,7 @@
     "promptCharacterLimit": 7500,
     "why": "The model of the icon set, tried first so the art matches it. Swap with --model if it does not hold the style on faces and wide scenes."
   },
-  "generatedWith": "Venice Studio web app (venice.ai/studio/image), Z-Image Turbo, prompt enhancement off, fixed seed, no style preset, PNG; 1:1 for mobs and portraits, 16:9 (1280x720) for the scene. Steps are the model default (8), not shown in Studio. Made on pay-per-use credits after the daily free quota ran out, so the images carry no Venice watermark and need no crop. The Old Road scene comes out with a thin parchment frame round the picture, which its cropInset of 0.05 removes. Its subject was reworded on 2026-11-25 from a plain village (which came out as modern houses) to medieval timber-framed cottages and a stone watchtower, and its lantern post (which came out as a modern street lamp) to a rough wooden post with an iron lantern on a hook; seed 3002 is used because 3001 of the first wording drew a fake printer's caption under the frame. Mobs and portraits were made on 2026-11-25 the same way. The first mob prompt asked for 'warm lantern light' and for 'no glow, no halo, no white outline and no sticker border'; Z-Image Turbo drew a lantern beside every creature and a thick cream sticker outline round it, and most beasts came out cute. The mob prompt now says 'warm amber light', drops that sentence, opens with 'Dark fantasy bestiary illustration' and asks for a menacing creature with realistic proportions. A failed image was tried again with seed+1, at most three tries. Subjects reworded after two cute or off-subject tries: mangy_cur (a healthy dog), burrow_mole (a cute plush mole) and ember_revenant (a plain knight holding a torch). drowned_scavenger came out inside a parchment frame on all three tries, so its cropInset of 0.06 removes the frame. ashen_warden came out as a plain knight with a lantern on Z-Image Turbo twice, so it was made with Flux 2 Pro (flux-2-pro, 3 Studio credits, US$0.03 by API), which has no PNG option in Studio and returned a JPEG.",
+  "generatedWith": "Venice Studio web app (venice.ai/studio/image), Z-Image Turbo, prompt enhancement off, fixed seed, no style preset, PNG; 1:1 for mobs and portraits, 16:9 (1280x720) for the scene. Steps are the model default (8), not shown in Studio. Made on pay-per-use credits after the daily free quota ran out, so the images carry no Venice watermark and need no crop. The Old Road scene comes out with a thin parchment frame round the picture, which its cropInset of 0.05 removes. Its subject was reworded on 2026-11-25 from a plain village (which came out as modern houses) to medieval timber-framed cottages and a stone watchtower, and its lantern post (which came out as a modern street lamp) to a rough wooden post with an iron lantern on a hook; seed 3002 is used because 3001 of the first wording drew a fake printer's caption under the frame. Mobs and portraits were made on 2026-11-25 the same way. The first mob prompt asked for 'warm lantern light' and for 'no glow, no halo, no white outline and no sticker border'; Z-Image Turbo drew a lantern beside every creature and a thick cream sticker outline round it, and most beasts came out cute. The mob prompt now says 'warm amber light', drops that sentence, opens with 'Dark fantasy bestiary illustration' and asks for a menacing creature with realistic proportions. A failed image was tried again with seed+1, at most three tries. Subjects reworded after two cute or off-subject tries: mangy_cur (a healthy dog), burrow_mole (a cute plush mole) and ember_revenant (a plain knight holding a torch). drowned_scavenger came out inside a parchment frame on all three tries, so its cropInset of 0.06 removes the frame. ashen_warden came out as a plain knight with a lantern on Z-Image Turbo twice, so it was made with Flux 2 Pro (flux-2-pro, 3 Studio credits, US$0.03 by API), which has no PNG option in Studio and returned a JPEG. The other 13 scenes and the map were made on 2026-11-25 the same way. Most scenes came out inside a parchment frame thicker than 5% of the height, so their cropInset is raised to clear the frame and its ink line (up to 0.09 for the Warden's Crypt). The market and the crypt drew a faint signature in the frame on their first seed: the market was made again with seed+1, and the crypt keeps its first seed because the crop removes the mark and its retry was a plainer niche with the throne in the lower middle. The notice board drew a modern asphalt road and fake lettering on the notices on all three tries (seeds 3105 to 3107), so its subject was reworded to a muddy dirt track and blank parchment sheets and made with seed 1105. The map on Z-Image Turbo had white lines like roads between the fields and saturated colours on all three tries (seeds 5001 to 5003), so it was made with Nano Banana 2.1 (nano-banana-2-1, 10 Studio credits, US$0.10 by API at 1K), seed 5001; Studio has no switch for its prompt enhancement (it is built in), and it returns 1376x768 at 16:9.",
   "images": [
     {
       "id": "mire_rat",
@@ -702,15 +702,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3101
+        "seed": 3101,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.07,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "brackwell_market",
@@ -723,15 +726,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3102
+        "seed": 3103,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.055,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "brackwell_smithy",
@@ -744,7 +750,10 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3103
+        "seed": 3103,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
         "cropInset": 0.05,
@@ -752,7 +761,7 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "brackwell_warehouse",
@@ -765,28 +774,34 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3104
+        "seed": 3104,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.06,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "brackwell_notice_board",
       "kind": "scene",
-      "subject": "a big weathered wooden notice board under a small shingle roof at the side of a village lane, covered three deep in pinned parchment notices and bounty sheets, a lantern on a hook beside it",
+      "subject": "a big weathered wooden notice board under a small shingle roof beside a muddy rutted dirt track at the edge of a medieval village, covered three deep in pinned blank torn parchment sheets with rusty nails, an old iron lantern on a hook beside it, tall weeds around its posts",
       "file": "scenes/brackwell_notice_board.webp",
       "model": "z-image-turbo",
-      "prompt": "Game location illustration, wide view at dusk: a big weathered wooden notice board under a small shingle roof at the side of a village lane, covered three deep in pinned parchment notices and bounty sheets, a lantern on a hook beside it. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "prompt": "Game location illustration, wide view at dusk: a big weathered wooden notice board under a small shingle roof beside a muddy rutted dirt track at the edge of a medieval village, covered three deep in pinned blank torn parchment sheets with rusty nails, an old iron lantern on a hook beside it, tall weeds around its posts. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
       "parameters": {
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3105
+        "seed": 1105,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
         "cropInset": 0.05,
@@ -794,7 +809,7 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "mossgate_drowned_mill",
@@ -807,15 +822,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3106
+        "seed": 3106,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.075,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "mossgate_burrows",
@@ -828,15 +846,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3107
+        "seed": 3107,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.075,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "thornwood_bramble_edge",
@@ -849,7 +870,10 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3108
+        "seed": 3108,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
         "cropInset": 0.05,
@@ -857,7 +881,7 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "thornwood_spider_dell",
@@ -870,15 +894,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3109
+        "seed": 3109,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.055,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "thornwood_hermits_rise",
@@ -891,15 +918,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3110
+        "seed": 3110,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.06,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "cinder_ash_gate",
@@ -912,7 +942,10 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3111
+        "seed": 3111,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
         "cropInset": 0.05,
@@ -920,7 +953,7 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "cinder_bone_gallery",
@@ -933,15 +966,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3112
+        "seed": 3112,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.06,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "cinder_wardens_crypt",
@@ -954,15 +990,18 @@
         "width": 1280,
         "height": 720,
         "steps": 8,
-        "seed": 3113
+        "seed": 3113,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
-        "cropInset": 0.05,
+        "cropInset": 0.09,
         "size": 960,
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     },
     {
       "id": "human_warrior",
@@ -1185,13 +1224,16 @@
       "kind": "map",
       "subject": "a frontier land: in the west a small village among ploughed fields, in the north-west a marsh with a river and a ruined mill, a low hill full of burrows in the north, a wide dark thorny forest across the middle and the south, a rocky hill in the south-east, and in the east grey ash hills dotted with burial mounds and a ruined gate",
       "file": "maps/hollowreach.webp",
-      "model": "z-image-turbo",
+      "model": "nano-banana-2-1",
       "prompt": "Backdrop for a fantasy game world map, seen from high above like an old hand-printed map: a frontier land: in the west a small village among ploughed fields, in the north-west a marsh with a river and a ruined mill, a low hill full of burrows in the north, a wide dark thorny forest across the middle and the south, a rocky hill in the south-east, and in the east grey ash hills dotted with burial mounds and a ruined gate. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Printed on aged parchment, muted and low in contrast, with soft edges that fade into the parchment, so that markers drawn on top stay easy to read. No roads, no paths, no text, no letters, no labels, no compass rose, no border, no frame.",
       "parameters": {
-        "width": 1280,
-        "height": 720,
-        "steps": 8,
-        "seed": 5001
+        "width": 1376,
+        "height": 768,
+        "seed": 5001,
+        "resolution": "1K",
+        "enhancePrompt": "built-in",
+        "stylePreset": null,
+        "format": "png"
       },
       "postprocess": {
         "cropInset": 0.05,
@@ -1199,7 +1241,7 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": null
+      "generated": "2026-11-25"
     }
   ]
 }
