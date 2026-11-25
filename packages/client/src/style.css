@@ -214,9 +214,9 @@ ul.mobs:has(.mob-thumb) { list-style: none; padding-left: 0; display: flex; flex
 .place { position: absolute; transform: translate(-50%, -11px); display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 0; border: none; background: none; color: var(--text); font: inherit; min-width: 44px; }
 button.place { cursor: pointer; }
 .place .pin { width: 22px; height: 22px; border-radius: 50%; border: 2px solid #1b1712; background: #8a7a5c; box-shadow: 0 2px 4px rgb(0 0 0 / 0.6); }
-.place .name { font-size: 0.72em; line-height: 1.2; white-space: nowrap; padding: 0 4px; border-radius: 3px; background: rgb(27 23 18 / 0.72); }
+.place .name { font-size: 0.72em; line-height: 1.2; white-space: nowrap; padding: 0 4px; border-radius: 3px; background: rgb(27 23 18 / 0.85); }
 .place .lv { color: var(--muted); }
-.place-far { opacity: 0.8; }
+.place-far .pin { opacity: 0.85; }
 .place-far .name { color: var(--muted); }
 .place-near .pin { background: var(--accent); box-shadow: 0 0 0 3px rgb(216 180 106 / 0.3), 0 2px 4px rgb(0 0 0 / 0.6); }
 .place-near:hover .pin, .place-near:focus-visible .pin { box-shadow: 0 0 0 5px rgb(216 180 106 / 0.5); }

@@ -9,16 +9,16 @@ import { ART } from "./art.js";
 import { esc } from "./ui.js";
 
 export const MAP_PLACES: Record<string, { x: number; y: number; label?: string }> = {
-  brackwell_square: { x: 12, y: 60, label: "Brackwell" },
+  brackwell_square: { x: 12, y: 54, label: "Brackwell" },
   mossgate_old_road: { x: 28, y: 38 },
-  mossgate_drowned_mill: { x: 44, y: 15 },
-  mossgate_burrows: { x: 58, y: 40 },
+  mossgate_drowned_mill: { x: 38, y: 20 },
+  mossgate_burrows: { x: 58, y: 14 },
   thornwood_bramble_edge: { x: 37, y: 67 },
   thornwood_spider_dell: { x: 56, y: 80 },
-  thornwood_hermits_rise: { x: 76, y: 66 },
-  cinder_ash_gate: { x: 85, y: 44 },
-  cinder_bone_gallery: { x: 73, y: 24 },
-  cinder_wardens_crypt: { x: 80, y: 8 },
+  thornwood_hermits_rise: { x: 78, y: 70 },
+  cinder_ash_gate: { x: 88, y: 28 },
+  cinder_bone_gallery: { x: 80, y: 46 },
+  cinder_wardens_crypt: { x: 82, y: 9 },
 };
 
 /** The place on the map a node belongs to: itself, or the square for the other town nodes. */
