@@ -45,5 +45,6 @@ export function sheetHtml(s: CharacterSheet) {
       </table>
     </div>
     <p><b>${esc(s.passive.name)}</b>: ${esc(s.passive.description)}</p>
+    ${s.professionPassive ? `<p><b>${esc(s.professionPassive.name)}</b>: ${esc(s.professionPassive.description)}</p>` : ""}
     <ul class="skills">${s.skills.learned.map((k) => skill(k, true)).join("")}${s.skills.upcoming.map((k) => skill(k, false)).join("")}</ul>`;
 }

@@ -26,18 +26,20 @@ import {
   type MobRole,
 } from "./formulas.js";
 import { between, createRng, roll, type Rng } from "./rng.js";
-import type { ArchetypeId, Skill, Stats } from "./types.js";
+import type { ArchetypeId, DotName, Skill, Stats } from "./types.js";
 import type { DraughtId } from "./data/items.js";
 
 /**
  * Status effects. Buffs (`attack_up`, `guard`, `shield`) last for the rest of
  * the round they are cast in plus `turns` more rounds; `fresh` marks the cast
  * round. A dot ticks at the end of each round, `turns` ticks in total,
- * starting with the round it is applied in.
+ * starting with the round it is applied in. A `weaken` curse on the enemy
+ * lowers its next `turns` attacks.
  */
 export type Effect =
   | { kind: "stun"; source: string }
-  | { kind: "dot"; name: "bleed" | "burn"; amount: number; turns: number; source: string }
+  | { kind: "dot"; name: DotName; amount: number; turns: number; source: string }
+  | { kind: "weaken"; value: number; turns: number; source: string }
   | { kind: "attack_up"; value: number; turns: number; source: string; fresh?: boolean }
   | { kind: "guard"; value: number; turns: number; source: string; fresh?: boolean }
   | { kind: "shield"; amount: number; turns: number; source: string; fresh?: boolean };
@@ -66,6 +68,8 @@ export interface PlayerCombatant extends Combatant {
   chargeItem?: string;
   /** Draughts carried into the fight. Missing on fights started before stage 3. */
   draughts?: Partial<Record<DraughtId, number>>;
+  /** Extra damage over time from the Hexbinder passive. Missing before stage 5. */
+  dotBonus?: number;
 }
 
 export type Action =
@@ -84,9 +88,10 @@ export type LogEntry =
   | { t: "flee"; success: boolean }
   | { t: "stun"; source: string }
   | { t: "stunned" }
-  | { t: "dot"; name: "bleed" | "burn"; amount: number }
+  | { t: "dot"; name: DotName; amount: number }
   | { t: "buff"; kind: "attack_up" | "guard" | "shield"; source: string; amount?: number }
-  | { t: "fade"; kind: "attack_up" | "guard" | "shield" };
+  | { t: "curse"; kind: "weaken"; source: string }
+  | { t: "fade"; kind: "attack_up" | "guard" | "shield" | "weaken" };
 
 export type Outcome = "ongoing" | "won" | "lost" | "fled";
 
@@ -117,6 +122,9 @@ export interface PlayerInput {
   critBonus?: number;
   damageBonus?: number;
   hpBonus?: number;
+  /** Defence multiplier bonus, e.g. 0.1 for +10% (professions). */
+  defenceBonus?: number;
+  dotBonus?: number;
   /** Current HP and Mana carried into the fight; default full. Focus always starts at 0. */
   hp?: number;
   mana?: number;
@@ -134,7 +142,7 @@ export function buildPlayer(p: PlayerInput): PlayerCombatant {
     hp: Math.max(1, clampTo(p.hp, max)),
     maxHp: max,
     atk: attackPower(p.level, p.stats[a.mainStat], p.weaponPower),
-    def: defensePower(p.level, p.stats.vitality, p.armour),
+    def: defensePower(p.level, p.stats.vitality, p.armour) * (1 + (p.defenceBonus ?? 0)),
     agility: p.stats.agility,
     critBonus: p.critBonus ?? 0,
     damageBonus: p.damageBonus ?? 0,
@@ -145,6 +153,7 @@ export function buildPlayer(p: PlayerInput): PlayerCombatant {
     charges: p.charges,
     ...(p.chargeItem && p.charges > 0 ? { chargeItem: p.chargeItem } : {}),
     ...(p.draughts ? { draughts: { ...p.draughts } } : {}),
+    ...(p.dotBonus ? { dotBonus: p.dotBonus } : {}),
   };
 }
 
@@ -171,7 +180,7 @@ export function startFight(player: PlayerCombatant, enemy: Combatant, seed: numb
 export class InvalidAction extends Error {}
 
 const attackMultiplier = (c: Combatant) =>
-  c.effects.reduce((m, e) => (e.kind === "attack_up" ? m * (1 + e.value) : m), 1);
+  c.effects.reduce((m, e) => (e.kind === "attack_up" ? m * (1 + e.value) : e.kind === "weaken" ? m * (1 - e.value) : m), 1);
 
 function strike(rng: Rng, att: Combatant, def: Combatant, power: number): { hit: boolean; amount: number; crit: boolean } {
   if (!roll(rng, hitChance(att.agility, def.agility, att.level - def.level))) {
@@ -230,7 +239,7 @@ function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combat
       log.push({ t: "buff", kind: b.kind, source: skill.id });
     }
   }
-  if (!e.damage && !e.dot) return;
+  if (!e.damage && !e.dot && !e.weaken) return;
 
   // Offensive part: one hit roll decides the damage and every rider.
   let landed: boolean;
@@ -241,6 +250,11 @@ function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combat
     if (r.hit) {
       enemy.hp -= r.amount;
       log.push({ t: "hit", who: "player", amount: r.amount, crit: r.crit, source: skill.id });
+      if (e.drain !== undefined) {
+        const amount = Math.min(player.maxHp - player.hp, Math.round(r.amount * e.drain));
+        player.hp += amount;
+        log.push({ t: "heal", amount, source: skill.id });
+      }
     } else log.push({ t: "miss", who: "player", source: skill.id });
   } else {
     landed = roll(rng, hitChance(player.agility, enemy.agility, player.level - enemy.level));
@@ -253,9 +267,17 @@ function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combat
   }
   if (e.dot) {
     const d = e.dot;
-    const amount = Math.max(1, Math.round(baseDamage(player.atk * attackMultiplier(player), enemy.def, d.power * boost) * (1 + player.damageBonus)));
+    const amount = Math.max(
+      1,
+      Math.round(baseDamage(player.atk * attackMultiplier(player), enemy.def, d.power * boost) * (1 + player.damageBonus) * (1 + (player.dotBonus ?? 0))),
+    );
     enemy.effects = enemy.effects.filter((x) => !(x.kind === "dot" && x.name === d.name));
     enemy.effects.push({ kind: "dot", name: d.name, amount, turns: d.turns, source: skill.id });
+  }
+  if (e.weaken) {
+    enemy.effects = enemy.effects.filter((x) => x.kind !== "weaken");
+    enemy.effects.push({ kind: "weaken", value: e.weaken.value, turns: e.weaken.turns, source: skill.id });
+    log.push({ t: "curse", kind: "weaken", source: skill.id });
   }
 }
 
@@ -292,12 +314,14 @@ function enemyTurn(rng: Rng, player: PlayerCombatant, enemy: Combatant, isMage: 
 
 function endOfRound(player: PlayerCombatant, enemy: Combatant, log: LogEntry[]) {
   for (const e of enemy.effects) {
+    if (e.kind === "weaken") e.turns -= 1;
     if (e.kind !== "dot") continue;
     enemy.hp -= e.amount;
     e.turns -= 1;
     log.push({ t: "dot", name: e.name, amount: e.amount });
   }
-  enemy.effects = enemy.effects.filter((e) => e.kind !== "dot" || e.turns > 0);
+  for (const e of enemy.effects) if (e.kind === "weaken" && e.turns <= 0) log.push({ t: "fade", kind: "weaken" });
+  enemy.effects = enemy.effects.filter((e) => (e.kind !== "dot" && e.kind !== "weaken") || e.turns > 0);
   const kept: Effect[] = [];
   for (const e of player.effects) {
     if (e.kind === "attack_up" || e.kind === "guard" || e.kind === "shield") {

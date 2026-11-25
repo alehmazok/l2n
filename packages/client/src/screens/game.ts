@@ -1,6 +1,9 @@
 import {
   ARCHETYPES,
   ITEMS,
+  PROFESSIONS,
+  QUESTS,
+  challengeAt,
   MOBS,
   NODES,
   OPEN_SERVICES,
@@ -14,12 +17,14 @@ import {
   type Effect,
   type FightResult,
   type LogEntry,
+  type ProfessionId,
   type PublicFightState,
   type Slot,
 } from "@l2n/shared";
-import { api, ApiError, type CraftResult, type FightAction, type GameView } from "../api.js";
+import { api, ApiError, type CraftResult, type FightAction, type GameView, type QuestResult } from "../api.js";
 import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
 import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
+import { boardHtml, questResultHtml, trackerHtml } from "./quests.js";
 
 /**
  * The main game screen for one character: status bars, then either the
@@ -40,6 +45,7 @@ export async function renderGame(root: HTMLElement, id: number) {
 
   let last: { result: FightResult; fight: PublicFightState } | null = null;
   let crafted: CraftResult | null = null;
+  let quested: QuestResult | null = null;
   let busy = false;
   let error = "";
 
@@ -54,6 +60,7 @@ export async function renderGame(root: HTMLElement, id: number) {
       if (next.result && next.ended) last = { result: next.result, fight: next.ended.state };
       else if (next.fight) last = null;
       crafted = next.craft ?? null;
+      quested = next.quest ?? null;
       view = next;
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
@@ -70,7 +77,7 @@ export async function renderGame(root: HTMLElement, id: number) {
         <div class="row head">
           ${portrait(c.race, c.name)}
           <div class="grow"><h2>${esc(c.name)}</h2>
-          <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(archetypeName(c.archetype))} · ${c.silver} silver</span></div>
+          <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(c.profession ? PROFESSIONS[c.profession].name : archetypeName(c.archetype))} · ${c.silver} silver</span></div>
         </div>
         ${bar("HP", c.hp, sheet.maxHp, "hp")}
         ${sheet.resource.kind === "mana" ? bar("Mana", c.resource, sheet.resource.max, "mana") : ""}
@@ -80,7 +87,9 @@ export async function renderGame(root: HTMLElement, id: number) {
       ${fight ? fightHtml(view) : ""}
       ${last ? resultHtml(last.result, last.fight) : ""}
       ${crafted && !fight ? craftHtml(crafted) : ""}
+      ${quested && !fight ? questResultHtml(quested) : ""}
       ${fight ? "" : placeHtml(view)}
+      ${fight || NODES[c.location]?.service === "quests" ? "" : trackerHtml(c, view.items)}
       ${fight ? "" : inventoryHtml(c, view.items)}
       <details class="panel"><summary>Character sheet</summary>${sheetHtml(sheet)}
         <p class="muted small">Attack and defence include your worn gear.</p>
@@ -119,6 +128,14 @@ export async function renderGame(root: HTMLElement, id: number) {
         };
         const call = calls[d.item!];
         if (call) void run(call);
+      }),
+    );
+    root.querySelectorAll<HTMLButtonElement>("button[data-quest]").forEach((b) =>
+      b.addEventListener("click", () => {
+        const { quest, id: questId, profession } = b.dataset;
+        if (quest === "accept") void run(() => api.acceptQuest(id, questId!));
+        if (quest === "abandon") void run(() => api.abandonQuest(id, questId!));
+        if (quest === "complete") void run(() => api.completeQuest(id, questId!, profession as ProfessionId | undefined));
       }),
     );
     root.querySelector<HTMLInputElement>("input[data-item=charges]")?.addEventListener("change", (e) => {
@@ -162,7 +179,7 @@ function placeHtml(view: GameView) {
     .map((m) => MOBS[m]!)
     .map((m) => `<li>${esc(m.name)} <span class="muted small">L${m.level}${m.role === "elite" ? " · elite" : ""}</span></li>`)
     .join("");
-  const boss = node.boss ? MOBS[node.boss] : undefined;
+  const boss = challengeAt(node, c.quests);
   return `
     <section class="panel">
       <p class="muted small">${esc(zone.name)}${levels ? ` · levels ${levels[0]}–${levels[1]}` : " · safe"}</p>
@@ -171,15 +188,17 @@ function placeHtml(view: GameView) {
       ${node.service && !OPEN_SERVICES.includes(node.service) ? `<p class="muted small">${esc(SERVICE_NAMES[node.service])}: opens in a later update.</p>` : ""}
       ${mobs ? `<p class="small muted">Seen here:</p><ul class="small mobs">${mobs}</ul>` : ""}
       ${boss ? `<p class="small">${esc(boss.description)} Come prepared: charges, draughts and a full bar.</p>` : ""}
+      ${node.questFoe && !boss ? `<p class="small muted">Fresh earth is heaped by a tunnel far larger than the rest.</p>` : ""}
       <div class="row">
         ${node.kind === "hunt" ? `<button id="hunt">Hunt</button>` : ""}
-        ${boss ? `<button id="challenge" class="danger" title="${esc(boss.description)}">Challenge ${esc(boss.name)} <span class="small">L${boss.level} boss</span></button>` : ""}
+        ${boss ? `<button id="challenge" class="danger" title="${esc(boss.description)}">Challenge ${esc(boss.name)} <span class="small">L${boss.level} ${boss.role}</span></button>` : ""}
         ${node.kind === "town" ? `<button id="rest" ${full ? "disabled" : ""}>${full ? "Rested" : "Rest"}</button>` : ""}
       </div>
     </section>
     ${node.service === "shop" ? marketHtml(c, view.items) : ""}
     ${node.service === "warehouse" ? warehouseHtml(c, view.items) : ""}
     ${node.service === "crafting" ? smithyHtml(c, view.items) : ""}
+    ${node.service === "quests" ? boardHtml(c, view.items) : ""}
     <section class="panel"><h3>Roads</h3><div class="roads">${roads}</div></section>`;
 }
 
@@ -191,6 +210,8 @@ const effectLabel = (e: Effect) => {
       return "stunned";
     case "dot":
       return `${e.name} ${e.turns}`;
+    case "weaken":
+      return `weakened −${Math.round(e.value * 100)}% (${e.turns})`;
     case "attack_up":
       return `attack +${Math.round(e.value * 100)}% (${e.turns})`;
     case "guard":
@@ -255,6 +276,12 @@ function resultHtml(r: FightResult, s: PublicFightState) {
   if (r.outcome === "lost")
     lines.push(`<b class="bad">You have fallen</b> to ${esc(s.enemy.name)}.${r.xpLost ? ` You lose ${r.xpLost} XP.` : ""} You wake up in Brackwell Square, bruised.`);
   if (r.levelsGained) lines.push(`<b class="good">Level up!</b> You are now level ${r.level}. HP and Mana are restored.`);
+  if (r.quests?.length)
+    lines.push(
+      r.outcome === "lost"
+        ? `<span class="bad">Quest set back: ${r.quests.map((q) => esc(QUESTS[q]?.name ?? q)).join(", ")}.</span>`
+        : `Quest progress: ${r.quests.map((q) => esc(QUESTS[q]?.name ?? q)).join(", ")}.`,
+    );
   if (r.loot) {
     const got = r.loot.items.map((i) => `${itemIcon(i)} ${esc(itemName(i))}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`);
     lines.push(`Loot: ${[`${r.loot.silver} silver`, ...got].join(", ")}.`);
@@ -302,11 +329,15 @@ function describe(e: LogEntry, s: PublicFightState): string {
     case "stunned":
       return `${enemy} is stunned and loses its turn.`;
     case "dot":
-      return `${enemy} takes <b>${e.amount}</b> from ${e.name === "bleed" ? "bleeding" : "the burn"}.`;
+      return `${enemy} takes <b>${e.amount}</b> from ${e.name === "bleed" ? "bleeding" : e.name === "burn" ? "the burn" : "the blight"}.`;
+    case "curse":
+      return `${esc(skillName(e.source))}: ${enemy} is weakened.`;
     case "buff":
       return `${esc(skillName(e.source))}: ${e.kind === "shield" ? `a ward absorbs the next ${e.amount} damage` : e.kind === "guard" ? "you brace yourself" : "your attacks grow stronger"}.`;
     case "fade":
-      return `<span class="muted">${e.kind === "shield" ? "Your ward fades." : e.kind === "guard" ? "Your guard drops." : "Your war cry fades."}</span>`;
+      return `<span class="muted">${
+        e.kind === "shield" ? "Your ward fades." : e.kind === "guard" ? "Your guard drops." : e.kind === "weaken" ? `${enemy} shakes off the curse.` : "Your attack bonus fades."
+      }</span>`;
   }
 }
 

@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.4 (2026-11-25). Short name: **L2N**.
+Status: draft v0.5 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -50,7 +50,7 @@ in the MVP; each hunting node has a mob pool. Node and mob data live in
 | Location | Levels | Nodes | Notes |
 | --- | --- | --- | --- |
 | **Brackwell** (village) | — | Square, Market, Smithy, Warehouse, Notice Board | Safe. Shop, warehouse, blacksmith, quest givers, respawn point. |
-| **Mossgate Fields** | 1–7 | Old Road, Drowned Mill, Burrows | Beasts and vermin. Tutorial quests. |
+| **Mossgate Fields** | 1–7 | Old Road, Drowned Mill, Burrows | Beasts and vermin. Tutorial quests. Quest elite: the Burrow Queen. |
 | **Thornwood Hollow** | 7–14 | Bramble Edge, Spider Dell, Hermit's Rise | Forest creatures and bandits. First elites. |
 | **Cinder Barrows** | 14–20 | Ash Gate, Bone Gallery, Warden's Crypt | Undead and constructs. Zone boss: **the Ashen Warden** (level 20, boss role). |
 
@@ -72,8 +72,8 @@ Market   Smithy   Warehouse   Notice Board
 
 - **Town nodes** are safe. Resting there restores HP and Mana to full, free
   and instantly. The Market and Warehouse are open (stage 3, see "Items" and
-  "Economy"), and the Smithy opened in stage 4 (see "Crafting"); the Notice
-  Board is a placeholder until stage 5.
+  "Economy"), the Smithy opened in stage 4 (see "Crafting") and the Notice
+  Board in stage 5 (see "Quests").
 - **Hunting nodes** have a pool of mobs. Hunting starts a fight with one of
   them, weighted towards the player's level: a mob at or below your level has
   weight 3, one level above 2, two or more levels above 1. Elites always
@@ -81,6 +81,10 @@ Market   Smithy   Warehouse   Notice Board
 - **Bosses** never turn up while hunting. The Ashen Warden waits in the
   Warden's Crypt and is fought only when the player chooses to challenge it.
   There is no respawn timer in the MVP.
+- **Quest foes** work the same way but only while their quest is active: the
+  Burrow Queen (level 7 elite) can be challenged in the Burrows during
+  "Burrow Queen". She is not in the hunting pool, so levels 5–7 stay safe
+  for players who are not looking for her.
 - You cannot move, rest or start another hunt while a fight is in progress.
 
 | Node | Mobs (level) |
@@ -96,8 +100,8 @@ Market   Smithy   Warehouse   Notice Board
 | Bone Gallery | Ossuary Crawler (16), Gallery Wight (17), **Bone Colossus** (18, elite) |
 | Warden's Crypt | Crypt Keeper (18), Ember Revenant (19), **Gravebound Champion** (20, elite); boss **Ashen Warden** (20) |
 
-Mossgate Fields has no elites yet; the Burrows elite arrives with its quest in
-stage 5.
+Mossgate Fields has no elites in its hunting pools; the Burrow Queen (7,
+elite) is a quest foe in the Burrows (see above).
 
 ## 3. Races
 
@@ -173,8 +177,22 @@ change into one of two branches.
   Regenerates 5% of max at the start of each of the mage's turns. Mana carries
   over between fights, so mages burst one fight and then rest or drink.
 
-The profession branch skills (about 4 per branch) are designed in the MVP stage
-that builds the profession quest.
+### Professions
+
+Built in stage 5. The second part of the profession quest chain ends with the
+choice, made once and for good at level 20. A profession adds a passive on
+top of the racial one and two skills, learned at once. More skills per
+branch can come with levels above 20.
+
+| Profession | Archetype | Passive | Skills |
+| --- | --- | --- | --- |
+| **Vanguard** | Warrior | **Bulwark**: +10% max HP, +10% defence | Bulwark Strike, Shield Wall |
+| **Reaver** | Warrior | **Bloodlust**: +12% damage dealt, −10% defence | Savage Cleave, Blood Frenzy |
+| **Stormcaller** | Mage | **Overcharge**: +10% damage dealt | Thunderclap, Storm Lash |
+| **Hexbinder** | Mage | **Lingering Malice**: +25% damage over time, +5% max HP | Life Drain, Withering Curse |
+
+Data lives in `packages/shared/src/data/archetypes.ts` (passives) and
+`data/skills.ts` (skills). Choosing a profession refills HP and Mana.
 
 ### Skills
 
@@ -192,6 +210,11 @@ All skills are implemented by the engine (stage 2). Timing rules:
   Re-applying replaces it.
 - **Arcane Ward** absorbs damage until its pool is used up or it expires.
   **Iron Stance** applies before the ward.
+- **Drain** (Bulwark Strike, Life Drain) heals a share of the direct damage
+  the hit dealt, after the hit.
+- **Weaken** (Withering Curse) is a curse on the enemy: its attack is lower
+  for its next listed number of turns. It counts down at the end of each
+  round; a new one replaces the old.
 
 | Skill | Archetype | Level | Cost | Effect |
 | --- | --- | --- | --- | --- |
@@ -209,6 +232,14 @@ All skills are implemented by the engine (stage 2). Timing rules:
 | Mend | Mage | 13 | 18 Mana | Heal 30% max HP |
 | Chain Spark | Mage | 16 | 24 Mana | 2.1× magic damage |
 | Falling Star | Mage | 19 | 40 Mana | 2.6× magic damage |
+| Bulwark Strike | Vanguard | 20 | 3 Focus | 1.5× damage, heal 40% of the damage dealt |
+| Shield Wall | Vanguard | 20 | 3 Focus | −50% damage taken for 3 turns |
+| Savage Cleave | Reaver | 20 | 4 Focus | 2.6× damage |
+| Blood Frenzy | Reaver | 20 | 2 Focus | +35% attack for 3 turns |
+| Thunderclap | Stormcaller | 20 | 50 Mana | 3.2× magic damage |
+| Storm Lash | Stormcaller | 20 | 26 Mana | 1.2× magic damage, 50% chance the target loses its next action |
+| Life Drain | Hexbinder | 20 | 24 Mana | 1.6× magic damage, heal 50% of the damage dealt |
+| Withering Curse | Hexbinder | 20 | 26 Mana | Blight 0.45× per turn for 4 turns, target's attack −25% for 3 turns |
 
 ## 5. Combat
 
@@ -288,6 +319,14 @@ matching tier, played by the auto-battle policy:
   draughts, less than 10% (currently ~1%). The boss role was lowered from
   ×6 HP, ×1.5 attack, ×1.4 defence in stage 4: with those numbers even a
   prepared mage won less than half the time.
+- **Professions** keep these targets at level 20 (checked in the same test
+  file): every race in every profession beats an even mob more than 95% of
+  the time in 1.9–7 rounds (level 20 mages on a full bar already sit at the
+  two-round floor, 2.0–2.2) losing under 40% HP, and beats the prepared
+  Ashen Warden more than 85% of the time. Every profession wins more often
+  against the Warden than the plain archetype: warriors ~100%, Stormcallers
+  ~94%, Hexbinders ~95% (plain mages ~90%).
+- The Burrow Queen meets the elite target at level 7 like the other elites.
 
 ### Fast fights and auto-battle
 
@@ -315,8 +354,11 @@ fear of dying is part of the genre.
 - XP per kill: `round((10 + 6·mobLevel) · clamp(1 + 0.1·(mobLevel − playerLevel), 0.1, 1.3))`.
 - The curve means about `8 + 2L` even-level kills per level, roughly 530 kills
   from 1 to 20 before quest XP. At ~25 seconds a fight that is about 4 hours of
-  pure fighting; quests should cover about a third of the total XP, so the MVP
-  takes around 5–6 hours of play to finish.
+  pure fighting; quests cover about a third of the total XP (14,600 of 44,080,
+  checked by a test), so the MVP takes around 5–6 hours of play to finish.
+  A quest's XP is a third of the XP needed for the levels between it and the
+  next quest, smoothed. Humans get their +5% on quest XP too. A quest
+  reward can level you up, which refills HP and Mana like a kill.
 - XP is stored as progress inside the current level; extra XP carries into
   the next level. At the cap, XP stops counting.
 - A level-up restores HP and Mana to full.
@@ -490,23 +532,38 @@ worth 3–6 silver.
 
 ## 10. Quests
 
-8–10 quests in the MVP, given at the Brackwell notice board:
+Built in stage 5. Quest data lives in `packages/shared/src/data/quests.ts`,
+the rules in `packages/shared/src/quests.ts`.
 
-1. **Mud and Rats** (L1): kill 5 vermin on the Old Road. Tutorial for combat.
-2. **The Miller's Debt** (L3): recover a ledger from the Drowned Mill. Tutorial
-   for loot and the warehouse.
-3. **Sharpened Edges** (L5): craft your first charges at the smithy. Tutorial
-   for crafting.
-4. **Burrow Queen** (L7): kill an elite in the Burrows.
-5. **Webbed Roads** (L9): clear Spider Dell and bring back silk.
-6. **The Hermit's Lamp** (L12): escort-style fight chain at Hermit's Rise;
-   first hint about the Dimming.
-7. **Bandit Toll** (L14): defeat three bandit elites in Thornwood.
-8. **Ash in the Wind** (L16): scout the Cinder Barrows.
-9. **Profession chain, part 1: The Unlit Path** (L18): gather relics and craft
-   the lantern ward charm.
-10. **Profession chain, part 2: Warden's Crypt** (L20): defeat the Ashen Warden,
-    then choose your profession.
+- Quests are taken and turned in at the Brackwell **Notice Board**. A quest
+  needs its level (and, for part 2 of the profession chain, part 1 done).
+  Any number can be active at once; a quest can be abandoned anywhere, which
+  drops its progress and any quest items that drop only for it.
+- **Objectives**: win fights (against given mobs and/or on a given node),
+  deliver items (counted in the bag; handed over on turn-in), craft a
+  recipe, reach a node, store something in the warehouse.
+- **Quest items** (Miller's Ledger, Dimmed Relic) drop only while a quest
+  needs them, one roll per kill after the normal loot, from the fight's own
+  RNG. They cannot be sold.
+- A **fight chain** (The Hermit's Lamp) starts over when the player dies.
+- Some quests give something when taken: a recipe learned straight into the
+  book, and items. Rewards are XP, silver and items; the bag must have room.
+- The quest log is stored on the character (`quests` jsonb column).
+
+| # | Quest | Level | Objectives | Reward |
+| --- | --- | --- | --- | --- |
+| 1 | **Mud and Rats** | 1 | Win 5 fights on the Old Road | 140 XP, 30 s, 3 Healing Draughts |
+| 2 | **The Miller's Debt** | 3 | Recover the Miller's Ledger (30% per kill at the Drowned Mill); store something in the warehouse | 310 XP, 60 s, 2 Healing Draughts (+3 Mana Draughts for mages) |
+| 3 | **Sharpened Edges** | 5 | Craft your charges once. On taking it: the Whetstones (I) or Ember Vials (I) recipe and one batch of resources | 550 XP, 50 s |
+| 4 | **Burrow Queen** | 7 | Challenge and kill the Burrow Queen in the Burrows | 850 XP, 120 s, 3 Healing Draughts |
+| 5 | **Webbed Roads** | 9 | Win 6 fights in Spider Dell; deliver 5 Spider Silk | 1,500 XP, 200 s |
+| 6 | **The Hermit's Lamp** | 12 | Win 5 fights at Hermit's Rise; a death starts the count over. The hermit's first hint about the Dimming | 2,100 XP, 250 s, 5 Healing Draughts |
+| 7 | **Bandit Toll** | 14 | Kill the Brigand Captain and 5 Toll Brigands | 2,500 XP, 300 s |
+| 8 | **Ash in the Wind** | 16 | Reach the Ash Gate, Bone Gallery and Warden's Crypt; win 4 fights in the Bone Gallery | 3,000 XP, 350 s, 5 Healing Draughts |
+| 9 | **The Unlit Path** (profession chain, part 1) | 18 | Deliver 3 Dimmed Relics (25% per kill anywhere in the Cinder Barrows); craft the Lantern Ward Charm. On taking it: the charm recipe | 3,650 XP, 400 s |
+| 10 | **Warden's Crypt** (profession chain, part 2) | 20 | Defeat the Ashen Warden; deliver the Lantern Ward Charm. Needs part 1 | 1,000 s and the choice of profession |
+
+Quests pay 2,760 silver in all, more than half of it from the last quest.
 
 ## 11. Living world
 

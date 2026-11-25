@@ -16,7 +16,7 @@ export function fightView(f: StoredFight) {
 export function gameView(c: CharacterSummary, fight: StoredFight | undefined, items: Item[]) {
   return {
     character: c,
-    sheet: characterSheet(c.race, c.archetype, c.level, gearStats(items)),
+    sheet: characterSheet(c.race, c.archetype, c.level, gearStats(items), c.profession),
     items,
     fight: fight ? fightView(fight) : null,
   };

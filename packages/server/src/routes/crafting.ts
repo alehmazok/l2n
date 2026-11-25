@@ -9,6 +9,7 @@ import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
 import { atService } from "./items.js";
+import { questEvent } from "./quests.js";
 
 export async function craftingRoutes(app: FastifyInstance, opts: { store: Store; random: () => number }) {
   app.addHook("preHandler", requireAccount);
@@ -49,6 +50,7 @@ export async function craftingRoutes(app: FastifyInstance, opts: { store: Store;
         }
         for (const m of outcome.made) await inv.put(m, true);
         await tx.updateCharacter({ silver: c.silver - recipe.fee });
+        if (outcome.success) await questEvent(tx, { type: "craft", recipeId: recipe.id });
         return { craft: { recipeId: recipe.id, success: outcome.success, fee: recipe.fee, used: outcome.used, made: outcome.made } };
       }),
   );

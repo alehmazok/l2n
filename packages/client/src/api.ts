@@ -1,4 +1,16 @@
-import type { ArchetypeId, CharacterSheet, CharacterSummary, DraughtId, FightResult, Item, NewItem, PublicFightState, RaceId, Slot } from "@l2n/shared";
+import type {
+  ArchetypeId,
+  CharacterSheet,
+  CharacterSummary,
+  DraughtId,
+  FightResult,
+  Item,
+  NewItem,
+  ProfessionId,
+  PublicFightState,
+  RaceId,
+  Slot,
+} from "@l2n/shared";
 
 export class ApiError extends Error {
   constructor(
@@ -52,6 +64,17 @@ export interface GameView extends CharacterWithSheet {
   ended?: FightView;
   /** Present after a crafting attempt. */
   craft?: CraftResult;
+  /** Present after taking, abandoning or turning in a quest. */
+  quest?: QuestResult;
+}
+export interface QuestResult {
+  questId: string;
+  action: "accepted" | "abandoned" | "completed";
+  xp: number;
+  silver: number;
+  items: NewItem[];
+  levelsGained: number;
+  profession?: ProfessionId;
 }
 export interface CraftResult {
   recipeId: string;
@@ -89,5 +112,9 @@ export const api = {
     call<GameView>("POST", `/api/characters/${id}/deposit`, { itemId, quantity }),
   withdraw: (id: number, itemId: number, quantity?: number) =>
     call<GameView>("POST", `/api/characters/${id}/withdraw`, { itemId, quantity }),
+  acceptQuest: (id: number, questId: string) => call<GameView>("POST", `/api/characters/${id}/quests/accept`, { questId }),
+  abandonQuest: (id: number, questId: string) => call<GameView>("POST", `/api/characters/${id}/quests/abandon`, { questId }),
+  completeQuest: (id: number, questId: string, profession?: ProfessionId) =>
+    call<GameView>("POST", `/api/characters/${id}/quests/complete`, profession ? { questId, profession } : { questId }),
   settings: (id: number, autoCharges: boolean) => call<GameView>("POST", `/api/characters/${id}/settings`, { autoCharges }),
 };

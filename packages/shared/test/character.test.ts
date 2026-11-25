@@ -1,6 +1,9 @@
 import { describe, expect, it } from "vitest";
 import {
   ARCHETYPES,
+  PROFESSIONS,
+  isProfessionId,
+  professionBonuses,
   referenceGear,
   starterGear,
   RACES,
@@ -67,5 +70,29 @@ describe("character sheet", () => {
           expect(s.skills.learned.length + s.skills.upcoming.length).toBe(7);
           expect(s.xpToNext === null).toBe(l === 20);
         }
+  });
+
+  it("adds a profession's passive and skills on top", () => {
+    const gear = referenceGear("warrior", 20);
+    const plain = characterSheet("orc", "warrior", 20, gear);
+    const vanguard = characterSheet("orc", "warrior", 20, gear, "vanguard");
+    const reaver = characterSheet("orc", "warrior", 20, gear, "reaver");
+    expect(plain.professionPassive).toBeNull();
+    expect(vanguard.professionPassive?.name).toBe("Bulwark");
+    expect(vanguard.maxHp).toBeGreaterThan(plain.maxHp);
+    expect(vanguard.defence).toBe(Math.round(plain.defence * 1.1));
+    expect(reaver.defence).toBeLessThan(plain.defence);
+    expect(reaver.damageBonus).toBeCloseTo(0.12);
+    expect(vanguard.skills.learned.map((k) => k.id).slice(-2)).toEqual(["bulwark_strike", "shield_wall"]);
+    expect(plain.skills.learned).toHaveLength(7);
+  });
+
+  it("has two professions per archetype, each with a passive", () => {
+    for (const a of Object.values(ARCHETYPES)) for (const p of a.professions) expect(PROFESSIONS[p.id]).toMatchObject({ archetype: a.id, name: p.name });
+    expect(Object.keys(PROFESSIONS)).toHaveLength(4);
+    expect(isProfessionId("hexbinder")).toBe(true);
+    expect(isProfessionId("toString")).toBe(false);
+    expect(professionBonuses(null)).toEqual({ hp: 0, damage: 0, defence: 0, dot: 0 });
+    expect(professionBonuses("hexbinder")).toEqual({ hp: 0.05, damage: 0, defence: 0, dot: 0.25 });
   });
 });

@@ -6,6 +6,7 @@
 import { InvalidAction, type FightResult, type NewItem } from "@l2n/shared";
 import type { FastifyReply } from "fastify";
 import type { CharacterTx, Store, StoredFight } from "../store/index.js";
+import type { QuestResult } from "./quests.js";
 import { fightView, gameView } from "./view.js";
 
 export class GameError extends Error {
@@ -38,7 +39,7 @@ export interface CraftResult {
 }
 
 /** An action may report a finished fight's result or a crafting attempt. */
-export type ActFn = (tx: CharacterTx) => Promise<FightResult | { craft: CraftResult } | void>;
+export type ActFn = (tx: CharacterTx) => Promise<FightResult | { craft: CraftResult } | { quest: QuestResult } | void>;
 
 export function makeAct(store: Store) {
   /** Run one action on the caller's character and answer with the new game view. */
@@ -72,7 +73,14 @@ export function makeAct(store: Store) {
           deleteItem: (id) => tx.deleteItem(id),
         };
         const result = await fn(tracked);
-        const extra = result && "craft" in result ? { craft: result.craft } : result && ended ? { result, ended: fightView(ended) } : {};
+        const extra =
+          result && "craft" in result
+            ? { craft: result.craft }
+            : result && "quest" in result
+              ? { quest: result.quest }
+              : result && ended
+                ? { result, ended: fightView(ended) }
+                : {};
         return { ...gameView(character, fight, tx.items), ...extra };
       });
       if (!out) return reply.code(404).send({ error: "not_found", message: "Character not found." });

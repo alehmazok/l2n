@@ -143,6 +143,8 @@ const OTHER: ItemTemplate[] = [
   { id: "grave_iron", name: "Grave Iron", kind: "resource", value: 12, description: "Old iron from burial goods, dark and hard." },
   { id: "ember_shard", name: "Ember Shard", kind: "resource", value: 12, description: "A splinter of glassy stone with a spark trapped inside." },
   { id: "lantern_ward_charm", name: "Lantern Ward Charm", kind: "quest", value: 0, description: "A small lantern of glass and grave iron. It is said to keep the dark at bay." },
+  { id: "millers_ledger", name: "Miller's Ledger", kind: "quest", value: 0, description: "A swollen account book from the Drowned Mill. Most of the names can still be read." },
+  { id: "dimmed_relic", name: "Dimmed Relic", kind: "quest", value: 0, description: "A lantern fitting of old dwarf work, cold and black. Something drained it." },
 ];
 
 /** Recipe items, one per recipe; see data/recipes.ts. */

@@ -4,6 +4,7 @@ export type Stats = Record<StatName, number>;
 export type RaceId = "human" | "dawn_elf" | "dusk_elf" | "orc" | "dwarf";
 export type ArchetypeId = "warrior" | "mage";
 export type DamageSchool = "physical" | "magic";
+export type DotName = "bleed" | "burn" | "blight";
 
 export interface Race {
   id: RaceId;
@@ -29,10 +30,16 @@ export interface Archetype {
   professions: [ProfessionInfo, ProfessionInfo];
 }
 
+export type ProfessionId = "vanguard" | "reaver" | "stormcaller" | "hexbinder";
+
+/** A profession taken at level 20 through the profession quest chain. */
 export interface ProfessionInfo {
-  id: string;
+  id: ProfessionId;
   name: string;
   role: string;
+  passive: { name: string; description: string };
+  /** Numeric effect of the passive, added to the racial bonuses. */
+  bonuses: { hp?: number; damage?: number; defence?: number; dot?: number };
 }
 
 /**
@@ -48,7 +55,11 @@ export interface SkillEffect {
   /** Chance that the target loses its next action. */
   stun?: number;
   /** Damage over time: `power` per tick, ticking at the end of `turns` rounds. */
-  dot?: { name: "bleed" | "burn"; power: number; turns: number };
+  dot?: { name: DotName; power: number; turns: number };
+  /** Heal this share of the direct damage dealt, if the hit lands. */
+  drain?: number;
+  /** A curse on the target: its attack is lowered by `value` for its next `turns` actions. */
+  weaken?: { value: number; turns: number };
   /** A buff on the caster for the rest of this round and the next `turns` rounds. */
   buff?:
     | { kind: "attack_up"; value: number; turns: number }
@@ -62,6 +73,8 @@ export interface Skill {
   archetype: ArchetypeId;
   /** Character level at which the skill is learned. */
   level: number;
+  /** Profession skills are learned only by characters of that profession. */
+  profession?: ProfessionId;
   /** Focus points for warriors, mana for mages. */
   cost: number;
   effect: SkillEffect;
