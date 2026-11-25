@@ -15,7 +15,11 @@ body {
   color: var(--text);
   font: 16px/1.5 Georgia, "Times New Roman", serif;
 }
-main { max-width: 640px; margin: 0 auto; padding: 16px; }
+main {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: max(16px, env(safe-area-inset-top)) max(16px, env(safe-area-inset-right)) max(16px, env(safe-area-inset-bottom)) max(16px, env(safe-area-inset-left));
+}
 h1 { color: var(--accent); font-weight: normal; letter-spacing: 0.05em; margin: 0.5em 0 0; }
 .sub { color: var(--muted); margin: 0 0 1.5em; }
 .panel { background: var(--panel); border-radius: 8px; padding: 12px 16px; margin-bottom: 12px; }
@@ -106,3 +110,62 @@ ul.objectives { list-style: none; margin: 4px 0; padding: 0; }
 .profession { flex: 1 1 240px; border: 1px solid var(--accent); border-radius: 6px; padding: 8px 10px; }
 .profession h4 { margin: 0; color: var(--accent); font-weight: normal; }
 .profession ul { padding-left: 1.2em; margin: 4px 0 8px; }
+
+/* Living world: chat and chronicle beside (wide) or below (narrow) the game panels. */
+.game-layout { display: grid; gap: 0 12px; grid-template-columns: minmax(0, 1fr); }
+.world .tabs { margin-bottom: 8px; }
+.world-body { max-height: 260px; min-height: 120px; overflow-y: auto; overflow-wrap: anywhere; }
+ol.chat, ol.chronicle { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
+ol.chat .chat-global b { color: var(--accent); }
+ol.chat .chat-zone b { color: var(--good); }
+ol.chronicle li { border-bottom: 1px solid #3a3226; padding-bottom: 4px; }
+ol.chronicle li.first { color: var(--accent); }
+.chat-form { margin-top: 8px; flex-wrap: nowrap; gap: 6px; }
+.chat-form input { min-width: 0; }
+.chat-notice:empty { display: none; }
+.chat-notice { margin: 6px 0 0; }
+.unread { color: var(--accent); }
+.tab.active .unread { color: inherit; }
+.online { color: var(--good); }
+.online-here:empty { display: none; }
+.fallen-mark { color: var(--bad); }
+ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
+.world-toggle, .world-close { display: none; }
+.badge:not(:empty) { display: inline-block; min-width: 1.4em; margin-left: 4px; padding: 0 4px; border-radius: 9px; background: var(--bad); color: var(--text); font-size: 0.8em; }
+@media (max-width: 999px) {
+  main:has(.game-layout) { padding-bottom: 72px; }
+  .world-toggle {
+    display: block; position: fixed; z-index: 4;
+    right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom));
+    box-shadow: 0 2px 10px #000a; border-radius: 22px; padding: 8px 16px;
+  }
+  .game-world .world {
+    display: none; position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; margin: 0;
+    max-height: 75vh; flex-direction: column; border-radius: 12px 12px 0 0; border-top: 1px solid var(--accent);
+    box-shadow: 0 -4px 18px #000c; padding-bottom: max(12px, env(safe-area-inset-bottom));
+  }
+  .game-world.open .world { display: flex; }
+  .game-world.open .world-toggle { display: none; }
+  .world-close { display: block; margin-left: auto; }
+  .world-body { max-height: none; flex: 1 1 auto; height: 45vh; }
+}
+@media (min-width: 1000px) {
+  main:has(.game-layout) { max-width: 1040px; }
+  .game-layout { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
+  .game-world { position: sticky; top: 12px; }
+  .world-body { max-height: calc(100vh - 220px); height: 420px; }
+}
+
+/* Phones: bigger tap targets, full-width fight buttons, a tighter header. */
+@media (max-width: 520px) {
+  main { padding-left: max(10px, env(safe-area-inset-left)); padding-right: max(10px, env(safe-area-inset-right)); }
+  .panel { padding: 10px 12px; }
+  h1 { font-size: 1.5em; }
+  .sub { margin-bottom: 0.8em; }
+  button, select, input, a.button { min-height: 40px; }
+  button.small, button.link { min-height: 32px; }
+  .actions > button { flex: 1 1 40%; }
+  .roads > button { flex: 1 1 100%; text-align: left; }
+  .sheet { gap: 12px; }
+}
+.offline-banner { position: sticky; top: 0; z-index: 2; background: #5a1f17; color: var(--text); text-align: center; padding: 4px 8px; border-radius: 0 0 6px 6px; font-size: 0.875em; }

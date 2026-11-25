@@ -10,6 +10,8 @@ import type {
   PublicFightState,
   RaceId,
   Slot,
+  ChatMessage,
+  WorldView,
 } from "@l2n/shared";
 
 export class ApiError extends Error {
@@ -32,7 +34,7 @@ async function call<T>(method: string, url: string, body?: unknown): Promise<T> 
       body: body === undefined ? null : JSON.stringify(body),
     });
   } catch {
-    throw new ApiError(0, "offline", "Server unreachable. Is pnpm dev running?");
+    throw new ApiError(0, "offline", typeof navigator !== "undefined" && navigator.onLine === false ? "You are offline. Reconnect to keep playing." : "Server unreachable. Is pnpm dev running?");
   }
   const data = (await res.json().catch(() => ({}))) as { error?: string; message?: string };
   if (!res.ok) throw new ApiError(res.status, data.error ?? "http", data.message ?? `HTTP ${res.status}`);
@@ -116,5 +118,13 @@ export const api = {
   abandonQuest: (id: number, questId: string) => call<GameView>("POST", `/api/characters/${id}/quests/abandon`, { questId }),
   completeQuest: (id: number, questId: string, profession?: ProfessionId) =>
     call<GameView>("POST", `/api/characters/${id}/quests/complete`, profession ? { questId, profession } : { questId }),
+  world: (id: number, after: { chat?: number | undefined; chronicle?: number | undefined } = {}) => {
+    const q = new URLSearchParams();
+    if (after.chat !== undefined) q.set("chat", String(after.chat));
+    if (after.chronicle !== undefined) q.set("chronicle", String(after.chronicle));
+    const qs = q.toString();
+    return call<WorldView>("GET", `/api/characters/${id}/world${qs ? `?${qs}` : ""}`);
+  },
+  chat: (id: number, channel: "global" | "zone", text: string) => call<{ message: ChatMessage }>("POST", `/api/characters/${id}/chat`, { channel, text }),
   settings: (id: number, autoCharges: boolean) => call<GameView>("POST", `/api/characters/${id}/settings`, { autoCharges }),
 };

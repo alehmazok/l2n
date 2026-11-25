@@ -71,6 +71,8 @@ export function makeAct(store: Store) {
           addItem: (i) => tx.addItem(i),
           updateItem: (id, p) => tx.updateItem(id, p),
           deleteItem: (id) => tx.deleteItem(id),
+          addChronicle: (e, at) => tx.addChronicle(e, at),
+          addFallen: (n, m, at) => tx.addFallen(n, m, at),
         };
         const result = await fn(tracked);
         const extra =

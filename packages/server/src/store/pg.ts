@@ -1,6 +1,20 @@
-import { slotOf, type CharacterSummary, type FightState, type Item, type ItemLocation, type NewItem } from "@l2n/shared";
+import {
+  chronicleKey,
+  slotOf,
+  type CharacterSummary,
+  type ChatChannel,
+  type ChatMessage,
+  type ChronicleEntry,
+  type ChronicleEvent,
+  type FallenMarker,
+  type FightState,
+  type Item,
+  type ItemLocation,
+  type NewItem,
+  type RaceId,
+} from "@l2n/shared";
 import type pg from "pg";
-import type { Account, CharacterPatch, CharacterTx, ItemPatch, NewCharacter, Store, StoredFight } from "./types.js";
+import type { Account, CharacterPatch, CharacterTx, ItemPatch, NewCharacter, NewChatMessage, Store, StoredFight } from "./types.js";
 
 const UNIQUE_VIOLATION = "23505";
 
@@ -93,6 +107,45 @@ async function insertItem(client: pg.PoolClient, characterId: number, i: NewItem
   );
   return toItem(rows[0]!);
 }
+
+interface ChatRow {
+  id: string;
+  channel: ChatChannel;
+  name: string;
+  race: RaceId;
+  text: string;
+  created_at: Date;
+}
+const CHAT_COLUMNS = "id, channel, name, race, text, created_at";
+const toChat = (r: ChatRow): ChatMessage => ({ id: Number(r.id), channel: r.channel, name: r.name, race: r.race, text: r.text, at: r.created_at.toISOString() });
+
+interface ChronicleRow {
+  id: string;
+  event: ChronicleEvent;
+  name: string;
+  race: RaceId;
+  first: boolean;
+  created_at: Date;
+}
+const CHRONICLE_COLUMNS = "id, event, name, race, first, created_at";
+const toChronicle = (r: ChronicleRow): ChronicleEntry => ({ id: Number(r.id), event: r.event, name: r.name, race: r.race, first: r.first, at: r.created_at.toISOString() });
+
+interface FallenRow {
+  id: string;
+  node_id: string;
+  name: string;
+  race: RaceId;
+  mob_id: string;
+  created_at: Date;
+}
+const FALLEN_COLUMNS = "id, node_id, name, race, mob_id, created_at";
+const toFallen = (r: FallenRow): FallenMarker => ({ id: Number(r.id), nodeId: r.node_id, name: r.name, race: r.race, mobId: r.mob_id, at: r.created_at.toISOString() });
+
+/** Rows after `afterId` (oldest first), or else the latest `limit` rows, put back in order. */
+const pageQuery = (table: string, columns: string, where: string, afterParam: string, limitParam: string, after: boolean) =>
+  after
+    ? `SELECT ${columns} FROM ${table} WHERE ${where} AND id > ${afterParam} ORDER BY id LIMIT ${limitParam}`
+    : `SELECT * FROM (SELECT ${columns} FROM ${table} WHERE ${where} ORDER BY id DESC LIMIT ${limitParam}) latest ORDER BY id`;
 
 /** Column names a CharacterPatch may set; keys are checked against this list before going into SQL. */
 const PATCH_COLUMNS: Record<keyof CharacterPatch, string> = {
@@ -301,6 +354,24 @@ export class PgStore implements Store {
           await client.query("DELETE FROM items WHERE id = $1", [itemId]);
           items = items.filter((x) => x.id !== itemId);
         },
+        addChronicle: async (event, at) => {
+          const c = tx.character;
+          const { rows } = await client.query<ChronicleRow>(
+            `INSERT INTO chronicle (kind, key, event, character_id, name, race, first, created_at)
+             VALUES ($1, $2, $3, $4, $5, $6, NOT EXISTS (SELECT 1 FROM chronicle WHERE kind = $1 AND key = $2), $7)
+             RETURNING ${CHRONICLE_COLUMNS}`,
+            [event.kind, chronicleKey(event), JSON.stringify(event), id, c.name, c.race, at],
+          );
+          return toChronicle(rows[0]!);
+        },
+        addFallen: async (nodeId, mobId, at) => {
+          const c = tx.character;
+          const { rows } = await client.query<FallenRow>(
+            `INSERT INTO fallen (node_id, character_id, name, race, mob_id, created_at) VALUES ($1, $2, $3, $4, $5, $6) RETURNING ${FALLEN_COLUMNS}`,
+            [nodeId, id, c.name, c.race, mobId, at],
+          );
+          return toFallen(rows[0]!);
+        },
       };
       const result = await fn(tx);
       await client.query("COMMIT");
@@ -311,5 +382,83 @@ export class PgStore implements Store {
     } finally {
       client.release();
     }
+  }
+  async touchCharacter(accountId: number, id: number, at: Date) {
+    const { rows } = await this.pool.query<CharacterRow>(
+      `UPDATE characters SET seen_at = $3 WHERE account_id = $1 AND id = $2 RETURNING ${CHARACTER_COLUMNS}`,
+      [accountId, id, at],
+    );
+    return rows[0] && toCharacter(rows[0]);
+  }
+
+  async onlineCounts(since: Date) {
+    const { rows } = await this.pool.query<{ location: string; n: string }>(
+      "SELECT location, count(*) AS n FROM characters WHERE seen_at > $1 GROUP BY location",
+      [since],
+    );
+    return Object.fromEntries(rows.map((r) => [r.location, Number(r.n)]));
+  }
+
+  async addChatMessage(m: NewChatMessage) {
+    const { rows } = await this.pool.query<ChatRow>(
+      `INSERT INTO chat_messages (channel, account_id, character_id, name, race, text, created_at)
+       VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING ${CHAT_COLUMNS}`,
+      [m.channel, m.accountId, m.characterId, m.name, m.race, m.text, m.at],
+    );
+    return toChat(rows[0]!);
+  }
+
+  async listChat(channels: ChatChannel[], afterId: number | undefined, limit: number) {
+    const { rows } = await this.pool.query<ChatRow>(
+      pageQuery("chat_messages", CHAT_COLUMNS, "channel = ANY($1)", "$3", "$2", afterId !== undefined),
+      afterId !== undefined ? [channels, limit, afterId] : [channels, limit],
+    );
+    return rows.map(toChat);
+  }
+
+  async chatStanding(accountId: number, since: Date) {
+    const { rows } = await this.pool.query<{ muted: Date | null; recent: string; last: Date | null }>(
+      `SELECT (SELECT chat_muted_until FROM accounts WHERE id = $1) AS muted,
+              (SELECT count(*) FROM chat_messages WHERE account_id = $1 AND created_at > $2) AS recent,
+              (SELECT max(created_at) FROM chat_messages WHERE account_id = $1) AS last`,
+      [accountId, since],
+    );
+    const r = rows[0]!;
+    return { mutedUntil: r.muted, recent: Number(r.recent), last: r.last };
+  }
+
+  async muteByCharacterName(name: string, until: Date | null) {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      const { rows } = await client.query<{ account_id: string }>(
+        "UPDATE accounts SET chat_muted_until = $2 WHERE id = (SELECT account_id FROM characters WHERE lower(name) = lower($1)) RETURNING id AS account_id",
+        [name, until],
+      );
+      if (rows[0]) await client.query("DELETE FROM chat_messages WHERE account_id = $1", [rows[0].account_id]);
+      await client.query("COMMIT");
+      return rows.length > 0;
+    } catch (err) {
+      await client.query("ROLLBACK");
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  async listChronicle(afterId: number | undefined, limit: number) {
+    const { rows } = await this.pool.query<ChronicleRow>(
+      pageQuery("chronicle", CHRONICLE_COLUMNS, "true", "$2", "$1", afterId !== undefined),
+      afterId !== undefined ? [limit, afterId] : [limit],
+    );
+    return rows.map(toChronicle);
+  }
+
+  async listFallen(since: Date, limit: number) {
+    const { rows } = await this.pool.query<FallenRow>(
+      `SELECT ${FALLEN_COLUMNS} FROM fallen WHERE created_at > $1 ORDER BY id DESC LIMIT $2`,
+      [since, limit],
+    );
+    return rows.map(toFallen);
   }
 }

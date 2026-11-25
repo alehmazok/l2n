@@ -11,7 +11,7 @@ import { Inventory } from "./inventory.js";
 import { atService } from "./items.js";
 import { questEvent } from "./quests.js";
 
-export async function craftingRoutes(app: FastifyInstance, opts: { store: Store; random: () => number }) {
+export async function craftingRoutes(app: FastifyInstance, opts: { store: Store; random: () => number; now: () => Date }) {
   app.addHook("preHandler", requireAccount);
   const act = makeAct(opts.store);
 
@@ -51,6 +51,8 @@ export async function craftingRoutes(app: FastifyInstance, opts: { store: Store;
         for (const m of outcome.made) await inv.put(m, true);
         await tx.updateCharacter({ silver: c.silver - recipe.fee });
         if (outcome.success) await questEvent(tx, { type: "craft", recipeId: recipe.id });
+        for (const m of outcome.made)
+          if (m.rarity === "rare") await tx.addChronicle({ kind: "rare_craft", templateId: m.templateId, itemLevel: m.itemLevel }, opts.now());
         return { craft: { recipeId: recipe.id, success: outcome.success, fee: recipe.fee, used: outcome.used, made: outcome.made } };
       }),
   );

@@ -34,8 +34,8 @@ import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
 import { questEvent } from "./quests.js";
 
-export async function gameRoutes(app: FastifyInstance, opts: { store: Store; random: () => number }) {
-  const { store, random } = opts;
+export async function gameRoutes(app: FastifyInstance, opts: { store: Store; random: () => number; now: () => Date }) {
+  const { store, random, now } = opts;
   app.addHook("preHandler", requireAccount);
   const act = makeAct(store);
 
@@ -167,6 +167,9 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
         const quests =
           state.outcome === "won" ? await questEvent(tx, { type: "kill", mobId: fight.mobId, nodeId: fight.nodeId }) : state.outcome === "lost" ? await questEvent(tx, { type: "loss" }) : [];
         if (quests.length) result.quests = quests;
+        // The living world: deaths leave a marker where they happened, boss kills go in the chronicle.
+        if (state.outcome === "lost") await tx.addFallen(fight.nodeId, fight.mobId, now());
+        if (state.outcome === "won" && mob?.role === "boss") await tx.addChronicle({ kind: "boss", mobId: mob.id }, now());
         return result;
       }),
   );

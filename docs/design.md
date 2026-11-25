@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.5 (2026-11-25). Short name: **L2N**.
+Status: draft v0.6 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -567,14 +567,28 @@ Quests pay 2,760 silver in all, more than half of it from the last quest.
 
 ## 11. Living world
 
-**Proposal: signs of a living world from day one**, even without real-time PvP:
+Signs of a living world from day one, even without real-time PvP (confirmed
+by Aleh for stage 6). The client polls the server every 4 seconds while the
+game screen is open and the tab is visible (15 seconds after an error); no
+websockets yet.
 
-- A **global chat** and a zone chat.
-- Each node shows how many players are hunting there right now.
-- A **chronicle** feed: "Yrsa the Dwarf defeated the Ashen Warden", first
-  profession changes, rare crafts.
-- **Fallen markers**: where a player died, others briefly see a marker with
-  the mob that did it.
+- **Chat**: a **global** channel and one channel per **zone**. You hear global
+  and the zone you stand in. Global chat opens at level 2, zone chat to all.
+  Lines are up to 200 characters, cleaned of control and invisible
+  characters, and always shown as text, never HTML. One account may send a
+  line every 2 seconds and 8 a minute. `/g` and `/z` pick a channel for one
+  line; `/ignore Name` hides a player's lines in this browser.
+- **Moderation**: an operator can mute an account for some hours by
+  character name (`pnpm --filter @l2n/server mute <Name> <hours>`), which also
+  deletes its chat lines. No reporting or word filter yet.
+- **Who is where**: a character counts as present on its node for 5 minutes
+  after its last request. Each node and road shows how many are there.
+- **Chronicle**: a feed of deeds: defeating the Ashen Warden (boss role), taking
+  a profession, and crafting a Rare item. The first time anyone does a deed
+  it says so ("Yrsa the Dwarf is the first to defeat the Ashen Warden!").
+- **Fallen markers**: a death leaves a marker on the node with the mob that
+  did it, seen by everyone for 30 minutes ("Yrsa fell here to a Thicket
+  Wolf"); roads show a ✝ for places where someone fell.
 
 ## 12. PvP (after MVP)
 

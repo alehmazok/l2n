@@ -23,7 +23,7 @@ if (!url) {
       await runMigrations(pool);
       migrated = true;
     }
-    await pool.query("TRUNCATE accounts, sessions, characters, fights RESTART IDENTITY CASCADE");
+    await pool.query("TRUNCATE accounts, sessions, characters, fights, chat_messages, chronicle, fallen RESTART IDENTITY CASCADE");
     return new PgStore(pool);
   });
 }

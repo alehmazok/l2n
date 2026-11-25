@@ -80,7 +80,7 @@ const questBody = (extra: Record<string, object> = {}) =>
     properties: { questId: { type: "string", maxLength: 64 }, ...extra },
   }) as const;
 
-export async function questRoutes(app: FastifyInstance, opts: { store: Store }) {
+export async function questRoutes(app: FastifyInstance, opts: { store: Store; now: () => Date }) {
   app.addHook("preHandler", requireAccount);
   const act = makeAct(opts.store);
   type Req<B> = { Params: { id: string }; Body: B };
@@ -167,6 +167,7 @@ export async function questRoutes(app: FastifyInstance, opts: { store: Store }) 
           quests: { ...c.quests, [q.id]: { status: "done", progress: entry.progress } },
           ...(q.profession ? { profession: newProfession } : {}),
         });
+        if (q.profession) await tx.addChronicle({ kind: "profession", profession: newProfession! }, opts.now());
         return {
           quest: {
             questId: q.id,
