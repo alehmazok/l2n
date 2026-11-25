@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.6 (2026-11-25). Short name: **L2N**.
+Status: draft v0.7 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -604,7 +604,41 @@ Deferred, but the data model should not block it:
 Synchronous PvP, clans and sieges, player trading, enchanting, parties, pets,
 gathering nodes, 2D engine and animations.
 
-## 14. Technical shape
+## 14. Art
+
+### Icons
+
+Every item and skill has an icon (since stage 6); recipes share one scroll.
+The style is our own, chosen to match the lantern theme of the lore and to
+stay far from the painted, metallic look of the genre's classic icons:
+
+- **Lantern-lit linocut**: a hand-carved print look with bold black ink
+  outlines, flat fills and carved hatching.
+- A small palette: parchment cream, lantern amber, rust red and deep teal,
+  on a plain dark brown ground with a warm glow behind the object.
+- One object or one emblem per icon, centred, with a margin, no text.
+  Ironbound gear is plain riveted iron, wool and leather; Steelsworn gear is
+  polished steel or teal cloth with teal and amber trim.
+
+The first set (68 icons: 24 pieces of equipment, 4 charges, 2 draughts, 12
+resources, 3 quest items, the recipe scroll and 22 skills) was made with
+Venice's cheapest image model, **Z-Image Turbo** (US$0.01 an image, open
+weights under Apache 2.0), at 1024×1024 px. Each image is cropped by 7% on
+every side (which also removes the Venice watermark), scaled to 128×128 px
+and saved as WebP in `packages/client/src/assets/icons`. The `manifest.json`
+there records the prompt, model, seed and post-processing of each icon, and
+`scripts/generate-icons.mjs` makes any of them again through the Venice API,
+with the same or a better model. A client test checks that every item and
+skill has an icon and a manifest entry.
+
+Weakest of the first set, to redo first with a better model: the Dimmed
+Relic (meant to be cold and dark, but glows), Searing Brand (a hand holding
+a hammer and a torch instead of a branding iron) and the two Ember Vials,
+which look almost the same.
+
+Character portraits are still a tinted tile with a letter.
+
+## 15. Technical shape
 
 - `packages/shared`: types, data, formulas, combat engine. Pure and
   deterministic, used by both server and client.

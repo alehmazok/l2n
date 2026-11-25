@@ -23,6 +23,7 @@ import {
 import type { QuestResult } from "../api.js";
 import { esc } from "../ui.js";
 import { itemIcon } from "./items.js";
+import { skillIcon } from "../icons.js";
 
 const btn = (label: string, attrs: Record<string, string>, extra = "") =>
   `<button class="small${extra ? ` ${extra}` : ""}" ${Object.entries(attrs)
@@ -54,7 +55,7 @@ function professionChoice(c: CharacterSummary) {
       const skills = skillsFor(c.archetype, p.id).filter((s) => s.profession === p.id);
       return `<div class="profession"><h4>${esc(p.name)}</h4><p class="small muted">${esc(p.role)}</p>
         <p class="small"><b>${esc(p.passive.name)}</b>: ${esc(p.passive.description)}</p>
-        <ul class="small">${skills.map((s) => `<li><b>${esc(s.name)}</b>: ${esc(s.description)}</li>`).join("")}</ul>
+        <ul class="small">${skills.map((s) => `<li>${skillIcon(s.id)}<b>${esc(s.name)}</b>: ${esc(s.description)}</li>`).join("")}</ul>
         ${btn(`Become a ${p.name}`, { quest: "complete", id: "wardens_crypt", profession: p.id })}</div>`;
     })
     .join("")}</div><p class="small muted">The choice is for good.</p>`;

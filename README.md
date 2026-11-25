@@ -84,6 +84,19 @@ server with `pnpm dev` and the built client with
 "Install" or "Add to Home Screen". The PNG icons are rendered from
 `icon.svg` by `scripts/render-app-icons.cjs`.
 
+## Item and skill icons
+
+The icons in `packages/client/src/assets/icons` were generated with Venice
+(see "Art" in the design doc). `manifest.json` next to them records the
+prompt, model, seed and post-processing of each. To make some or all of them
+again, for example with a better model (needs a Venice API key and
+ImageMagick):
+
+```sh
+VENICE_API_KEY=… node scripts/generate-icons.mjs --model <model-id> --only heavy_blow,mend
+node scripts/generate-icons.mjs --dry-run   # print the requests only
+```
+
 ## Moderation
 
 Chat is limited to 200 characters, 1 line per 2 seconds and 8 per minute per

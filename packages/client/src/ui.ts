@@ -1,4 +1,5 @@
 import { ARCHETYPES, RACES, type CharacterSheet, type StatName } from "@l2n/shared";
+import { skillIcon } from "./icons.js";
 
 /** Escape text for safe use inside HTML. Use for every value that came from a user or the server. */
 export const esc = (v: unknown) =>
@@ -32,7 +33,7 @@ export function sheetHtml(s: CharacterSheet) {
     .join("");
   const res = s.resource.kind === "mana" ? "Mana" : "Focus";
   const skill = (k: CharacterSheet["skills"]["learned"][number], learned: boolean) =>
-    `<li class="${learned ? "" : "muted"}"><b>${esc(k.name)}</b> <span class="muted">L${k.level} · ${k.cost} ${res}</span></li>`;
+    `<li class="${learned ? "" : "muted"}">${skillIcon(k.id)}<b>${esc(k.name)}</b> <span class="muted">L${k.level} · ${k.cost} ${res}</span></li>`;
   return `
     <div class="sheet">
       <table class="stats">${stats}</table>
