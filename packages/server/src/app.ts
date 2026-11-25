@@ -1,10 +1,11 @@
 import cookie from "@fastify/cookie";
 import Fastify from "fastify";
 import { randomInt } from "node:crypto";
-import { ARCHETYPES, MOBS, NODES, RACES, SKILLS, ZONES } from "@l2n/shared";
+import { ARCHETYPES, BAG_SLOTS, ITEMS, MOBS, NODES, RACES, SHOP_STOCK, SKILLS, WAREHOUSE_FEE, WAREHOUSE_SLOTS, ZONES } from "@l2n/shared";
 import { authRoutes, sessionHook } from "./routes/auth.js";
 import { characterRoutes } from "./routes/characters.js";
 import { gameRoutes } from "./routes/game.js";
+import { itemRoutes } from "./routes/items.js";
 import { MemoryStore, type Store } from "./store/index.js";
 
 export interface AppOptions {
@@ -40,9 +41,20 @@ export function buildApp(opts: AppOptions = {}) {
   app.register(authRoutes, { store, cookieSecure: opts.cookieSecure ?? false, now });
   app.register(characterRoutes, { store });
   app.register(gameRoutes, { store, random: opts.random ?? (() => randomInt(0, 2 ** 32) / 2 ** 32) });
+  app.register(itemRoutes, { store });
 
-  /** Static game data: races, archetypes, skills and the world map. */
-  app.get("/api/meta", async () => ({ races: RACES, archetypes: ARCHETYPES, skills: SKILLS, zones: ZONES, nodes: NODES, mobs: MOBS }));
+  /** Static game data: races, archetypes, skills, the world map, items and the market's stock. */
+  app.get("/api/meta", async () => ({
+    races: RACES,
+    archetypes: ARCHETYPES,
+    skills: SKILLS,
+    zones: ZONES,
+    nodes: NODES,
+    mobs: MOBS,
+    items: ITEMS,
+    shop: SHOP_STOCK,
+    limits: { bagSlots: BAG_SLOTS, warehouseSlots: WAREHOUSE_SLOTS, warehouseFee: WAREHOUSE_FEE },
+  }));
 
   return app;
 }

@@ -3,6 +3,7 @@ import {
   CHARACTER_NAME_MAX,
   RACES,
   characterSheet,
+  starterGear,
   normalizeCharacterName,
   validateCharacterName,
   type ArchetypeId,
@@ -58,7 +59,7 @@ export function renderCreate(root: HTMLElement, onCreated: (id: number) => void)
 
   const form = $<HTMLFormElement>("#create", root);
   const nameInput = $<HTMLInputElement>("input[name=name]", form);
-  const preview = () => ($("#preview", root).innerHTML = sheetHtml(characterSheet(race, archetype, 1)));
+  const preview = () => ($("#preview", root).innerHTML = sheetHtml(characterSheet(race, archetype, 1, starterGear(archetype))));
   form.addEventListener("change", (e) => {
     const t = e.target as HTMLInputElement;
     if (t.name === "race") race = t.value as RaceId;

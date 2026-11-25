@@ -6,6 +6,10 @@ import type { MobRole } from "../formulas.js";
 
 export type ZoneId = "brackwell" | "mossgate_fields";
 
+export type TownService = "shop" | "warehouse" | "crafting" | "quests";
+/** Services that work in this build; the others show as "coming soon". */
+export const OPEN_SERVICES: TownService[] = ["shop", "warehouse"];
+
 export interface Zone {
   id: ZoneId;
   name: string;
@@ -23,8 +27,8 @@ export interface MapNode {
   links: string[];
   /** Mob ids that can be met when hunting here. */
   mobs: string[];
-  /** Town service that opens in a later stage, shown as "coming soon". */
-  service?: string;
+  /** Town service offered here. Crafting and quests open in later stages. */
+  service?: TownService;
 }
 
 export interface MobTemplate {
@@ -33,6 +37,8 @@ export interface MobTemplate {
   level: number;
   role: MobRole;
   description: string;
+  /** Resources and other stackables a kill may drop: `chance` per kill, 1 to `max` (default 1) of them. */
+  drops: { item: string; chance: number; max?: number }[];
 }
 
 export const ZONES: Record<ZoneId, Zone> = {
@@ -41,15 +47,15 @@ export const ZONES: Record<ZoneId, Zone> = {
 };
 
 export const MOBS: Record<string, MobTemplate> = {
-  mire_rat: { id: "mire_rat", name: "Mire Rat", level: 1, role: "normal", description: "A fat rat that lives in the ditches by the road." },
-  hedge_crow: { id: "hedge_crow", name: "Hedge Crow", level: 2, role: "normal", description: "Bold, loud and fond of shiny buckles." },
-  mangy_cur: { id: "mangy_cur", name: "Mangy Cur", level: 3, role: "normal", description: "A stray dog gone wild since the farms emptied." },
-  mill_toad: { id: "mill_toad", name: "Mill Toad", level: 3, role: "normal", description: "A toad the size of a bucket, sitting in the millrace." },
-  silt_crawler: { id: "silt_crawler", name: "Silt Crawler", level: 4, role: "normal", description: "A pale, many-legged thing from the flooded cellar." },
-  drowned_scavenger: { id: "drowned_scavenger", name: "Drowned Scavenger", level: 5, role: "normal", description: "Something that was once a looter, still looking for coin." },
-  burrow_mole: { id: "burrow_mole", name: "Burrow Mole", level: 5, role: "normal", description: "Blind, clawed and very territorial." },
-  tusked_digger: { id: "tusked_digger", name: "Tusked Digger", level: 6, role: "normal", description: "A tunnelling boar with a bad temper." },
-  burrow_hulk: { id: "burrow_hulk", name: "Burrow Hulk", level: 7, role: "normal", description: "An old digger grown huge in the dark." },
+  mire_rat: { id: "mire_rat", name: "Mire Rat", level: 1, role: "normal", description: "A fat rat that lives in the ditches by the road.", drops: [{ item: "rough_hide", chance: 0.4 }, { item: "marsh_herb", chance: 0.2 }] },
+  hedge_crow: { id: "hedge_crow", name: "Hedge Crow", level: 2, role: "normal", description: "Bold, loud and fond of shiny buckles.", drops: [{ item: "bone_shard", chance: 0.35 }, { item: "iron_scrap", chance: 0.15 }] },
+  mangy_cur: { id: "mangy_cur", name: "Mangy Cur", level: 3, role: "normal", description: "A stray dog gone wild since the farms emptied.", drops: [{ item: "rough_hide", chance: 0.45 }, { item: "bone_shard", chance: 0.3 }] },
+  mill_toad: { id: "mill_toad", name: "Mill Toad", level: 3, role: "normal", description: "A toad the size of a bucket, sitting in the millrace.", drops: [{ item: "marsh_herb", chance: 0.45 }, { item: "resin_lump", chance: 0.2 }] },
+  silt_crawler: { id: "silt_crawler", name: "Silt Crawler", level: 4, role: "normal", description: "A pale, many-legged thing from the flooded cellar.", drops: [{ item: "bone_shard", chance: 0.35 }, { item: "resin_lump", chance: 0.3 }] },
+  drowned_scavenger: { id: "drowned_scavenger", name: "Drowned Scavenger", level: 5, role: "normal", description: "Something that was once a looter, still looking for coin.", drops: [{ item: "iron_scrap", chance: 0.5, max: 2 }, { item: "resin_lump", chance: 0.2 }] },
+  burrow_mole: { id: "burrow_mole", name: "Burrow Mole", level: 5, role: "normal", description: "Blind, clawed and very territorial.", drops: [{ item: "rough_hide", chance: 0.45 }, { item: "marsh_herb", chance: 0.2 }] },
+  tusked_digger: { id: "tusked_digger", name: "Tusked Digger", level: 6, role: "normal", description: "A tunnelling boar with a bad temper.", drops: [{ item: "rough_hide", chance: 0.4, max: 2 }, { item: "bone_shard", chance: 0.35 }] },
+  burrow_hulk: { id: "burrow_hulk", name: "Burrow Hulk", level: 7, role: "normal", description: "An old digger grown huge in the dark.", drops: [{ item: "rough_hide", chance: 0.4, max: 2 }, { item: "iron_scrap", chance: 0.3 }, { item: "bone_shard", chance: 0.3 }] },
 };
 
 export const START_NODE = "brackwell_square";
@@ -70,10 +76,10 @@ export const NODES: Record<string, MapNode> = {
     name: "Market",
     zone: "brackwell",
     kind: "town",
-    description: "Three stalls and a cart. The traders are still unpacking.",
+    description: "Three stalls and a cart. Charges, draughts and plain gear, and a trader who buys anything.",
     links: ["brackwell_square"],
     mobs: [],
-    service: "Shop",
+    service: "shop",
   },
   brackwell_smithy: {
     id: "brackwell_smithy",
@@ -83,7 +89,7 @@ export const NODES: Record<string, MapNode> = {
     description: "The forge is warm, but the smith is not taking orders yet.",
     links: ["brackwell_square"],
     mobs: [],
-    service: "Crafting",
+    service: "crafting",
   },
   brackwell_warehouse: {
     id: "brackwell_warehouse",
@@ -93,7 +99,7 @@ export const NODES: Record<string, MapNode> = {
     description: "A barn with numbered stalls and a keeper who counts everything twice.",
     links: ["brackwell_square"],
     mobs: [],
-    service: "Warehouse",
+    service: "warehouse",
   },
   brackwell_notice_board: {
     id: "brackwell_notice_board",
@@ -103,7 +109,7 @@ export const NODES: Record<string, MapNode> = {
     description: "Bounties and pleas pinned three deep. Most are too faded to read.",
     links: ["brackwell_square"],
     mobs: [],
-    service: "Quests",
+    service: "quests",
   },
   mossgate_old_road: {
     id: "mossgate_old_road",

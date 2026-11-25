@@ -82,6 +82,8 @@ export function fleeChance(playerAgi: number, enemyAgi: number): number {
 export const CRIT_MULTIPLIER = 1.75;
 /** Bonus to basic attacks while a charge (whetstone or ember vial) is active. */
 export const CHARGE_MULTIPLIER = 1.3;
+/** Share of max HP or Mana a draught restores. */
+export const DRAUGHT_RESTORE = 0.3;
 
 /** Mob templates: stats derived from level and role. */
 export type MobRole = "normal" | "elite" | "boss";

@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   ARCHETYPES,
+  referenceGear,
+  starterGear,
   RACES,
   characterSheet,
   normalizeCharacterName,
@@ -38,7 +40,7 @@ describe("character creation rules", () => {
 
 describe("character sheet", () => {
   it("matches the design doc for a level 1 orc warrior", () => {
-    const s = characterSheet("orc", "warrior");
+    const s = characterSheet("orc", "warrior", 1, starterGear("warrior"));
     expect(s.stats).toEqual({ might: 17, agility: 9, vitality: 15, intellect: 9, spirit: 10 });
     expect(s.maxHp).toBe(78); // 60 * (1 + 0.04 * 5) = 72, +8% Thick Hide
     expect(s.resource).toEqual({ kind: "focus", max: 5, startsAt: 0 });
@@ -50,7 +52,7 @@ describe("character sheet", () => {
   });
 
   it("gives mages a full mana bar at creation", () => {
-    const s = characterSheet("dawn_elf", "mage");
+    const s = characterSheet("dawn_elf", "mage", 1, starterGear("mage"));
     expect(s.resource.kind).toBe("mana");
     expect(s.resource.startsAt).toBe(s.resource.max);
     expect(startingVitals("dawn_elf", "mage")).toEqual({ hp: s.maxHp, resource: s.resource.max });
@@ -60,7 +62,7 @@ describe("character sheet", () => {
     for (const r of Object.keys(RACES) as RaceId[])
       for (const a of Object.keys(ARCHETYPES) as ArchetypeId[])
         for (let l = 1; l <= 20; l++) {
-          const s = characterSheet(r, a, l);
+          const s = characterSheet(r, a, l, referenceGear(a, l));
           expect(s.maxHp).toBeGreaterThan(0);
           expect(s.skills.learned.length + s.skills.upcoming.length).toBe(7);
           expect(s.xpToNext === null).toBe(l === 20);

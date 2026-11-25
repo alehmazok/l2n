@@ -8,3 +8,5 @@ export { SKILLS, skillById } from "./data/skills.js";
 export * from "./character.js";
 export * from "./progression.js";
 export * from "./data/world.js";
+export * from "./data/items.js";
+export * from "./items.js";

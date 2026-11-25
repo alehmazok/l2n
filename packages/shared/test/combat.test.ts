@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   ARCHETYPES,
+  referenceGear,
   RACES,
   autoResolve,
   buildMob,
@@ -17,7 +18,7 @@ import {
 
 /** A full-health character of this race, archetype and level, as the server builds them. */
 function player(race: RaceId, archetype: ArchetypeId, level: number, extra: { mana?: number; hp?: number } = {}) {
-  const input = playerInputFor({ name: "Tester", race, archetype, level, xp: 0, hp: extra.hp ?? 9999, resource: extra.mana ?? 9999 });
+  const input = playerInputFor({ name: "Tester", race, archetype, level, xp: 0, hp: extra.hp ?? 9999, resource: extra.mana ?? 9999, gear: referenceGear(archetype, level) });
   return buildPlayer(input);
 }
 
@@ -152,8 +153,8 @@ describe("combat", () => {
 
   // Balance guard from docs/design.md: an even-level normal mob should take
   // about 2-7 rounds (mages burst on a full mana bar), the player should
-  // usually win and lose about 15-30% HP. Includes racial passives and the
-  // provisional starter kit.
+  // usually win and lose about 15-30% HP. Includes racial passives and a
+  // full common set of gear of the character's level.
   for (const archetype of Object.keys(ARCHETYPES) as ArchetypeId[]) {
     for (const race of Object.keys(RACES) as RaceId[]) {
       for (const level of [1, 10, 20]) {

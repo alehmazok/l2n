@@ -1,4 +1,4 @@
-import type { ArchetypeId, CharacterSummary, FightState, RaceId } from "@l2n/shared";
+import type { ArchetypeId, CharacterSummary, FightState, Item, ItemLocation, NewItem, RaceId } from "@l2n/shared";
 
 export interface Account {
   id: number;
@@ -17,6 +17,8 @@ export interface NewCharacter {
   resource: number;
   /** Refuse the insert if the account already has this many characters. */
   maxPerAccount: number;
+  /** Starting items. */
+  items: NewItem[];
 }
 
 export interface StoredFight {
@@ -28,7 +30,9 @@ export interface StoredFight {
   state: FightState;
 }
 
-export type CharacterPatch = Partial<Pick<CharacterSummary, "level" | "xp" | "hp" | "resource" | "location">>;
+export type CharacterPatch = Partial<Pick<CharacterSummary, "level" | "xp" | "hp" | "resource" | "location" | "silver" | "autoCharges">>;
+
+export type ItemPatch = Partial<Pick<Item, "quantity" | "location">>;
 
 /**
  * A character locked for one game action. Everything done through it commits
@@ -43,6 +47,12 @@ export interface CharacterTx {
   createFight(f: Omit<StoredFight, "id" | "characterId">): Promise<StoredFight>;
   /** Store the fight's new state; its outcome column follows `state.outcome`. */
   saveFight(state: FightState): Promise<StoredFight>;
+  /** Everything the character owns, in every place, oldest first. Kept current by the methods below. */
+  readonly items: Item[];
+  /** Insert a row as is. Merging stacks is the caller's job (see routes/inventory.ts). */
+  addItem(item: NewItem): Promise<Item>;
+  updateItem(id: number, patch: ItemPatch): Promise<Item>;
+  deleteItem(id: number): Promise<void>;
 }
 
 /**
@@ -65,6 +75,8 @@ export interface Store {
 
   /** The fight in progress for a character the caller already owns. */
   getOngoingFight(characterId: number): Promise<StoredFight | undefined>;
+  /** Items of a character the caller already owns, oldest first. */
+  listItems(characterId: number): Promise<Item[]>;
   /**
    * Run `fn` with the account's character locked. Resolves to undefined when
    * the character does not exist or belongs to another account. If `fn`

@@ -15,7 +15,8 @@ import {
   maxMana,
   xpToNext,
 } from "./formulas.js";
-import { characterMaxHp, provisionalGear, racialBonuses } from "./progression.js";
+import { gearStats, starterItems, type GearStats } from "./items.js";
+import { characterMaxHp, racialBonuses } from "./progression.js";
 import type { ArchetypeId, RaceId, Skill, Stats } from "./types.js";
 
 export const MAX_CHARACTERS_PER_ACCOUNT = 4;
@@ -69,6 +70,8 @@ export interface CharacterSummary {
   resource: number;
   silver: number;
   location: string;
+  /** Load matching charges into every fight automatically. */
+  autoCharges: boolean;
   createdAt: string;
 }
 
@@ -76,7 +79,7 @@ export interface CharacterSheet {
   stats: Stats;
   maxHp: number;
   resource: { kind: "focus" | "mana"; max: number; startsAt: number };
-  /** Attack and defence include the provisional starter kit (see provisionalGear). */
+  /** Attack and defence include worn gear. */
   attack: number;
   defence: number;
   critChance: number;
@@ -86,34 +89,38 @@ export interface CharacterSheet {
   xpToNext: number | null;
   passive: { name: string; description: string };
   skills: { learned: Skill[]; upcoming: Skill[] };
+  gear: GearStats;
 }
 
-/** Derived numbers for a character, with the racial passive applied. */
-export function characterSheet(race: RaceId, archetype: ArchetypeId, level = 1): CharacterSheet {
+/** Gear of a brand-new character. */
+export const starterGear = (archetype: ArchetypeId) => gearStats(starterItems(archetype));
+
+/** Derived numbers for a character, with the racial passive and worn gear applied. */
+export function characterSheet(race: RaceId, archetype: ArchetypeId, level: number, gear: GearStats): CharacterSheet {
   const a = ARCHETYPES[archetype];
   const stats = characterStats(race, archetype);
   const resourceMax = a.resource === "mana" ? maxMana(level, stats.spirit) : MAX_FOCUS;
   const next = xpToNext(level);
   const bonus = racialBonuses(race);
-  const gear = provisionalGear(level);
   const own = SKILLS.filter((s) => s.archetype === archetype);
   return {
     stats,
-    maxHp: characterMaxHp(race, archetype, level),
+    maxHp: characterMaxHp(race, archetype, level, gear.hpBonus),
     resource: { kind: a.resource, max: resourceMax, startsAt: a.resource === "mana" ? resourceMax : 0 },
     attack: Math.round(attackPower(level, stats[a.mainStat], gear.weaponPower)),
     defence: Math.round(defensePower(level, stats.vitality, gear.armour)),
-    critChance: critChance(stats.agility, bonus.crit),
+    critChance: critChance(stats.agility, bonus.crit + gear.critBonus),
     damageBonus: bonus.damage,
     xpBonus: bonus.xp,
     xpToNext: Number.isFinite(next) ? next : null,
     passive: RACES[race].passive,
     skills: { learned: own.filter((s) => s.level <= level), upcoming: own.filter((s) => s.level > level) },
+    gear,
   };
 }
 
 /** HP and resource a brand-new character is stored with. */
 export function startingVitals(race: RaceId, archetype: ArchetypeId) {
-  const sheet = characterSheet(race, archetype, 1);
+  const sheet = characterSheet(race, archetype, 1, starterGear(archetype));
   return { hp: sheet.maxHp, resource: sheet.resource.startsAt };
 }

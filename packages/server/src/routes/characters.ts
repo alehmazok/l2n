@@ -4,10 +4,11 @@ import {
   RACES,
   characterSheet,
   normalizeCharacterName,
+  starterGear,
+  starterItems,
   startingVitals,
   validateCharacterName,
   type ArchetypeId,
-  type CharacterSummary,
   type RaceId,
 } from "@l2n/shared";
 import type { FastifyInstance } from "fastify";
@@ -15,7 +16,6 @@ import type { Store } from "../store/index.js";
 import { requireAccount } from "./auth.js";
 import { gameView } from "./view.js";
 
-const withSheet = (c: CharacterSummary) => ({ character: c, sheet: characterSheet(c.race, c.archetype, c.level) });
 
 export async function characterRoutes(app: FastifyInstance, opts: { store: Store }) {
   const { store } = opts;
@@ -54,6 +54,7 @@ export async function characterRoutes(app: FastifyInstance, opts: { store: Store
         archetype,
         ...startingVitals(race, archetype),
         maxPerAccount: MAX_CHARACTERS_PER_ACCOUNT,
+        items: starterItems(archetype),
       });
       if (created === "name_taken")
         return reply.code(409).send({ error: "name_taken", message: `The name ${name} is already taken.` });
@@ -62,7 +63,7 @@ export async function characterRoutes(app: FastifyInstance, opts: { store: Store
           error: "limit_reached",
           message: `An account can have at most ${MAX_CHARACTERS_PER_ACCOUNT} characters.`,
         });
-      return reply.code(201).send(withSheet(created));
+      return reply.code(201).send({ character: created, sheet: characterSheet(race, archetype, 1, starterGear(archetype)) });
     },
   );
 
@@ -70,6 +71,6 @@ export async function characterRoutes(app: FastifyInstance, opts: { store: Store
     const id = Number(req.params.id);
     const c = Number.isSafeInteger(id) && id > 0 ? await store.getCharacter(req.account!.id, id) : undefined;
     if (!c) return reply.code(404).send({ error: "not_found", message: "Character not found." });
-    return gameView(c, await store.getOngoingFight(c.id));
+    return gameView(c, await store.getOngoingFight(c.id), await store.listItems(c.id));
   });
 }

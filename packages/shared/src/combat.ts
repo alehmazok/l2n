@@ -11,6 +11,7 @@ import { skillById } from "./data/skills.js";
 import {
   CHARGE_MULTIPLIER,
   CRIT_MULTIPLIER,
+  DRAUGHT_RESTORE,
   MAX_FOCUS,
   attackPower,
   baseDamage,
@@ -26,6 +27,7 @@ import {
 } from "./formulas.js";
 import { between, createRng, roll, type Rng } from "./rng.js";
 import type { ArchetypeId, Skill, Stats } from "./types.js";
+import type { DraughtId } from "./data/items.js";
 
 /**
  * Status effects. Buffs (`attack_up`, `guard`, `shield`) last for the rest of
@@ -58,10 +60,19 @@ export interface PlayerCombatant extends Combatant {
   resource: number;
   maxResource: number;
   skills: string[];
+  /** Charges loaded for this fight; each boosts one basic attack. */
   charges: number;
+  /** Item the charges came from, so unused ones go back to the bag. */
+  chargeItem?: string;
+  /** Draughts carried into the fight. Missing on fights started before stage 3. */
+  draughts?: Partial<Record<DraughtId, number>>;
 }
 
-export type Action = { type: "attack" } | { type: "skill"; skillId: string } | { type: "flee" };
+export type Action =
+  | { type: "attack" }
+  | { type: "skill"; skillId: string }
+  | { type: "item"; itemId: DraughtId }
+  | { type: "flee" };
 
 export type Who = "player" | "enemy";
 
@@ -69,6 +80,7 @@ export type LogEntry =
   | { t: "hit"; who: Who; amount: number; crit: boolean; source: string; absorbed?: number }
   | { t: "miss"; who: Who; source: string }
   | { t: "heal"; amount: number; source: string }
+  | { t: "draught"; item: DraughtId; amount: number }
   | { t: "flee"; success: boolean }
   | { t: "stun"; source: string }
   | { t: "stunned" }
@@ -100,6 +112,8 @@ export interface PlayerInput {
   armour: number;
   skills: string[];
   charges: number;
+  chargeItem?: string;
+  draughts?: Partial<Record<DraughtId, number>>;
   critBonus?: number;
   damageBonus?: number;
   hpBonus?: number;
@@ -129,6 +143,8 @@ export function buildPlayer(p: PlayerInput): PlayerCombatant {
     maxResource,
     skills: p.skills,
     charges: p.charges,
+    ...(p.chargeItem && p.charges > 0 ? { chargeItem: p.chargeItem } : {}),
+    ...(p.draughts ? { draughts: { ...p.draughts } } : {}),
   };
 }
 
@@ -167,7 +183,14 @@ function strike(rng: Rng, att: Combatant, def: Combatant, power: number): { hit:
   return { hit: true, amount, crit };
 }
 
-const copy = <T extends Combatant>(c: T): T => ({ ...c, effects: c.effects.map((e) => ({ ...e })) });
+const copy = <T extends Combatant>(c: T): T => {
+  const out = { ...c, effects: c.effects.map((e) => ({ ...e })) };
+  if ("draughts" in out && out.draughts) out.draughts = { ...(out.draughts as object) };
+  return out;
+};
+
+/** Draughts of this kind the player still carries. */
+export const draughtsLeft = (p: PlayerCombatant, id: DraughtId) => p.draughts?.[id] ?? 0;
 
 /** Skills the player knows and can use right now (implemented, affordable). */
 export function usableSkills(p: PlayerCombatant): Skill[] {
@@ -289,6 +312,11 @@ export function resolveRound(state: FightState, action: Action): FightState {
     skill = skillById(action.skillId);
     if (!skill || !player.skills.includes(skill.id)) throw new InvalidAction("Unknown skill");
   }
+  if (action.type === "item") {
+    if (action.itemId !== "healing_draught" && action.itemId !== "mana_draught") throw new InvalidAction("Unknown item");
+    if (draughtsLeft(player, action.itemId) <= 0) throw new InvalidAction("You have none left");
+    if (action.itemId === "mana_draught" && !isMage) throw new InvalidAction("Warriors have no mana");
+  }
 
   const rng = createRng(state.rngState);
   const log: LogEntry[] = [];
@@ -301,10 +329,21 @@ export function resolveRound(state: FightState, action: Action): FightState {
     const success = roll(rng, fleeChance(player.agility, enemy.agility));
     log.push({ t: "flee", success });
     if (success) outcome = "fled";
+  } else if (action.type === "item") {
+    const id = action.itemId;
+    player.draughts![id] = draughtsLeft(player, id) - 1;
+    const amount =
+      id === "healing_draught"
+        ? Math.min(player.maxHp - player.hp, Math.round(player.maxHp * DRAUGHT_RESTORE))
+        : Math.min(player.maxResource - player.resource, Math.round(player.maxResource * DRAUGHT_RESTORE));
+    if (id === "healing_draught") player.hp += amount;
+    else player.resource += amount;
+    log.push({ t: "draught", item: id, amount });
   } else if (action.type === "attack") {
     let power = 1;
     if (player.charges > 0) {
       player.charges -= 1;
+      if (player.charges === 0) delete player.chargeItem;
       power *= CHARGE_MULTIPLIER;
     }
     const r = strike(rng, player, enemy, power);
@@ -349,7 +388,7 @@ function skillScore(s: Skill, enemy: Combatant): number {
 
 /**
  * Auto-battle policy (used for weak mobs and for the balance simulation):
- * heal under 35% HP if possible, else the affordable skill with the most
+ * heal under 35% HP with a skill or a healing draught if possible, else the affordable skill with the most
  * expected damage if it beats a basic attack, else a basic attack.
  */
 export function autoAction(state: FightState): Action {
@@ -361,11 +400,13 @@ export function autoAction(state: FightState): Action {
   if (p.hp / p.maxHp < 0.35) {
     const heal = usable.find((s) => s.effect.heal !== undefined);
     if (heal) return { type: "skill", skillId: heal.id };
+    if (draughtsLeft(p, "healing_draught") > 0) return { type: "item", itemId: "healing_draught" };
   }
+  const attack = p.charges > 0 ? CHARGE_MULTIPLIER : 1;
   let best: { id: string; score: number } | undefined;
   for (const s of usable) {
     const score = skillScore(s, state.enemy);
-    if (score > 1 && (!best || score > best.score)) best = { id: s.id, score };
+    if (score > attack && (!best || score > best.score)) best = { id: s.id, score };
   }
   return best ? { type: "skill", skillId: best.id } : { type: "attack" };
 }
