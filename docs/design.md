@@ -672,6 +672,17 @@ helm and the lantern flail. Weakest of the set, to redo first: the Hollow
 Stag (a plain stag, no bark or branch antlers), the Mangy Cur (not starved)
 and the Drowned Scavenger (drawn inside a frame, cropped).
 
+The other 13 scenes and the map backdrop were made on 2026-11-25. Most
+scenes come out inside a parchment frame, so each has its own `cropInset`
+(0.05 to 0.09). The notice board was reworded after Z-Image Turbo drew an
+asphalt road and fake lettering three times: it now asks for a dirt track and
+blank sheets. The map was made with **Nano Banana 2.1** (US$0.10 an image),
+because Z-Image Turbo drew lines like roads between the fields and too strong
+colours on all three tries. Weakest of the scenes, to redo first: the
+Hermit's Rise (the path is a ladder and the hut is small), the Bramble Edge
+(a wooden palisade more than a wall of brambles) and the Drowned Mill (the
+mill stands beside the water, not half sunk in it).
+
 ### Fight scene
 
 A fight is shown as a picture (since the first visuals step): the node's
@@ -697,8 +708,10 @@ market, smithy, warehouse and notice board are a list of buttons shown while
 in town. Places one road away are lit and can be tapped to go there, the
 character's own place is green, and the rest are shown dimmed with their
 level range. Markers carry the living world: a green count of other players
-there and a red mark where someone fell. Until the map backdrop is
-generated, the roads and markers sit on a plain dark parchment tone.
+there and a red mark where someone fell. The backdrop is a muted parchment
+map with no roads or labels of its own: village and fields in the west, the
+Thornwood across the middle and the grey ash hills in the east. If it is
+missing, the roads and markers sit on a plain dark parchment tone.
 
 ### Interface
 
