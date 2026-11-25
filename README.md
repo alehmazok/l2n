@@ -83,6 +83,20 @@ TEST_DATABASE_URL=postgres://l2n:l2n@localhost:5432/l2n_test pnpm test
 change a formula or a skill, it tells you whether fights are still in the
 target range from the design doc.
 
+### Coverage
+
+```sh
+pnpm coverage                      # text table in the terminal, HTML in coverage/index.html
+node scripts/coverage-summary.mjs  # per-package Markdown table
+```
+
+CI runs the tests with coverage on every push and pull request (with Postgres,
+so `pg.ts` is covered there), puts the per-package table in the run's summary
+and keeps the HTML report as the `coverage-report` artifact for 14 days. There
+is no minimum threshold yet. Game rules (`shared`) and the server's routes and
+stores are the parts that must stay well covered; the client's DOM screens are
+not unit tested.
+
 ## License
 
 [MIT](LICENSE) © 2026 Aleh
