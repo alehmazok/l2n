@@ -1,12 +1,18 @@
 import { PASSWORD_MIN } from "@l2n/shared";
 import { api, ApiError } from "../api.js";
 import { $, esc } from "../ui.js";
+import { sceneArt } from "../art.js";
 
 export function renderAuth(root: HTMLElement, onDone: () => void) {
   let mode: "login" | "signup" = "login";
 
   const draw = (error = "") => {
+    // The town square greets a visitor; the road out of it until that picture exists.
+    const art = sceneArt("brackwell_square") ?? sceneArt("mossgate_old_road");
     root.innerHTML = `
+      <section class="hero" ${art ? `style="background-image:url('${art}')"` : ""}>
+        <p>The lanterns of Hollowreach went dark in a single night.<br />Walk the roads anyway.</p>
+      </section>
       <section class="panel">
         <div class="tabs">
           <button type="button" class="tab ${mode === "login" ? "active" : ""}" data-mode="login">Log in</button>
