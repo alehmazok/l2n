@@ -1,4 +1,4 @@
-import type { ArchetypeId, CharacterSummary, FightState, Item, ItemLocation, NewItem, RaceId } from "@l2n/shared";
+import type { ArchetypeId, CharacterSummary, ChatChannel, ChatMessage, ChronicleEntry, ChronicleEvent, FallenMarker, FightState, Item, ItemLocation, NewItem, RaceId } from "@l2n/shared";
 
 export interface Account {
   id: number;
@@ -53,6 +53,29 @@ export interface CharacterTx {
   addItem(item: NewItem): Promise<Item>;
   updateItem(id: number, patch: ItemPatch): Promise<Item>;
   deleteItem(id: number): Promise<void>;
+  /** Write a chronicle entry for this character; `first` is worked out from earlier entries. */
+  addChronicle(event: ChronicleEvent, at: Date): Promise<ChronicleEntry>;
+  /** Leave a fallen marker for this character on a node. */
+  addFallen(nodeId: string, mobId: string, at: Date): Promise<FallenMarker>;
+}
+
+export interface NewChatMessage {
+  channel: ChatChannel;
+  accountId: number;
+  characterId: number;
+  name: string;
+  race: RaceId;
+  text: string;
+  at: Date;
+}
+
+/** What the chat rate limit and mutes need to know about an account. */
+export interface ChatStanding {
+  mutedUntil: Date | null;
+  /** Lines sent since the given time. */
+  recent: number;
+  /** When the latest line was sent, if any. */
+  last: Date | null;
 }
 
 /**
@@ -83,4 +106,24 @@ export interface Store {
    * throws, nothing it did is kept.
    */
   withCharacter<T>(accountId: number, id: number, fn: (tx: CharacterTx) => Promise<T>): Promise<T | undefined>;
+
+  /** Mark the account's character as present now; resolves to the character, or undefined if not theirs. */
+  touchCharacter(accountId: number, id: number, at: Date): Promise<CharacterSummary | undefined>;
+  /** Characters seen since `since`, counted per node they stand on. */
+  onlineCounts(since: Date): Promise<Record<string, number>>;
+
+  addChatMessage(m: NewChatMessage): Promise<ChatMessage>;
+  /** Lines on these channels, oldest first: those after `afterId`, or else the latest ones; at most `limit`. */
+  listChat(channels: ChatChannel[], afterId: number | undefined, limit: number): Promise<ChatMessage[]>;
+  chatStanding(accountId: number, since: Date): Promise<ChatStanding>;
+  /**
+   * Keep the account that owns this character out of chat until `until`
+   * (null lifts it) and delete its chat lines. False if no such character.
+   */
+  muteByCharacterName(name: string, until: Date | null): Promise<boolean>;
+
+  /** Chronicle entries, oldest first: those after `afterId`, or else the latest ones; at most `limit`. */
+  listChronicle(afterId: number | undefined, limit: number): Promise<ChronicleEntry[]>;
+  /** Fallen markers left since `since`, newest first, at most `limit`. */
+  listFallen(since: Date, limit: number): Promise<FallenMarker[]>;
 }

@@ -3,6 +3,7 @@ import { renderAuth } from "./screens/auth.js";
 import { renderCharacters } from "./screens/characters.js";
 import { renderCreate } from "./screens/create.js";
 import { renderGame } from "./screens/game.js";
+import { stopWorld } from "./screens/world.js";
 import { $, esc } from "./ui.js";
 import "./style.css";
 
@@ -30,6 +31,7 @@ function drawHeader() {
 
 /** Hash routes: #/ (characters), #/new (create), #/c/:id (game). */
 async function route() {
+  stopWorld();
   drawHeader();
   if (!account) {
     renderAuth(screen, () => void start());
@@ -64,4 +66,19 @@ async function start() {
 }
 
 window.addEventListener("hashchange", () => void route());
+
+// Offline shell (public/sw.js): only in builds, so dev always serves fresh files.
+if (import.meta.env.PROD && "serviceWorker" in navigator) {
+  window.addEventListener("load", () => void navigator.serviceWorker.register("/sw.js").catch(() => {}));
+}
+const banner = document.createElement("div");
+banner.className = "offline-banner";
+banner.textContent = "You are offline. The world will be back when you reconnect.";
+const showOnline = () => (navigator.onLine ? banner.remove() : document.body.prepend(banner));
+window.addEventListener("online", () => {
+  showOnline();
+  void route();
+});
+window.addEventListener("offline", showOnline);
+showOnline();
 void start();

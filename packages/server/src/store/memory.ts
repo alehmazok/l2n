@@ -1,7 +1,19 @@
-import { START_NODE, slotOf, type CharacterSummary, type FightState, type Item } from "@l2n/shared";
-import type { Account, CharacterTx, NewCharacter, Store, StoredFight } from "./types.js";
+import {
+  START_NODE,
+  chronicleKey,
+  slotOf,
+  type CharacterSummary,
+  type ChatChannel,
+  type ChatMessage,
+  type ChronicleEntry,
+  type FallenMarker,
+  type FightState,
+  type Item,
+} from "@l2n/shared";
+import type { Account, CharacterTx, NewCharacter, NewChatMessage, Store, StoredFight } from "./types.js";
 
-type CharRow = CharacterSummary & { accountId: number };
+type CharRow = CharacterSummary & { accountId: number; seenAt?: Date };
+type ChatRow = ChatMessage & { accountId: number };
 type FightRow = StoredFight & { outcome: FightState["outcome"] };
 type ItemRow = Item & { characterId: number };
 
@@ -13,6 +25,10 @@ export class MemoryStore implements Store {
   private characters: CharRow[] = [];
   private fights: FightRow[] = [];
   private items: ItemRow[] = [];
+  private chat: ChatRow[] = [];
+  private chronicle: ChronicleEntry[] = [];
+  private fallen: FallenMarker[] = [];
+  private mutes = new Map<number, Date>();
   private nextId = 1;
   /** Per-character queue standing in for Postgres row locks. */
   private locks = new Map<number, Promise<unknown>>();
@@ -109,6 +125,8 @@ export class MemoryStore implements Store {
     let fight: FightRow | undefined = existingDraft;
     const created: FightRow[] = [];
     let items = this.items.filter((i) => i.characterId === id).map(clone);
+    const chronicle: ChronicleEntry[] = [];
+    const fallen: FallenMarker[] = [];
     const findItem = (itemId: number) => {
       const i = items.find((x) => x.id === itemId);
       if (!i) throw new Error(`No item ${itemId}`);
@@ -153,17 +171,90 @@ export class MemoryStore implements Store {
         findItem(itemId);
         items = items.filter((x) => x.id !== itemId);
       },
+      addChronicle: async (event, at) => {
+        const key = chronicleKey(event);
+        const first = ![...this.chronicle, ...chronicle].some((e) => e.event.kind === event.kind && chronicleKey(e.event) === key);
+        const e = { id: this.nextId++, event: clone(event), name: draft.name, race: draft.race, first, at: at.toISOString() };
+        chronicle.push(e);
+        return clone(e);
+      },
+      addFallen: async (nodeId, mobId, at) => {
+        const m = { id: this.nextId++, nodeId, name: draft.name, race: draft.race, mobId, at: at.toISOString() };
+        fallen.push(m);
+        return { ...m };
+      },
     };
     const result = await fn(tx);
     Object.assign(row, draft);
     this.items = [...this.items.filter((i) => i.characterId !== id), ...items];
     if (existing && existingDraft) Object.assign(existing, existingDraft);
     this.fights.push(...created);
+    this.chronicle.push(...chronicle);
+    this.fallen.push(...fallen);
     return result;
+  }
+
+  async touchCharacter(accountId: number, id: number, at: Date) {
+    const c = this.characters.find((x) => x.accountId === accountId && x.id === id);
+    if (!c) return undefined;
+    c.seenAt = at;
+    return strip(c);
+  }
+
+  async onlineCounts(since: Date) {
+    const out: Record<string, number> = {};
+    for (const c of this.characters) if (c.seenAt && c.seenAt > since) out[c.location] = (out[c.location] ?? 0) + 1;
+    return out;
+  }
+
+  async addChatMessage(m: NewChatMessage) {
+    const row: ChatRow = { id: this.nextId++, channel: m.channel, accountId: m.accountId, name: m.name, race: m.race, text: m.text, at: m.at.toISOString() };
+    this.chat.push(row);
+    return stripChat(row);
+  }
+
+  async listChat(channels: ChatChannel[], afterId: number | undefined, limit: number) {
+    const on = this.chat.filter((m) => channels.includes(m.channel));
+    const rows = afterId === undefined ? on.slice(-limit) : on.filter((m) => m.id > afterId).slice(0, limit);
+    return rows.map(stripChat);
+  }
+
+  async chatStanding(accountId: number, since: Date) {
+    const mine = this.chat.filter((m) => m.accountId === accountId);
+    const last = mine.at(-1);
+    return {
+      mutedUntil: this.mutes.get(accountId) ?? null,
+      recent: mine.filter((m) => new Date(m.at) > since).length,
+      last: last ? new Date(last.at) : null,
+    };
+  }
+
+  async muteByCharacterName(name: string, until: Date | null) {
+    const c = this.characters.find((x) => x.name.toLowerCase() === name.toLowerCase());
+    if (!c) return false;
+    if (until) this.mutes.set(c.accountId, until);
+    else this.mutes.delete(c.accountId);
+    this.chat = this.chat.filter((m) => m.accountId !== c.accountId);
+    return true;
+  }
+
+  async listChronicle(afterId: number | undefined, limit: number) {
+    const rows = afterId === undefined ? this.chronicle.slice(-limit) : this.chronicle.filter((e) => e.id > afterId).slice(0, limit);
+    return rows.map(clone);
+  }
+
+  async listFallen(since: Date, limit: number) {
+    return this.fallen
+      .filter((m) => new Date(m.at) > since)
+      .reverse()
+      .slice(0, limit)
+      .map((m) => ({ ...m }));
   }
 }
 
-const strip = ({ accountId: _, ...c }: CharRow): CharacterSummary => clone(c);
+const stripChat = ({ accountId: _, ...m }: ChatRow): ChatMessage => ({ ...m });
+
+const strip = ({ accountId: _, seenAt: __, ...c }: CharRow): CharacterSummary => clone(c);
 const stripFight = ({ outcome: _, ...f }: FightRow): StoredFight => clone(f);
 /** The same rules as the Postgres unique indexes: one item per slot, one stack per place. */
 function checkItems(items: ItemRow[]) {

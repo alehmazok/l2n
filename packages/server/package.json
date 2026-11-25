@@ -10,7 +10,8 @@
     "start": "node --env-file-if-exists=../../.env dist/index.js",
     "migrate": "tsx --conditions=source --env-file-if-exists=../../.env src/migrate.ts",
     "typecheck": "tsc -p tsconfig.json --noEmit",
-    "test": "vitest run"
+    "test": "vitest run",
+    "mute": "tsx --conditions=source --env-file-if-exists=../../.env src/mute.ts"
   },
   "dependencies": {
     "@fastify/cookie": "^11.1.5",

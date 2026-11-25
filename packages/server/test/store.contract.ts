@@ -224,5 +224,72 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       ).rejects.toThrow("boom");
       expect(await store.listItems(id)).toEqual([]);
     });
+    const at = (min: number) => new Date(Date.UTC(2026, 10, 25, 12, min));
+
+    it("counts characters seen recently per node", async () => {
+      const { accountId, id } = await hero();
+      const other = await store.createAccount("o@example.com", "h");
+      if (other === "email_taken") throw new Error("unexpected");
+      const c2 = await store.createCharacter(char(other.id, "Ilwen"));
+      if (typeof c2 === "string") throw new Error("unexpected");
+      expect(await store.touchCharacter(other.id, id, at(0))).toBeUndefined();
+      expect((await store.touchCharacter(accountId, id, at(0)))?.name).toBe("Fighter");
+      await store.touchCharacter(other.id, c2.id, at(10));
+      expect(await store.onlineCounts(at(-1))).toEqual({ brackwell_square: 2 });
+      await store.withCharacter(accountId, id, (tx) => tx.updateCharacter({ location: "old_road" }));
+      expect(await store.onlineCounts(at(-1))).toEqual({ brackwell_square: 1, old_road: 1 });
+      expect(await store.onlineCounts(at(5))).toEqual({ brackwell_square: 1 });
+    });
+
+    it("stores chat per channel and pages through it", async () => {
+      const { accountId, id } = await hero();
+      const say = (channel: "global" | "mossgate_fields", text: string, min: number) =>
+        store.addChatMessage({ channel, accountId, characterId: id, name: "Fighter", race: "orc", text, at: at(min) });
+      const first = await say("global", "hello <b>all</b>", 0);
+      expect(first).toMatchObject({ channel: "global", name: "Fighter", race: "orc", text: "hello <b>all</b>", at: at(0).toISOString() });
+      await say("mossgate_fields", "rats here", 1);
+      await say("global", "three", 2);
+      await say("global", "four", 3);
+      expect((await store.listChat(["global"], undefined, 2)).map((m) => m.text)).toEqual(["three", "four"]);
+      expect((await store.listChat(["global", "mossgate_fields"], first.id, 2)).map((m) => m.text)).toEqual(["rats here", "three"]);
+      expect(await store.listChat(["thornwood_hollow"], undefined, 10)).toEqual([]);
+      expect(await store.chatStanding(accountId, at(1))).toEqual({ mutedUntil: null, recent: 2, last: at(3) });
+    });
+
+    it("mutes an account by character name and deletes its lines", async () => {
+      const { accountId, id } = await hero();
+      await store.addChatMessage({ channel: "global", accountId, characterId: id, name: "Fighter", race: "orc", text: "spam", at: at(0) });
+      expect(await store.muteByCharacterName("nobody", at(60))).toBe(false);
+      expect(await store.muteByCharacterName("FIGHTER", at(60))).toBe(true);
+      expect(await store.listChat(["global"], undefined, 10)).toEqual([]);
+      expect(await store.chatStanding(accountId, at(-10))).toEqual({ mutedUntil: at(60), recent: 0, last: null });
+      await store.muteByCharacterName("Fighter", null);
+      expect((await store.chatStanding(accountId, at(-10))).mutedUntil).toBeNull();
+    });
+
+    it("writes chronicle entries and fallen markers with the action", async () => {
+      const { accountId, id } = await hero();
+      await store.withCharacter(accountId, id, async (tx) => {
+        const e = await tx.addChronicle({ kind: "boss", mobId: "ashen_warden" }, at(0));
+        expect(e).toMatchObject({ event: { kind: "boss", mobId: "ashen_warden" }, name: "Fighter", race: "orc", first: true, at: at(0).toISOString() });
+        expect((await tx.addChronicle({ kind: "boss", mobId: "ashen_warden" }, at(1))).first).toBe(false);
+        await tx.addFallen("old_road", "mire_rat", at(2));
+      });
+      await expect(
+        store.withCharacter(accountId, id, async (tx) => {
+          await tx.addChronicle({ kind: "profession", profession: "reaver" }, at(3));
+          await tx.addFallen("old_road", "hedge_crow", at(3));
+          throw new Error("boom");
+        }),
+      ).rejects.toThrow("boom");
+      await store.withCharacter(accountId, id, (tx) => tx.addChronicle({ kind: "profession", profession: "reaver" }, at(4)));
+      const all = await store.listChronicle(undefined, 10);
+      expect(all.map((e) => [e.event.kind, e.first])).toEqual([["boss", true], ["boss", false], ["profession", true]]);
+      expect((await store.listChronicle(undefined, 1)).map((e) => e.event.kind)).toEqual(["profession"]);
+      expect((await store.listChronicle(all[0]!.id, 1)).map((e) => e.first)).toEqual([false]);
+      const fallen = await store.listFallen(at(-1), 10);
+      expect(fallen).toEqual([{ id: fallen[0]!.id, nodeId: "old_road", name: "Fighter", race: "orc", mobId: "mire_rat", at: at(2).toISOString() }]);
+      expect(await store.listFallen(at(2), 10)).toEqual([]);
+    });
   });
 }

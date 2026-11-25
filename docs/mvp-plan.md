@@ -90,10 +90,19 @@ and the Burrows elite arrived in stage 5.
 Left for later: more profession skills above level 20, a quest giver per
 quest (everything goes through the notice board for now).
 
-## Stage 6 — Living world and polish
+## Stage 6 — Living world and polish (done)
 
-- Global and zone chat, player counts on nodes, chronicle feed, fallen markers.
-- Installable PWA with offline shell, mobile layout pass.
-- First CC0 icon set.
+- [x] Global and zone chat with length and rate limits, a level gate on
+      global, `/ignore`, and an operator mute.
+- [x] Player counts on nodes and roads, chronicle feed (boss kills,
+      professions, rare crafts, "first ever"), fallen markers.
+- [x] Installable PWA (PNG and maskable icons) with an offline shell; a
+      mobile layout pass: chat as a bottom sheet on phones, a sidebar on wide
+      screens, bigger tap targets.
+- [ ] First icon set: waits for art generated with Venice (Aleh's choice);
+      letter placeholders stay until then.
+
+Left for later: push updates instead of polling, reporting players, chat
+history beyond the latest 50 lines.
 
 After the MVP: async arena, then Capacitor builds for the stores.

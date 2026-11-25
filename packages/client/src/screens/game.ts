@@ -25,23 +25,28 @@ import { api, ApiError, type CraftResult, type FightAction, type GameView, type 
 import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
 import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
 import { boardHtml, questResultHtml, trackerHtml } from "./quests.js";
+import { startWorld } from "./world.js";
 
 /**
  * The main game screen for one character: status bars, then either the
  * current place on the map (roads, hunt, rest) or the fight in progress.
  */
-export async function renderGame(root: HTMLElement, id: number) {
-  root.innerHTML = `<p class="muted">Loading…</p>`;
+export async function renderGame(screen: HTMLElement, id: number) {
+  screen.innerHTML = `<p class="muted">Loading…</p>`;
   let view: GameView;
   try {
     view = await api.character(id);
   } catch (err) {
     if (err instanceof ApiError && err.status === 404) {
-      root.innerHTML = `<section class="panel"><p>Character not found.</p><a href="#/">Back</a></section>`;
+      screen.innerHTML = `<section class="panel"><p>Character not found.</p><a href="#/">Back</a></section>`;
       return;
     }
     throw err;
   }
+  // The game panels redraw after every action; the world panel (chat, chronicle) lives beside them and keeps its own state.
+  screen.innerHTML = `<div class="game-layout"><div class="game-main"></div><aside class="game-world"></aside></div>`;
+  const root = screen.querySelector<HTMLElement>(".game-main")!;
+  const world = startWorld(screen.querySelector<HTMLElement>(".game-world")!, root, id, () => view.character.location);
 
   let last: { result: FightResult; fight: PublicFightState } | null = null;
   let crafted: CraftResult | null = null;
@@ -150,6 +155,7 @@ export async function renderGame(root: HTMLElement, id: number) {
     });
     const log = root.querySelector(".log");
     if (log) log.scrollTop = log.scrollHeight;
+    world.decorate();
   };
 
   draw();
@@ -172,7 +178,7 @@ function placeHtml(view: GameView) {
     .map((l) => {
       const n = NODES[l]!;
       const lv = nodeLevels(n);
-      return `<button class="road" data-go="${esc(n.id)}">${esc(n.name)}${n.zone !== node.zone ? ` <span class="small">(${esc(ZONES[n.zone].name)})</span>` : ""}${lv ? ` <span class="small">L${lv[0]}–${lv[1]}</span>` : ""}</button>`;
+      return `<button class="road" data-go="${esc(n.id)}">${esc(n.name)}${n.zone !== node.zone ? ` <span class="small">(${esc(ZONES[n.zone].name)})</span>` : ""}${lv ? ` <span class="small">L${lv[0]}–${lv[1]}</span>` : ""}<span class="small fallen-mark" data-fallen="${esc(n.id)}"></span> <span class="small online" data-online="${esc(n.id)}"></span></button>`;
     })
     .join("");
   const mobs = node.mobs
@@ -185,6 +191,8 @@ function placeHtml(view: GameView) {
       <p class="muted small">${esc(zone.name)}${levels ? ` · levels ${levels[0]}–${levels[1]}` : " · safe"}</p>
       <h3>${esc(node.name)}</h3>
       <p>${esc(node.description)}</p>
+      <p class="small muted online-here" data-online="${esc(node.id)}"></p>
+      <ul class="small fallen" id="fallen-here" hidden></ul>
       ${node.service && !OPEN_SERVICES.includes(node.service) ? `<p class="muted small">${esc(SERVICE_NAMES[node.service])}: opens in a later update.</p>` : ""}
       ${mobs ? `<p class="small muted">Seen here:</p><ul class="small mobs">${mobs}</ul>` : ""}
       ${boss ? `<p class="small">${esc(boss.description)} Come prepared: charges, draughts and a full bar.</p>` : ""}

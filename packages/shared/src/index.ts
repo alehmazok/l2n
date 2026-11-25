@@ -14,3 +14,4 @@ export * from "./data/recipes.js";
 export * from "./crafting.js";
 export * from "./data/quests.js";
 export * from "./quests.js";
+export * from "./world.js";

@@ -11,9 +11,9 @@ export const fixedRandom = (...values: number[]) => {
   return () => values[i++ % values.length]!;
 };
 
-export async function setup(opts: { race?: RaceId; archetype?: ArchetypeId; random?: () => number } = {}) {
+export async function setup(opts: { race?: RaceId; archetype?: ArchetypeId; random?: () => number; now?: () => Date } = {}) {
   const store = new MemoryStore();
-  const app = buildApp({ store, random: opts.random ?? fixedRandom(0, 0.5) });
+  const app = buildApp({ store, random: opts.random ?? fixedRandom(0, 0.5), ...(opts.now ? { now: opts.now } : {}) });
   const res = await app.inject({ method: "POST", url: "/api/auth/signup", payload: { email: "g@example.com", password: "long enough" } });
   const c = res.cookies.find((x) => x.name === "l2n_session")!;
   const cookie = `l2n_session=${c.value}`;

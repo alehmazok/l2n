@@ -8,6 +8,7 @@ import { craftingRoutes } from "./routes/crafting.js";
 import { gameRoutes } from "./routes/game.js";
 import { itemRoutes } from "./routes/items.js";
 import { questRoutes } from "./routes/quests.js";
+import { worldRoutes } from "./routes/world.js";
 import { MemoryStore, type Store } from "./store/index.js";
 
 export interface AppOptions {
@@ -43,10 +44,11 @@ export function buildApp(opts: AppOptions = {}) {
   app.register(authRoutes, { store, cookieSecure: opts.cookieSecure ?? false, now });
   app.register(characterRoutes, { store });
   const random = opts.random ?? (() => randomInt(0, 2 ** 32) / 2 ** 32);
-  app.register(gameRoutes, { store, random });
+  app.register(gameRoutes, { store, random, now });
   app.register(itemRoutes, { store });
-  app.register(craftingRoutes, { store, random });
-  app.register(questRoutes, { store });
+  app.register(craftingRoutes, { store, random, now });
+  app.register(questRoutes, { store, now });
+  app.register(worldRoutes, { store, now });
 
   /** Static game data: races, archetypes and professions, skills, the world map, items, recipes, quests and what the market and smithy sell. */
   app.get("/api/meta", async () => ({

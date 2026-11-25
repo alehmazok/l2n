@@ -4,7 +4,7 @@ A turn-based fantasy RPG with the feel of early-2000s online RPGs, for the
 browser and mobile. Original world, names and data; see the
 [design document](docs/design.md).
 
-Status: early prototype (MVP stage 5: quests at the Brackwell notice board and the profession change at level 20).
+Status: early prototype (MVP stage 6: chat, player counts, the chronicle and fallen markers; installable as a PWA).
 
 ## Docs
 
@@ -67,10 +67,32 @@ All game endpoints take and return JSON. Errors look like
 | POST | `/api/characters/:id/deposit` | `{ itemId, quantity? }`: at the Warehouse, for a fee. |
 | POST | `/api/characters/:id/withdraw` | `{ itemId, quantity? }`: at the Warehouse. |
 | POST | `/api/characters/:id/settings` | `{ autoCharges }`: load charges into fights automatically. |
+| GET | `/api/characters/:id/world` | `?chat=<lastId>&chronicle=<lastId>`. Marks the character present and answers `{ online, chat, chronicle, fallen, now }`: players per node, new chat lines on global and the character's zone, new chronicle entries, fallen markers of the last 30 min. Without cursors: the latest 50 lines and 20 entries. |
+| POST | `/api/characters/:id/chat` | `{ channel: "global" \| "zone", text }`. 403 `level_too_low` (global below level 2) or `muted`, 429 `too_fast`. |
 | GET | `/api/meta` | Races, archetypes, skills, zones, map nodes, mobs, items, market stock, inventory limits. |
 
 Game actions answer with `{ character, sheet, items, fight }`. They return 409
 `in_fight` when a fight is in progress and the action needs you to be free.
+
+## Installing on a phone
+
+The client is a PWA. A production build (`pnpm build`) registers a service
+worker (`packages/client/public/sw.js`) that caches the page so it opens
+offline and says so; the API is never cached. To try it locally, run the
+server with `pnpm dev` and the built client with
+`pnpm --filter @l2n/client preview` (port 4173), then use the browser's
+"Install" or "Add to Home Screen". The PNG icons are rendered from
+`icon.svg` by `scripts/render-app-icons.cjs`.
+
+## Moderation
+
+Chat is limited to 200 characters, 1 line per 2 seconds and 8 per minute per
+account, and global chat opens at level 2. Players can hide someone with
+`/ignore Name`. To mute an account (and delete its chat lines):
+
+```sh
+pnpm --filter @l2n/server mute Yrsa 24   # 24 hours; 0 lifts the mute
+```
 
 ## Checks
 
