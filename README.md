@@ -11,6 +11,7 @@ Status: early prototype (MVP stage 6: chat, player counts, the chronicle and fal
 - [Design document](docs/design.md): world, races, archetypes, combat and progression formulas, economy. Game data is derived from it.
 - [Decision log](docs/decisions.md)
 - [MVP plan](docs/mvp-plan.md)
+- [Deploying to a VPS](docs/deploy.md)
 
 ## Structure
 
@@ -19,7 +20,8 @@ packages/
   shared/   types, game data, formulas, deterministic combat engine (used by both sides)
   server/   Node + Fastify API, authoritative game logic, Postgres migrations
   client/   TypeScript + Vite PWA
-docs/       design doc, decision log, MVP plan
+deploy/     Dockerfiles, Caddyfile and Docker Compose stack for production
+docs/       design doc, decision log, MVP plan, deploy guide
 ```
 
 ## Running locally
@@ -97,6 +99,12 @@ VENICE_API_KEY=… node scripts/generate-icons.mjs --model <model-id> --only hea
 node scripts/generate-icons.mjs --dry-run   # print the requests only
 ```
 
+## Deployment
+
+Every merge to `main` that passes CI is built into Docker images on GHCR and
+rolled out to the VPS with Docker Compose (Postgres, server, Caddy with
+automatic HTTPS). Setup, secrets and operations: [docs/deploy.md](docs/deploy.md).
+
 ## Moderation
 
 Chat is limited to 200 characters, 1 line per 2 seconds and 8 per minute per
@@ -106,6 +114,8 @@ account, and global chat opens at level 2. Players can hide someone with
 ```sh
 pnpm --filter @l2n/server mute Yrsa 24   # 24 hours; 0 lifts the mute
 ```
+
+In production: `docker compose exec server node dist/mute.js Yrsa 24`.
 
 ## Checks
 
