@@ -27,8 +27,9 @@ Pillars:
    All names, lore, numbers and assets are our own or clean-licensed (CC0 or
    similar). Nothing comes from another game's client, data or fan databases.
 
-Presentation: no 3D. The MVP uses cards, icons and text. A 2D engine and
-animation may come later.
+Presentation: no 3D. The MVP uses cards, icons, text and still illustrations
+with light CSS animation (see "Art"). A 2D engine and sprite animation may
+come later.
 
 ## 2. World
 
@@ -602,7 +603,7 @@ Deferred, but the data model should not block it:
 ## 13. Out of scope for the MVP
 
 Synchronous PvP, clans and sieges, player trading, enchanting, parties, pets,
-gathering nodes, 2D engine and animations.
+gathering nodes, 2D engine and sprite animations.
 
 ## 14. Art
 
@@ -637,6 +638,26 @@ a hammer and a torch instead of a branding iron) and the two Ember Vials,
 which look almost the same.
 
 Character portraits are still a tinted tile with a letter.
+
+### Illustrations
+
+Decided 2026-11-25: the game gets pictures without an engine. The client
+stays HTML and CSS; still illustrations in the same linocut style and short
+CSS animations played from the fight log carry the fights, the places and
+the map. Planned set, about 63 images: 31 mobs (512 px), a wide scene for
+each of the 14 nodes (960×540 px, also the backdrop of fights there), 10
+portraits (race × archetype, 256 px), a parchment backdrop for the world map
+with the nodes and roads drawn over it in SVG, 4 townsfolk and a few
+textures. Sprite animation and a walkable map stay out until a 2D engine.
+
+The art is made like the icons: `packages/client/src/assets/art/manifest.json`
+holds the prompt, model, seed and post-processing of every image, and
+`node scripts/generate-icons.mjs --set art` makes them through the Venice
+API. The first step is a trial of six images (Mire Rat, Dell Spider, Ashen
+Warden, Old Road, an orc warrior and a dusk elf mage) to check that the
+model holds the style on creatures, faces and wide scenes before the full
+set is generated. Their entries are in the manifest; the images are not
+made yet.
 
 ## 15. Technical shape
 
