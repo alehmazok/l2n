@@ -1,6 +1,7 @@
 import { PROFESSIONS } from "@l2n/shared";
 import { api } from "../api.js";
-import { archetypeName, esc, portrait, raceName } from "../ui.js";
+import { archetypeName, esc, raceName } from "../ui.js";
+import { portrait } from "../art.js";
 
 export async function renderCharacters(root: HTMLElement) {
   root.innerHTML = `<p class="muted">Loading characters…</p>`;
@@ -9,7 +10,7 @@ export async function renderCharacters(root: HTMLElement) {
     .map(
       (c) => `
       <a class="card" href="#/c/${c.id}">
-        ${portrait(c.race, c.name)}
+        ${portrait(c.race, c.archetype, c.name)}
         <span><b>${esc(c.name)}</b><br />
         <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(c.profession ? PROFESSIONS[c.profession].name : archetypeName(c.archetype))}</span></span>
       </a>`,

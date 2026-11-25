@@ -21,8 +21,10 @@ import {
   type PublicFightState,
   type Slot,
 } from "@l2n/shared";
-import { api, ApiError, type CraftResult, type FightAction, type GameView, type QuestResult } from "../api.js";
-import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
+import { api, ApiError, type CraftResult, type FightAction, type FightView, type GameView, type QuestResult } from "../api.js";
+import { archetypeName, esc, raceName, sheetHtml } from "../ui.js";
+import { mobArt, portrait, sceneArt } from "../art.js";
+import { plan, play, playable, type Side } from "../fightfx.js";
 import { skillIcon } from "../icons.js";
 import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
 import { boardHtml, questResultHtml, trackerHtml } from "./quests.js";
@@ -49,7 +51,10 @@ export async function renderGame(screen: HTMLElement, id: number) {
   const root = screen.querySelector<HTMLElement>(".game-main")!;
   const world = startWorld(screen.querySelector<HTMLElement>(".game-world")!, root, id, () => view.character.location);
 
-  let last: { result: FightResult; fight: PublicFightState } | null = null;
+  let last: { result: FightResult; fight: FightView } | null = null;
+  // How much of which fight's log has been shown, so only new entries are animated; a fight found on arrival is not replayed.
+  let seen: { id: number; len: number } | null = view.fight ? { id: view.fight.id, len: view.fight.state.log.length } : null;
+  let stop = () => {};
   let crafted: CraftResult | null = null;
   let quested: QuestResult | null = null;
   let busy = false;
@@ -63,7 +68,7 @@ export async function renderGame(screen: HTMLElement, id: number) {
     try {
       const next = await fn();
       // Keep the final state of a fight that just ended so its log stays on screen.
-      if (next.result && next.ended) last = { result: next.result, fight: next.ended.state };
+      if (next.result && next.ended) last = { result: next.result, fight: next.ended };
       else if (next.fight) last = null;
       crafted = next.craft ?? null;
       quested = next.quest ?? null;
@@ -81,17 +86,17 @@ export async function renderGame(screen: HTMLElement, id: number) {
     root.innerHTML = `
       <section class="panel">
         <div class="row head">
-          ${portrait(c.race, c.name)}
+          ${portrait(c.race, c.archetype, c.name)}
           <div class="grow"><h2>${esc(c.name)}</h2>
           <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(c.profession ? PROFESSIONS[c.profession].name : archetypeName(c.archetype))} · ${c.silver} silver</span></div>
         </div>
-        ${bar("HP", c.hp, sheet.maxHp, "hp")}
+        ${bar("HP", c.hp, sheet.maxHp, "hp", fight ? "player" : undefined)}
         ${sheet.resource.kind === "mana" ? bar("Mana", c.resource, sheet.resource.max, "mana") : ""}
         ${sheet.xpToNext === null ? `<p class="small muted">Maximum level.</p>` : bar("XP", c.xp, sheet.xpToNext, "xp")}
       </section>
       ${error ? `<p class="bad panel" role="alert">${esc(error)}</p>` : ""}
       ${fight ? fightHtml(view) : ""}
-      ${last ? resultHtml(last.result, last.fight) : ""}
+      ${last ? resultHtml(last.result, last.fight, view) : ""}
       ${crafted && !fight ? craftHtml(crafted) : ""}
       ${quested && !fight ? questResultHtml(quested) : ""}
       ${fight ? "" : placeHtml(view)}
@@ -156,15 +161,59 @@ export async function renderGame(screen: HTMLElement, id: number) {
     });
     const log = root.querySelector(".log");
     if (log) log.scrollTop = log.scrollHeight;
+    animate();
     world.decorate();
   };
 
+  /** Plays what is new in the fight on screen (the one in progress, or the one that just ended) on its scene. */
+  const animate = () => {
+    stop();
+    stop = () => {};
+    const shown = view.fight ?? last?.fight;
+    const scene = root.querySelector<HTMLElement>(".scene");
+    if (!shown || !scene) return;
+    const from = seen?.id === shown.id ? seen.len : 0;
+    seen = { id: shown.id, len: shown.state.log.length };
+    const over = () => scene.classList.add("scene-settled");
+    const { steps, start } = plan(shown.state, from);
+    if (!playable(steps)) return over();
+    const setHp = (side: Side, hp: number) =>
+      root.querySelectorAll<HTMLElement>(`.bar[data-hp="${side}"]`).forEach((b) => setBar(b, hp));
+    setHp("player", start.player);
+    setHp("enemy", start.enemy);
+    stop = play(scene, steps, setHp, over);
+  };
   draw();
 }
 
-function bar(label: string, value: number, max: number, kind: string) {
+/** Redraws a bar made by `bar` at another value. */
+function setBar(el: HTMLElement, value: number) {
+  const max = Number(el.getAttribute("aria-valuemax"));
+  el.setAttribute("aria-valuenow", String(value));
+  el.querySelector<HTMLElement>(".fill")!.style.width = `${(max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0).toFixed(1)}%`;
+  el.querySelector<HTMLElement>(".label")!.textContent = `${el.getAttribute("aria-label")} ${value} / ${max}`;
+}
+
+/**
+ * The picture of a fight: the node's scene behind, the hero on the left and
+ * the mob on the right. `outcome` is set once the fight is over.
+ */
+function sceneHtml(f: FightView, view: GameView, outcome?: FightResult["outcome"]) {
+  const c = view.character;
+  const mob = MOBS[f.mobId];
+  const art = mobArt(f.mobId);
+  const back = sceneArt(f.nodeId);
+  // Build-time URLs from Vite, never user input, so they need no escaping.
+  return `
+    <div class="scene role-${mob?.role ?? "normal"}${outcome ? ` scene-${outcome}` : ""}" ${back ? `style="background-image:url('${back}')"` : ""} aria-hidden="true">
+      <div class="fighter fighter-player">${portrait(c.race, c.archetype, c.name)}</div>
+      <div class="fighter fighter-enemy"><span class="mob-card">${art ? `<img src="${art}" alt="" decoding="async" />` : esc(f.state.enemy.name.charAt(0))}</span></div>
+    </div>`;
+}
+
+function bar(label: string, value: number, max: number, kind: string, side?: Side) {
   const pct = max > 0 ? Math.max(0, Math.min(100, (value / max) * 100)) : 0;
-  return `<div class="bar bar-${kind}" role="meter" aria-label="${label}" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}">
+  return `<div class="bar bar-${kind}" ${side ? `data-hp="${side}"` : ""} role="meter" aria-label="${label}" aria-valuenow="${value}" aria-valuemin="0" aria-valuemax="${max}">
     <span class="fill" style="width:${pct.toFixed(1)}%"></span><span class="label">${label} ${value} / ${max}</span></div>`;
 }
 
@@ -260,10 +309,11 @@ function fightHtml(view: GameView) {
     <section class="panel fight">
       <h3>${esc(s.enemy.name)} <span class="muted small">L${s.enemy.level}</span></h3>
       ${mob ? `<p class="small muted">${esc(mob.description)}</p>` : ""}
-      ${bar("HP", s.enemy.hp, s.enemy.maxHp, "enemy")}
+      ${sceneHtml(f, view)}
+      ${bar("HP", s.enemy.hp, s.enemy.maxHp, "enemy", "enemy")}
       ${effectsHtml(s.enemy.effects)}
       <hr />
-      ${bar("HP", p.hp, p.maxHp, "hp")}
+      ${bar("HP", p.hp, p.maxHp, "hp", "player")}
       ${bar(res, p.resource, p.maxResource, isMage ? "mana" : "focus")}
       ${effectsHtml(p.effects)}
       <div class="row actions">
@@ -278,7 +328,8 @@ function fightHtml(view: GameView) {
     </section>`;
 }
 
-function resultHtml(r: FightResult, s: PublicFightState) {
+function resultHtml(r: FightResult, f: FightView, view: GameView) {
+  const s = f.state;
   const lines: string[] = [];
   if (r.outcome === "won") lines.push(`<b class="good">Victory.</b> ${esc(s.enemy.name)} is defeated. +${r.xpGained} XP.`);
   if (r.outcome === "fled") lines.push(`You got away from ${esc(s.enemy.name)}.`);
@@ -297,7 +348,7 @@ function resultHtml(r: FightResult, s: PublicFightState) {
     if (r.loot.lost.length)
       lines.push(`<span class="bad">Your bag is full. Left behind: ${r.loot.lost.map((i) => esc(itemName(i))).join(", ")}.</span>`);
   }
-  return `<section class="panel result">${lines.map((l) => `<p>${l}</p>`).join("")}
+  return `<section class="panel result">${sceneHtml(f, view, r.outcome)}${lines.map((l) => `<p>${l}</p>`).join("")}
     <details><summary class="small">Fight log</summary>${logHtml(s)}</details></section>`;
 }
 

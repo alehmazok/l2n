@@ -16,11 +16,6 @@ export const STAT_LABELS: Record<StatName, string> = {
   spirit: "Spirit",
 };
 
-/** Placeholder portrait until real art exists: the first letter on a tinted tile. */
-export function portrait(race: keyof typeof RACES, label: string) {
-  return `<span class="portrait portrait-${race}" aria-hidden="true">${esc(label.charAt(0))}</span>`;
-}
-
 export const raceName = (id: keyof typeof RACES) => RACES[id].name;
 export const archetypeName = (id: keyof typeof ARCHETYPES) => ARCHETYPES[id].name;
 
