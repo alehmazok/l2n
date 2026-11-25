@@ -75,3 +75,7 @@ TEST_DATABASE_URL=postgres://l2n:l2n@localhost:5432/l2n_test pnpm test
 `packages/shared/test/combat.test.ts` includes a balance simulation: if you
 change a formula or a skill, it tells you whether fights are still in the
 target range from the design doc.
+
+## License
+
+[MIT](LICENSE) © 2026 Aleh
