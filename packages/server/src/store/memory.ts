@@ -71,6 +71,7 @@ export class MemoryStore implements Store {
       location: START_NODE,
       autoCharges: true,
       recipes: [] as string[],
+      quests: {},
       createdAt: new Date().toISOString(),
     };
     this.characters.push(c);

@@ -72,13 +72,23 @@ stage 4.
 - [x] Balance tests for elites and the boss; economy simulation test
       (silver in vs. out per hour of hunting).
 
-Left for later: a respawn timer for the boss, the Lantern ward charm recipe
-(given by the profession quest in stage 5), the Burrows elite (stage 5).
+Left for later: a respawn timer for the boss. The Lantern Ward Charm recipe
+and the Burrows elite arrived in stage 5.
 
-## Stage 5 — Quests and professions
+## Stage 5 — Quests and professions (done)
 
-- Quest system and the 8–10 quests.
-- Profession chain and the four professions with their first skills.
+- [x] Quest system at the Brackwell notice board: kill, deliver, craft,
+      visit and warehouse objectives, quest-only drops, a fight chain that
+      resets on death, gifts on taking a quest, rewards, abandoning.
+- [x] Ten quests from level 1 to 20, about a third of the XP to level 20.
+- [x] The Burrow Queen, a quest elite challenged in the Burrows.
+- [x] Profession chain (The Unlit Path, Warden's Crypt) with the Lantern
+      Ward Charm, and the four professions with a passive and two skills
+      each; new engine effects: drain, weaken, blight.
+- [x] Balance tests for professions at level 20 and the Burrow Queen.
+
+Left for later: more profession skills above level 20, a quest giver per
+quest (everything goes through the notice board for now).
 
 ## Stage 6 — Living world and polish
 

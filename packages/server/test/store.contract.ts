@@ -169,6 +169,10 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       expect(silver).toMatchObject({ silver: 120, autoCharges: false, recipes: [] });
       await store.withCharacter(accountId, id, (tx) => tx.updateCharacter({ recipes: ["whetstones_1", "ironbound_mail"] }));
       expect((await store.getCharacter(accountId, id))?.recipes).toEqual(["whetstones_1", "ironbound_mail"]);
+      expect((await store.getCharacter(accountId, id))).toMatchObject({ quests: {}, profession: null });
+      const quests = { mud_and_rats: { status: "done" as const, progress: [5] }, hermits_lamp: { status: "active" as const, progress: [2] } };
+      await store.withCharacter(accountId, id, (tx) => tx.updateCharacter({ quests, profession: "vanguard" }));
+      expect((await store.getCharacter(accountId, id))).toMatchObject({ quests, profession: "vanguard" });
       const sword: NewItem = { templateId: "ironbound_warrior_weapon", itemLevel: 4, rarity: "rare", bonus: "crit", quantity: 1, location: "bag" };
       const added = await store.withCharacter(accountId, id, async (tx) => {
         const s = await tx.addItem(sword);

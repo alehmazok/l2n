@@ -35,6 +35,21 @@ describe("api", () => {
     expect(fetch).toHaveBeenLastCalledWith("/api/characters/3/challenge", expect.objectContaining({ method: "POST", body: null }));
   });
 
+  it("posts notice board actions", async () => {
+    const fetch = respond(200, {});
+    vi.stubGlobal("fetch", fetch);
+    const last = (url: string, body: object) =>
+      expect(fetch).toHaveBeenLastCalledWith(url, expect.objectContaining({ method: "POST", body: JSON.stringify(body) }));
+    await api.acceptQuest(3, "mud_and_rats");
+    last("/api/characters/3/quests/accept", { questId: "mud_and_rats" });
+    await api.abandonQuest(3, "mud_and_rats");
+    last("/api/characters/3/quests/abandon", { questId: "mud_and_rats" });
+    await api.completeQuest(3, "mud_and_rats");
+    last("/api/characters/3/quests/complete", { questId: "mud_and_rats" });
+    await api.completeQuest(3, "wardens_crypt", "reaver");
+    last("/api/characters/3/quests/complete", { questId: "wardens_crypt", profession: "reaver" });
+  });
+
   it("turns server errors into ApiError with the server's code and message", async () => {
     vi.stubGlobal("fetch", respond(409, { error: "name_taken", message: "That name is taken." }));
     const err = await api.createCharacter("Aldric", "human", "warrior").catch((e: unknown) => e);

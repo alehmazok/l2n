@@ -5,7 +5,6 @@
  */
 import { ARCHETYPES } from "./data/archetypes.js";
 import { RACES } from "./data/races.js";
-import { SKILLS } from "./data/skills.js";
 import {
   MAX_FOCUS,
   attackPower,
@@ -16,8 +15,10 @@ import {
   xpToNext,
 } from "./formulas.js";
 import { gearStats, starterItems, type GearStats } from "./items.js";
-import { characterMaxHp, racialBonuses } from "./progression.js";
-import type { ArchetypeId, RaceId, Skill, Stats } from "./types.js";
+import { PROFESSIONS } from "./data/archetypes.js";
+import { characterMaxHp, professionBonuses, racialBonuses, skillsFor } from "./progression.js";
+import type { QuestLog } from "./quests.js";
+import type { ArchetypeId, ProfessionId, RaceId, Skill, Stats } from "./types.js";
 
 export const MAX_CHARACTERS_PER_ACCOUNT = 4;
 export const CHARACTER_NAME_MIN = 3;
@@ -63,7 +64,7 @@ export interface CharacterSummary {
   name: string;
   race: RaceId;
   archetype: ArchetypeId;
-  profession: string | null;
+  profession: ProfessionId | null;
   level: number;
   xp: number;
   hp: number;
@@ -74,6 +75,8 @@ export interface CharacterSummary {
   autoCharges: boolean;
   /** Smithy recipes the character has learned (ids in RECIPES). */
   recipes: string[];
+  /** Quests taken and done (see quests.ts). */
+  quests: QuestLog;
   createdAt: string;
 }
 
@@ -90,6 +93,8 @@ export interface CharacterSheet {
   xpBonus: number;
   xpToNext: number | null;
   passive: { name: string; description: string };
+  /** The profession's passive, once the character has one. */
+  professionPassive: { name: string; description: string } | null;
   skills: { learned: Skill[]; upcoming: Skill[] };
   gear: GearStats;
 }
@@ -97,25 +102,27 @@ export interface CharacterSheet {
 /** Gear of a brand-new character. */
 export const starterGear = (archetype: ArchetypeId) => gearStats(starterItems(archetype));
 
-/** Derived numbers for a character, with the racial passive and worn gear applied. */
-export function characterSheet(race: RaceId, archetype: ArchetypeId, level: number, gear: GearStats): CharacterSheet {
+/** Derived numbers for a character, with the racial and profession passives and worn gear applied. */
+export function characterSheet(race: RaceId, archetype: ArchetypeId, level: number, gear: GearStats, profession: ProfessionId | null = null): CharacterSheet {
   const a = ARCHETYPES[archetype];
   const stats = characterStats(race, archetype);
   const resourceMax = a.resource === "mana" ? maxMana(level, stats.spirit) : MAX_FOCUS;
   const next = xpToNext(level);
   const bonus = racialBonuses(race);
-  const own = SKILLS.filter((s) => s.archetype === archetype);
+  const prof = professionBonuses(profession);
+  const own = skillsFor(archetype, profession);
   return {
     stats,
-    maxHp: characterMaxHp(race, archetype, level, gear.hpBonus),
+    maxHp: characterMaxHp(race, archetype, level, gear.hpBonus, profession),
     resource: { kind: a.resource, max: resourceMax, startsAt: a.resource === "mana" ? resourceMax : 0 },
     attack: Math.round(attackPower(level, stats[a.mainStat], gear.weaponPower)),
-    defence: Math.round(defensePower(level, stats.vitality, gear.armour)),
+    defence: Math.round(defensePower(level, stats.vitality, gear.armour) * (1 + prof.defence)),
     critChance: critChance(stats.agility, bonus.crit + gear.critBonus),
-    damageBonus: bonus.damage,
+    damageBonus: bonus.damage + prof.damage,
     xpBonus: bonus.xp,
     xpToNext: Number.isFinite(next) ? next : null,
     passive: RACES[race].passive,
+    professionPassive: profession ? PROFESSIONS[profession].passive : null,
     skills: { learned: own.filter((s) => s.level <= level), upcoming: own.filter((s) => s.level > level) },
     gear,
   };

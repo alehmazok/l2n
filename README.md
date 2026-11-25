@@ -4,7 +4,7 @@ A turn-based fantasy RPG with the feel of early-2000s online RPGs, for the
 browser and mobile. Original world, names and data; see the
 [design document](docs/design.md).
 
-Status: early prototype (MVP stage 4: crafting, Thornwood Hollow, Cinder Barrows and the Ashen Warden).
+Status: early prototype (MVP stage 5: quests at the Brackwell notice board and the profession change at level 20).
 
 ## Docs
 
@@ -35,7 +35,8 @@ pnpm dev            # server on :3000, client on :5173
 ```
 
 Open http://localhost:5173, create an account and a character, walk from
-Brackwell Square to the Old Road and hunt. Sell the loot at the Market.
+Brackwell Square to the Notice Board for your first quest, then to the Old Road
+to hunt. Sell the loot at the Market.
 
 Without `DATABASE_URL` the dev server falls back to an in-memory store and
 warns about it: handy for a quick look, but accounts vanish on restart.

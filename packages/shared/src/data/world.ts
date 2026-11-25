@@ -8,7 +8,7 @@ export type ZoneId = "brackwell" | "mossgate_fields" | "thornwood_hollow" | "cin
 
 export type TownService = "shop" | "warehouse" | "crafting" | "quests";
 /** Services that work in this build; the others show as "coming soon". */
-export const OPEN_SERVICES: TownService[] = ["shop", "warehouse", "crafting"];
+export const OPEN_SERVICES: TownService[] = ["shop", "warehouse", "crafting", "quests"];
 
 export interface Zone {
   id: ZoneId;
@@ -31,6 +31,8 @@ export interface MapNode {
   service?: TownService;
   /** A boss that can be challenged here on purpose; it never turns up while hunting. */
   boss?: string;
+  /** A foe that can be challenged here only while a quest is active (like the Burrow Queen). */
+  questFoe?: { mob: string; quest: string };
 }
 
 export interface MobTemplate {
@@ -63,6 +65,7 @@ export const MOBS: Record<string, MobTemplate> = {
   drowned_scavenger: { id: "drowned_scavenger", name: "Drowned Scavenger", level: 5, role: "normal", description: "Something that was once a looter, still looking for coin.", drops: [{ item: "iron_scrap", chance: 0.5, max: 2 }, { item: "resin_lump", chance: 0.2 }] },
   burrow_mole: { id: "burrow_mole", name: "Burrow Mole", level: 5, role: "normal", description: "Blind, clawed and very territorial.", drops: [{ item: "rough_hide", chance: 0.45 }, { item: "marsh_herb", chance: 0.2 }] },
   tusked_digger: { id: "tusked_digger", name: "Tusked Digger", level: 6, role: "normal", description: "A tunnelling boar with a bad temper.", drops: [{ item: "rough_hide", chance: 0.4, max: 2 }, { item: "bone_shard", chance: 0.35 }] },
+  burrow_queen: { id: "burrow_queen", name: "Burrow Queen", level: 7, role: "elite", description: "A mole the size of a cart, queen of every tunnel in the hill.", drops: [{ item: "rough_hide", chance: 0.6, max: 3 }, { item: "iron_scrap", chance: 0.4, max: 2 }, { item: "marsh_herb", chance: 0.3 }] },
   burrow_hulk: { id: "burrow_hulk", name: "Burrow Hulk", level: 7, role: "normal", description: "An old digger grown huge in the dark.", drops: [{ item: "rough_hide", chance: 0.4, max: 2 }, { item: "iron_scrap", chance: 0.3 }, { item: "bone_shard", chance: 0.3 }] },
 
   // Thornwood Hollow: forest creatures and bandits, the first elites.
@@ -139,7 +142,7 @@ export const NODES: Record<string, MapNode> = {
     name: "Notice Board",
     zone: "brackwell",
     kind: "town",
-    description: "Bounties and pleas pinned three deep. Most are too faded to read.",
+    description: "Bounties and pleas pinned three deep. Some are fresh enough to read.",
     links: ["brackwell_square"],
     mobs: [],
     service: "quests",
@@ -170,6 +173,7 @@ export const NODES: Record<string, MapNode> = {
     description: "A hillside riddled with tunnels. Something large digs deeper every night.",
     links: ["mossgate_drowned_mill", "thornwood_bramble_edge"],
     mobs: ["burrow_mole", "tusked_digger", "burrow_hulk"],
+    questFoe: { mob: "burrow_queen", quest: "burrow_queen" },
   },
   thornwood_bramble_edge: {
     id: "thornwood_bramble_edge",

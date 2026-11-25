@@ -10,6 +10,7 @@ import {
   buildMob,
   buildPlayer,
   canAutoBattle,
+  challengeAt,
   createRng,
   gearStats,
   pickEncounter,
@@ -17,6 +18,7 @@ import {
   resolveRound,
   restedVitals,
   rollLoot,
+  rollQuestDrops,
   settleFight,
   startFight,
   type Action,
@@ -30,6 +32,7 @@ import type { CharacterTx, Store } from "../store/index.js";
 import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
+import { questEvent } from "./quests.js";
 
 export async function gameRoutes(app: FastifyInstance, opts: { store: Store; random: () => number }) {
   const { store, random } = opts;
@@ -62,6 +65,7 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
         if (!Object.hasOwn(NODES, to)) throw new GameError(400, "unknown_node", "No such place.");
         if (here && !here.links.includes(to)) throw new GameError(400, "not_adjacent", `You cannot go to ${NODES[to]!.name} from here.`);
         await tx.updateCharacter({ location: to });
+        await questEvent(tx, { type: "visit", nodeId: to });
       }),
   );
 
@@ -70,7 +74,7 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
       notFighting(tx);
       const c = tx.character;
       if (NODES[c.location]?.kind !== "town") throw new GameError(400, "not_in_town", "You can only rest in town.");
-      await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus));
+      await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus, c.profession));
     }),
   );
 
@@ -84,12 +88,12 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
     }),
   );
 
-  // Bosses never turn up while hunting; you walk up and challenge them.
+  // Bosses (and quest foes like the Burrow Queen) never turn up while hunting; you walk up and challenge them.
   app.post<{ Params: { id: string } }>("/api/characters/:id/challenge", { schema: { params: idParam } }, (req, reply) =>
     act(req, reply, async (tx) => {
       notFighting(tx);
       const node = NODES[tx.character.location];
-      const boss = node?.boss ? MOBS[node.boss] : undefined;
+      const boss = node ? challengeAt(node, tx.character.quests) : undefined;
       if (!node || !boss) throw new GameError(400, "no_boss", "There is no one here to challenge.");
       await engage(tx, boss, node);
     }),
@@ -150,14 +154,19 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
         const { patch, result } = settleFight({ ...c, gear: gearStats(tx.items) }, state);
         const mob = MOBS[fight.mobId];
         if (state.outcome === "won" && mob) {
-          // Loot rolls continue the fight's own RNG, which the client never sees.
-          const loot = rollLoot(mob, c, createRng(state.rngState));
+          // Loot rolls continue the fight's own RNG, which the client never sees; quest items come after.
+          const rng = createRng(state.rngState);
+          const loot = rollLoot(mob, c, rng);
+          const drops = rollQuestDrops(c.quests, tx.items, mob, fight.nodeId, rng);
           const kept: NewItem[] = [];
           const lost: NewItem[] = [];
-          for (const i of loot.items) ((await inv.put(i)) ? kept : lost).push(i);
+          for (const i of [...loot.items, ...drops]) ((await inv.put(i)) ? kept : lost).push(i);
           result.loot = { silver: loot.silver, items: kept, lost };
           await tx.updateCharacter({ ...patch, silver: c.silver + loot.silver });
         } else await tx.updateCharacter(patch);
+        const quests =
+          state.outcome === "won" ? await questEvent(tx, { type: "kill", mobId: fight.mobId, nodeId: fight.nodeId }) : state.outcome === "lost" ? await questEvent(tx, { type: "loss" }) : [];
+        if (quests.length) result.quests = quests;
         return result;
       }),
   );

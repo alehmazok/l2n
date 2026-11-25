@@ -46,7 +46,7 @@ describe("world data", () => {
   });
 
   it("every mob is keyed by its id and lives somewhere", () => {
-    const placed = new Set(Object.values(NODES).flatMap((n) => [...n.mobs, ...(n.boss ? [n.boss] : [])]));
+    const placed = new Set(Object.values(NODES).flatMap((n) => [...n.mobs, ...(n.boss ? [n.boss] : []), ...(n.questFoe ? [n.questFoe.mob] : [])]));
     for (const [key, mob] of Object.entries(MOBS)) {
       expect(mob.id).toBe(key);
       expect(placed.has(key), key).toBe(true);

@@ -1,3 +1,4 @@
+import { PROFESSIONS } from "@l2n/shared";
 import { api } from "../api.js";
 import { archetypeName, esc, portrait, raceName } from "../ui.js";
 
@@ -10,7 +11,7 @@ export async function renderCharacters(root: HTMLElement) {
       <a class="card" href="#/c/${c.id}">
         ${portrait(c.race, c.name)}
         <span><b>${esc(c.name)}</b><br />
-        <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(archetypeName(c.archetype))}</span></span>
+        <span class="muted">Level ${c.level} ${esc(raceName(c.race))} ${esc(c.profession ? PROFESSIONS[c.profession].name : archetypeName(c.archetype))}</span></span>
       </a>`,
     )
     .join("");

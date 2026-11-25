@@ -29,6 +29,7 @@ import type { CharacterTx, Store } from "../store/index.js";
 import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
+import { questEvent } from "./quests.js";
 
 const SERVICE_NODE: Record<"shop" | "warehouse" | "crafting", string> = { shop: "Market", warehouse: "Warehouse", crafting: "Smithy" };
 
@@ -40,7 +41,7 @@ export function atService(tx: CharacterTx, service: TownService & keyof typeof S
 /** After gear changes, HP above the new maximum is cut back. */
 async function clampHp(tx: CharacterTx) {
   const c = tx.character;
-  const max = characterMaxHp(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus);
+  const max = characterMaxHp(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus, c.profession);
   if (c.hp > max) await tx.updateCharacter({ hp: max });
 }
 
@@ -107,7 +108,7 @@ export async function itemRoutes(app: FastifyInstance, opts: { store: Store }) {
       }
       if (t?.kind !== "draught") throw new GameError(400, "cannot_use", "You cannot use that here.");
       if (t.restores === "hp") {
-        const max = characterMaxHp(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus);
+        const max = characterMaxHp(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus, c.profession);
         if (c.hp >= max) throw new GameError(400, "already_full", "You are already at full health.");
         await inv.take(item, 1);
         await tx.updateCharacter({ hp: Math.min(max, c.hp + Math.round(max * DRAUGHT_RESTORE)) });
@@ -188,6 +189,7 @@ export async function itemRoutes(app: FastifyInstance, opts: { store: Store }) {
             await tx.updateCharacter({ silver: tx.character.silver - WAREHOUSE_FEE });
           }
           await inv.move(item, n, to);
+          if (to === "warehouse") await questEvent(tx, { type: "deposit" });
         }),
     );
 

@@ -19,6 +19,16 @@ export const SKILLS: Skill[] = [
   { id: "mend", name: "Mend", archetype: "mage", level: 13, cost: 18, effect: { heal: 0.3 }, description: "Heal 30% of max HP." },
   { id: "chain_spark", name: "Chain Spark", archetype: "mage", level: 16, cost: 24, effect: { damage: { power: 2.1 } }, description: "2.1x magic damage." },
   { id: "falling_star", name: "Falling Star", archetype: "mage", level: 19, cost: 40, effect: { damage: { power: 2.6 } }, description: "2.6x magic damage." },
+
+  // Profession skills, learned at the profession change (level 20).
+  { id: "bulwark_strike", name: "Bulwark Strike", archetype: "warrior", profession: "vanguard", level: 20, cost: 3, effect: { damage: { power: 1.5 }, drain: 0.4 }, description: "1.5x damage, heal 40% of the damage dealt." },
+  { id: "shield_wall", name: "Shield Wall", archetype: "warrior", profession: "vanguard", level: 20, cost: 3, effect: { buff: { kind: "guard", value: 0.5, turns: 3 } }, description: "-50% damage taken for 3 turns." },
+  { id: "savage_cleave", name: "Savage Cleave", archetype: "warrior", profession: "reaver", level: 20, cost: 4, effect: { damage: { power: 2.6 } }, description: "2.6x damage." },
+  { id: "blood_frenzy", name: "Blood Frenzy", archetype: "warrior", profession: "reaver", level: 20, cost: 2, effect: { buff: { kind: "attack_up", value: 0.35, turns: 3 } }, description: "+35% attack for 3 turns." },
+  { id: "thunderclap", name: "Thunderclap", archetype: "mage", profession: "stormcaller", level: 20, cost: 50, effect: { damage: { power: 3.2 } }, description: "3.2x magic damage." },
+  { id: "storm_lash", name: "Storm Lash", archetype: "mage", profession: "stormcaller", level: 20, cost: 26, effect: { damage: { power: 1.2 }, stun: 0.5 }, description: "1.2x magic damage, 50% chance the target loses its next action." },
+  { id: "life_drain", name: "Life Drain", archetype: "mage", profession: "hexbinder", level: 20, cost: 24, effect: { damage: { power: 1.6 }, drain: 0.5 }, description: "1.6x magic damage, heal 50% of the damage dealt." },
+  { id: "withering_curse", name: "Withering Curse", archetype: "mage", profession: "hexbinder", level: 20, cost: 26, effect: { dot: { name: "blight", power: 0.45, turns: 4 }, weaken: { value: 0.25, turns: 3 } }, description: "Blight for 0.45x per turn for 4 turns; the target's attack is 25% lower for 3 turns." },
 ];
 
 export function skillById(id: string): Skill | undefined {

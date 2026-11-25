@@ -3,7 +3,7 @@
  * Used by the server to settle fights and by the client to preview numbers.
  * Source: docs/design.md, sections "Races", "Progression" and "Death".
  */
-import { ARCHETYPES } from "./data/archetypes.js";
+import { ARCHETYPES, PROFESSIONS } from "./data/archetypes.js";
 import { SKILLS } from "./data/skills.js";
 import { RESPAWN_NODE } from "./data/world.js";
 import type { FightState, PlayerInput } from "./combat.js";
@@ -20,7 +20,7 @@ import {
   xpToNext,
 } from "./formulas.js";
 import { NO_GEAR, type GearStats, type NewItem } from "./items.js";
-import type { ArchetypeId, RaceId } from "./types.js";
+import type { ArchetypeId, ProfessionId, ProfessionInfo, RaceId } from "./types.js";
 
 export interface RacialBonuses {
   xp: number;
@@ -45,9 +45,16 @@ export function racialBonuses(race: RaceId): RacialBonuses {
   return b;
 }
 
-/** Max HP with the racial passive and any max HP bonus from worn gear. */
-export function characterMaxHp(race: RaceId, archetype: ArchetypeId, level: number, gearHpBonus = 0): number {
-  return Math.round(maxHp(archetype, level, characterStats(race, archetype).vitality) * (1 + racialBonuses(race).hp + gearHpBonus));
+/** Numeric effect of a profession's passive; all zero without a profession. */
+export function professionBonuses(profession: ProfessionId | null | undefined): Required<ProfessionInfo["bonuses"]> {
+  const b = profession ? PROFESSIONS[profession]?.bonuses : undefined;
+  return { hp: b?.hp ?? 0, damage: b?.damage ?? 0, defence: b?.defence ?? 0, dot: b?.dot ?? 0 };
+}
+
+/** Max HP with the racial and profession passives and any max HP bonus from worn gear. */
+export function characterMaxHp(race: RaceId, archetype: ArchetypeId, level: number, gearHpBonus = 0, profession?: ProfessionId | null): number {
+  const bonus = racialBonuses(race).hp + professionBonuses(profession).hp + gearHpBonus;
+  return Math.round(maxHp(archetype, level, characterStats(race, archetype).vitality) * (1 + bonus));
 }
 
 /** Max Mana for mages, 0 for warriors (Focus is not stored between fights). */
@@ -55,8 +62,14 @@ export function characterMaxMana(race: RaceId, archetype: ArchetypeId, level: nu
   return ARCHETYPES[archetype].resource === "mana" ? maxMana(level, characterStats(race, archetype).spirit) : 0;
 }
 
-export const learnedSkillIds = (archetype: ArchetypeId, level: number) =>
-  SKILLS.filter((s) => s.archetype === archetype && s.level <= level).map((s) => s.id);
+/** Skills of an archetype (and profession, if any) with the level each unlocks at. */
+export const skillsFor = (archetype: ArchetypeId, profession?: ProfessionId | null) =>
+  SKILLS.filter((s) => s.archetype === archetype && (s.profession === undefined || s.profession === profession));
+
+export const learnedSkillIds = (archetype: ArchetypeId, level: number, profession?: ProfessionId | null) =>
+  skillsFor(archetype, profession)
+    .filter((s) => s.level <= level)
+    .map((s) => s.id);
 
 /** The part of a character that combat and progression need. */
 export interface CharacterVitals {
@@ -67,6 +80,8 @@ export interface CharacterVitals {
   xp: number;
   hp: number;
   resource: number;
+  /** Profession taken at level 20; none if left out. */
+  profession?: ProfessionId | null;
   /** Worn gear; none if left out. */
   gear?: GearStats;
 }
@@ -81,6 +96,7 @@ export interface Loadout {
 /** Combat input for a character with everything they currently have applied. */
 export function playerInputFor(c: CharacterVitals, loadout: Loadout = { charges: 0 }): PlayerInput {
   const bonus = racialBonuses(c.race);
+  const prof = professionBonuses(c.profession);
   const gear = c.gear ?? NO_GEAR;
   return {
     name: c.name,
@@ -89,11 +105,13 @@ export function playerInputFor(c: CharacterVitals, loadout: Loadout = { charges:
     stats: characterStats(c.race, c.archetype),
     weaponPower: gear.weaponPower,
     armour: gear.armour,
-    skills: learnedSkillIds(c.archetype, c.level),
+    skills: learnedSkillIds(c.archetype, c.level, c.profession),
     ...loadout,
     critBonus: bonus.crit + gear.critBonus,
-    damageBonus: bonus.damage,
-    hpBonus: bonus.hp + gear.hpBonus,
+    damageBonus: bonus.damage + prof.damage,
+    hpBonus: bonus.hp + prof.hp + gear.hpBonus,
+    ...(prof.defence ? { defenceBonus: prof.defence } : {}),
+    ...(prof.dot ? { dotBonus: prof.dot } : {}),
     hp: c.hp,
     mana: ARCHETYPES[c.archetype].resource === "mana" ? c.resource : 0,
   };
@@ -135,6 +153,8 @@ export interface FightResult {
   level: number;
   /** What a won fight dropped; `lost` is what did not fit in the bag. */
   loot?: { silver: number; items: NewItem[]; lost: NewItem[] };
+  /** Quests the fight moved forward (or, after a loss, set back). */
+  quests?: string[];
 }
 
 export interface CharacterPatch {
@@ -161,7 +181,7 @@ export function settleFight(c: CharacterVitals, end: FightState): { patch: Chara
       patch: {
         level: c.level,
         xp: c.xp - xpLost,
-        hp: Math.max(1, Math.round(characterMaxHp(c.race, c.archetype, c.level, hpBonus) * RESPAWN_SHARE)),
+        hp: Math.max(1, Math.round(characterMaxHp(c.race, c.archetype, c.level, hpBonus, c.profession) * RESPAWN_SHARE)),
         resource: Math.round(characterMaxMana(c.race, c.archetype, c.level) * RESPAWN_SHARE),
         location: RESPAWN_NODE,
       },
@@ -175,7 +195,7 @@ export function settleFight(c: CharacterVitals, end: FightState): { patch: Chara
     patch: {
       level: next.level,
       xp: next.xp,
-      hp: leveled ? characterMaxHp(c.race, c.archetype, next.level, hpBonus) : Math.max(1, end.player.hp),
+      hp: leveled ? characterMaxHp(c.race, c.archetype, next.level, hpBonus, c.profession) : Math.max(1, end.player.hp),
       resource: leveled ? characterMaxMana(c.race, c.archetype, next.level) : mana(end.player.resource),
     },
     result: { outcome: end.outcome, xpGained, xpLost: 0, levelsGained: next.levelsGained, level: next.level },
@@ -183,6 +203,6 @@ export function settleFight(c: CharacterVitals, end: FightState): { patch: Chara
 }
 
 /** Full HP and Mana, as after resting in town. */
-export function restedVitals(race: RaceId, archetype: ArchetypeId, level: number, gearHpBonus = 0) {
-  return { hp: characterMaxHp(race, archetype, level, gearHpBonus), resource: characterMaxMana(race, archetype, level) };
+export function restedVitals(race: RaceId, archetype: ArchetypeId, level: number, gearHpBonus = 0, profession?: ProfessionId | null) {
+  return { hp: characterMaxHp(race, archetype, level, gearHpBonus, profession), resource: characterMaxMana(race, archetype, level) };
 }
