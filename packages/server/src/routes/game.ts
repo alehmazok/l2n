@@ -21,10 +21,12 @@ import {
   startFight,
   type Action,
   type DraughtId,
+  type MapNode,
+  type MobTemplate,
   type NewItem,
 } from "@l2n/shared";
 import type { FastifyInstance } from "fastify";
-import type { Store } from "../store/index.js";
+import type { CharacterTx, Store } from "../store/index.js";
 import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
@@ -33,6 +35,16 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
   const { store, random } = opts;
   app.addHook("preHandler", requireAccount);
   const act = makeAct(store);
+
+  /** Pack the belt and start a fight with `mob` on `node`. */
+  async function engage(tx: CharacterTx, mob: MobTemplate, node: MapNode) {
+    const c = tx.character;
+    const seed = Math.floor(random() * 2 ** 32);
+    const gear = gearStats(tx.items);
+    const loadout = await new Inventory(tx).packBelt(c, gear);
+    const state = startFight(buildPlayer(playerInputFor({ ...c, gear }, loadout)), buildMob(mob.name, mob.level, mob.role), seed);
+    await tx.createFight({ mobId: mob.id, nodeId: node.id, state });
+  }
 
   app.post<{ Params: { id: string }; Body: { to: string } }>(
     "/api/characters/:id/move",
@@ -68,12 +80,18 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
       const c = tx.character;
       const node = NODES[c.location];
       if (!node || node.kind !== "hunt") throw new GameError(400, "not_hunting_ground", "There is nothing to hunt here.");
-      const mob = pickEncounter(node, c.level, random());
-      const seed = Math.floor(random() * 2 ** 32);
-      const gear = gearStats(tx.items);
-      const loadout = await new Inventory(tx).packBelt(c, gear);
-      const state = startFight(buildPlayer(playerInputFor({ ...c, gear }, loadout)), buildMob(mob.name, mob.level, mob.role), seed);
-      await tx.createFight({ mobId: mob.id, nodeId: node.id, state });
+      await engage(tx, pickEncounter(node, c.level, random()), node);
+    }),
+  );
+
+  // Bosses never turn up while hunting; you walk up and challenge them.
+  app.post<{ Params: { id: string } }>("/api/characters/:id/challenge", { schema: { params: idParam } }, (req, reply) =>
+    act(req, reply, async (tx) => {
+      notFighting(tx);
+      const node = NODES[tx.character.location];
+      const boss = node?.boss ? MOBS[node.boss] : undefined;
+      if (!node || !boss) throw new GameError(400, "no_boss", "There is no one here to challenge.");
+      await engage(tx, boss, node);
     }),
   );
 

@@ -26,6 +26,8 @@ import {
   resolveRound,
   rollLoot,
   rollRarity,
+  chargesBoost,
+  skillById,
   sellPrice,
   slotOf,
   starterItems,
@@ -48,7 +50,7 @@ describe("item data", () => {
     for (const tier of [1, 2] as const)
       for (const a of ["warrior", "mage"] as const)
         for (const slot of SLOTS) expect(eq(equipmentId(tier, a, slot))).toMatchObject({ kind: "equipment", tier, slot, archetype: a });
-    for (const m of Object.values(MOBS)) for (const d of m.drops) expect(ITEMS[d.item]?.kind).toBe("resource");
+    for (const m of Object.values(MOBS)) for (const d of m.drops) expect(["resource", "recipe"]).toContain(ITEMS[d.item]?.kind);
     expect(itemTemplate("nope")).toBeUndefined();
     expect(itemTemplate("toString")).toBeUndefined();
     expect(isStackable(ITEMS.healing_draught!)).toBe(true);
@@ -239,6 +241,24 @@ describe("consumables in a fight", () => {
     expect(start("warrior", { charges: 0, chargeItem: "whetstone_1" }).player.chargeItem).toBeUndefined();
   });
 
+  it("ember vials boost damaging spells, not a mage's basic attack", () => {
+    const m = start("mage", { charges: 2, chargeItem: "ember_vial_1" });
+    const full = { ...m, player: { ...m.player, resource: m.player.maxResource } };
+    expect(resolveRound(full, { type: "attack" }).player.charges).toBe(2);
+    const cast = resolveRound(full, { type: "skill", skillId: "ember_bolt" });
+    expect(cast.player.charges).toBe(1);
+    const plain = resolveRound({ ...full, player: { ...full.player, charges: 0 } }, { type: "skill", skillId: "ember_bolt" });
+    const dmg = (s: FightState) => s.log.find((e) => e.t === "hit" && e.who === "player");
+    expect(dmg(cast)).toBeDefined();
+    expect((dmg(cast) as { amount: number }).amount / (dmg(plain) as { amount: number }).amount).toBeCloseTo(1.3, 1);
+    // Warriors' skills do not take whetstones.
+    const w = start("warrior", { charges: 2, chargeItem: "whetstone_1" });
+    expect(resolveRound({ ...w, player: { ...w.player, resource: 5 } }, { type: "skill", skillId: "heavy_blow" }).player.charges).toBe(2);
+    expect(chargesBoost("mage", skillById("arcane_ward")!)).toBe(false);
+    expect(chargesBoost("mage", skillById("searing_brand")!)).toBe(true);
+    expect(chargesBoost("warrior", "attack")).toBe(true);
+  });
+
   it("auto-battle drinks a healing draught when low and has no heal skill", () => {
     const s = start("warrior", { draughts: { healing_draught: 1 } }, 5);
     expect(autoAction(s)).toEqual({ type: "item", itemId: "healing_draught" });
@@ -248,29 +268,30 @@ describe("consumables in a fight", () => {
 
 describe("economy", () => {
   // Rule of thumb from docs/design.md: an even-level kill pays a bit more
-  // silver than the charges a warrior spends on it, so hunting with charges
-  // is affordable but not free. Warriors are the charge users: mages rarely
-  // make basic attacks.
-  it("a warrior's even-level kill pays 1.1–3.5× the charges it used", () => {
-    for (let level = 1; level <= 20; level++) {
-      const tier = level >= 10 ? 2 : 1;
-      const price = (ITEMS[chargeId("warrior", tier)] as { value: number }).value;
-      let used = 0;
-      const n = 100;
-      for (let seed = 1; seed <= n; seed++) {
-        const p = buildPlayer(
-          playerInputFor(
-            { name: "T", race: "human", archetype: "warrior", level, xp: 0, hp: 9999, resource: 0, gear: referenceGear("warrior", level) },
-            { charges: 100, chargeItem: chargeId("warrior", tier) },
-          ),
-        );
-        used += 100 - autoResolve(startFight(p, buildMob("Mob", level), seed)).player.charges;
+  // silver than the charges spent on it, so hunting with charges is
+  // affordable but not free. Warriors spend them on basic attacks, mages on
+  // damaging spells.
+  for (const archetype of ["warrior", "mage"] as const)
+    it(`a ${archetype}'s even-level kill pays 1.1–3.5× the charges it used`, () => {
+      for (let level = 1; level <= 20; level++) {
+        const tier = level >= 10 ? 2 : 1;
+        const price = (ITEMS[chargeId(archetype, tier)] as { value: number }).value;
+        let used = 0;
+        const n = 100;
+        for (let seed = 1; seed <= n; seed++) {
+          const p = buildPlayer(
+            playerInputFor(
+              { name: "T", race: "human", archetype, level, xp: 0, hp: 9999, resource: 9999, gear: referenceGear(archetype, level) },
+              { charges: 100, chargeItem: chargeId(archetype, tier) },
+            ),
+          );
+          used += 100 - autoResolve(startFight(p, buildMob("Mob", level), seed)).player.charges;
+        }
+        const ratio = mobSilverBase(level) / ((used / n) * price);
+        expect(ratio, `level ${level}`).toBeGreaterThan(1.1);
+        expect(ratio, `level ${level}`).toBeLessThan(3.5);
       }
-      const ratio = mobSilverBase(level) / ((used / n) * price);
-      expect(ratio, `level ${level}`).toBeGreaterThan(1.1);
-      expect(ratio, `level ${level}`).toBeLessThan(3.5);
-    }
-  });
+    });
 
   it("a full shop set costs a few levels of hunting", () => {
     const set = (a: "warrior", iL: number) => fullSet(a, iL).reduce((s, i) => s + itemValue(i as Item), 0);

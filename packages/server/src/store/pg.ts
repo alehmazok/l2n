@@ -4,7 +4,7 @@ import type { Account, CharacterPatch, CharacterTx, ItemPatch, NewCharacter, Sto
 
 const UNIQUE_VIOLATION = "23505";
 
-const CHARACTER_COLUMNS = `id, name, race, archetype, profession, level, xp, hp, resource, silver, location, auto_charges, created_at`;
+const CHARACTER_COLUMNS = `id, name, race, archetype, profession, level, xp, hp, resource, silver, location, auto_charges, recipes, created_at`;
 
 interface CharacterRow {
   id: string;
@@ -19,6 +19,7 @@ interface CharacterRow {
   silver: string;
   location: string;
   auto_charges: boolean;
+  recipes: string[];
   created_at: Date;
 }
 
@@ -35,6 +36,7 @@ const toCharacter = (r: CharacterRow): CharacterSummary => ({
   silver: Number(r.silver),
   location: r.location,
   autoCharges: r.auto_charges,
+  recipes: r.recipes,
   createdAt: r.created_at.toISOString(),
 });
 
@@ -99,6 +101,7 @@ const PATCH_COLUMNS: Record<keyof CharacterPatch, string> = {
   location: "location",
   silver: "silver",
   autoCharges: "auto_charges",
+  recipes: "recipes",
 };
 
 export class PgStore implements Store {

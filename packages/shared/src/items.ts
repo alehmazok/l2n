@@ -22,6 +22,7 @@ import {
   type Tier,
 } from "./data/items.js";
 import type { MobTemplate } from "./data/world.js";
+import { RECIPES, recipeItemId } from "./data/recipes.js";
 import { RARITY_MULTIPLIER, armourFor, weaponPowerFor, type MobRole } from "./formulas.js";
 import { between, roll, type Rng } from "./rng.js";
 import type { ArchetypeId, RaceId } from "./types.js";
@@ -53,6 +54,9 @@ export const SELL_SHARE = 0.3;
 export const MAX_QUANTITY = 999;
 
 const round1 = (v: number) => Math.round(v * 10) / 10;
+
+/** Quest items cannot be sold. */
+export const isSellable = (t: ItemTemplate | undefined) => t !== undefined && t.kind !== "quest";
 
 export const isEquipment = (t: ItemTemplate | undefined): t is EquipmentTemplate => t?.kind === "equipment";
 
@@ -159,11 +163,13 @@ export function itemValue(i: Pick<Item, "templateId" | "itemLevel" | "rarity">):
 export const sellPrice = (i: Pick<Item, "templateId" | "itemLevel" | "rarity">, quantity = 1) =>
   Math.max(1, Math.floor(itemValue(i) * SELL_SHARE)) * quantity;
 
-/** What the Brackwell market sells. */
+/** What the Brackwell market (and, for recipes, the smithy) sells. */
 export interface StockEntry {
   id: string;
   templateId: string;
   itemLevel: number | null;
+  /** Where it is sold; the market unless set. */
+  service?: "shop" | "crafting";
 }
 const gearStock = (itemLevel: number): StockEntry[] =>
   (["warrior", "mage"] as ArchetypeId[]).flatMap((a) =>
@@ -180,7 +186,11 @@ export const SHOP_STOCK: StockEntry[] = [
   stackStock("mana_draught"),
   ...[1, 5, 10, 15].flatMap(gearStock),
 ];
-export const stockEntry = (id: string) => SHOP_STOCK.find((s) => s.id === id);
+/** Recipes the Brackwell smith sells. */
+export const SMITHY_STOCK: StockEntry[] = Object.values(RECIPES)
+  .filter((r) => r.price !== null)
+  .map((r) => ({ id: recipeItemId(r.id), templateId: recipeItemId(r.id), itemLevel: null, service: "crafting" }));
+export const stockEntry = (id: string) => SHOP_STOCK.find((s) => s.id === id) ?? SMITHY_STOCK.find((s) => s.id === id);
 
 /** The item a stock entry gives when bought. */
 export const stockItem = (s: StockEntry, quantity: number): NewItem => ({
@@ -214,14 +224,17 @@ export interface Loot {
   items: NewItem[];
 }
 
-export function rollRarity(rng: Rng): Rarity {
+export function rollRarity(rng: Rng, odds: [Rarity, number][] = RARITY_ODDS): Rarity {
   let r = rng.next();
-  for (const [rarity, p] of RARITY_ODDS) {
+  for (const [rarity, p] of odds) {
     if (r < p) return rarity;
     r -= p;
   }
   return "common";
 }
+
+/** A rare item's bonus roll, even odds; null for other rarities. */
+export const rollBonus = (rarity: Rarity, rng: Rng): RareBonus | null => (rarity === "rare" ? (rng.next() < 0.5 ? "crit" : "hp") : null);
 
 /**
  * What a defeated mob leaves behind. Equipment is for the killer's archetype
@@ -235,6 +248,7 @@ export function rollLoot(mob: MobTemplate, killer: { race: RaceId; archetype: Ar
   const resourceMult = 1 + racialBonuses(killer.race).resourceDrops;
   for (const d of mob.drops) {
     const t = ITEMS[d.item]!;
+    if (t.kind === "recipe" && t.archetype && t.archetype !== killer.archetype) continue;
     if (!roll(rng, d.chance * (t.kind === "resource" ? resourceMult : 1))) continue;
     const max = d.max ?? 1;
     stack(d.item, 1 + Math.floor(rng.next() * max));
@@ -243,7 +257,7 @@ export function rollLoot(mob: MobTemplate, killer: { race: RaceId; archetype: Ar
   if (roll(rng, EQUIPMENT_DROP[mob.role])) {
     const slot = SLOTS[Math.floor(rng.next() * SLOTS.length)]!;
     const rarity = rollRarity(rng);
-    const bonus: RareBonus | null = rarity === "rare" ? (rng.next() < 0.5 ? "crit" : "hp") : null;
+    const bonus = rollBonus(rarity, rng);
     items.push({
       templateId: equipmentId(tierForItemLevel(mob.level), killer.archetype, slot),
       itemLevel: mob.level,

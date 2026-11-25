@@ -15,6 +15,7 @@ import {
   gearStats,
   itemName,
   itemTemplate,
+  isSellable,
   itemValue,
   sellPrice,
   slotOf,
@@ -29,9 +30,9 @@ import { GameError, idParam, makeAct, notFighting } from "./act.js";
 import { requireAccount } from "./auth.js";
 import { Inventory } from "./inventory.js";
 
-const SERVICE_NODE: Record<"shop" | "warehouse", string> = { shop: "Market", warehouse: "Warehouse" };
+const SERVICE_NODE: Record<"shop" | "warehouse" | "crafting", string> = { shop: "Market", warehouse: "Warehouse", crafting: "Smithy" };
 
-function atService(tx: CharacterTx, service: TownService & keyof typeof SERVICE_NODE) {
+export function atService(tx: CharacterTx, service: TownService & keyof typeof SERVICE_NODE) {
   if (NODES[tx.character.location]?.service !== service)
     throw new GameError(400, "not_here", `Go to the ${SERVICE_NODE[service]} in Brackwell first.`);
 }
@@ -97,8 +98,14 @@ export async function itemRoutes(app: FastifyInstance, opts: { store: Store }) {
       const inv = new Inventory(tx);
       const item = inv.find(req.body.itemId, "bag");
       const t = itemTemplate(item.templateId);
-      if (t?.kind !== "draught") throw new GameError(400, "cannot_use", "You cannot use that here.");
       const c = tx.character;
+      if (t?.kind === "recipe") {
+        if (c.recipes.includes(t.recipe)) throw new GameError(400, "already_known", "You already know that recipe.");
+        await inv.take(item, 1);
+        await tx.updateCharacter({ recipes: [...c.recipes, t.recipe] });
+        return;
+      }
+      if (t?.kind !== "draught") throw new GameError(400, "cannot_use", "You cannot use that here.");
       if (t.restores === "hp") {
         const max = characterMaxHp(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus);
         if (c.hp >= max) throw new GameError(400, "already_full", "You are already at full health.");
@@ -130,9 +137,9 @@ export async function itemRoutes(app: FastifyInstance, opts: { store: Store }) {
     (req, reply) =>
       act(req, reply, async (tx) => {
         notFighting(tx);
-        atService(tx, "shop");
         const stock = stockEntry(req.body.stockId);
-        if (!stock) throw new GameError(400, "not_sold", "The market does not sell that.");
+        if (!stock) throw new GameError(400, "not_sold", "Nobody in Brackwell sells that.");
+        atService(tx, stock.service ?? "shop");
         const n = req.body.quantity ?? 1;
         if (stock.itemLevel !== null && n !== 1) throw new GameError(400, "one_at_a_time", "Gear is sold one piece at a time.");
         const item = stockItem(stock, n);
@@ -153,6 +160,7 @@ export async function itemRoutes(app: FastifyInstance, opts: { store: Store }) {
         atService(tx, "shop");
         const inv = new Inventory(tx);
         const item = inv.find(req.body.itemId, "bag");
+        if (!isSellable(itemTemplate(item.templateId))) throw new GameError(400, "cannot_sell", "The trader will not take that. You will need it.");
         const n = req.body.quantity ?? item.quantity;
         await inv.take(item, n);
         await tx.updateCharacter({ silver: tx.character.silver + sellPrice(item, n) });

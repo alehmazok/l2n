@@ -1,9 +1,10 @@
 import cookie from "@fastify/cookie";
 import Fastify from "fastify";
 import { randomInt } from "node:crypto";
-import { ARCHETYPES, BAG_SLOTS, ITEMS, MOBS, NODES, RACES, SHOP_STOCK, SKILLS, WAREHOUSE_FEE, WAREHOUSE_SLOTS, ZONES } from "@l2n/shared";
+import { ARCHETYPES, BAG_SLOTS, ITEMS, MOBS, NODES, RACES, RECIPES, SHOP_STOCK, SKILLS, SMITHY_STOCK, WAREHOUSE_FEE, WAREHOUSE_SLOTS, ZONES } from "@l2n/shared";
 import { authRoutes, sessionHook } from "./routes/auth.js";
 import { characterRoutes } from "./routes/characters.js";
+import { craftingRoutes } from "./routes/crafting.js";
 import { gameRoutes } from "./routes/game.js";
 import { itemRoutes } from "./routes/items.js";
 import { MemoryStore, type Store } from "./store/index.js";
@@ -40,10 +41,12 @@ export function buildApp(opts: AppOptions = {}) {
 
   app.register(authRoutes, { store, cookieSecure: opts.cookieSecure ?? false, now });
   app.register(characterRoutes, { store });
-  app.register(gameRoutes, { store, random: opts.random ?? (() => randomInt(0, 2 ** 32) / 2 ** 32) });
+  const random = opts.random ?? (() => randomInt(0, 2 ** 32) / 2 ** 32);
+  app.register(gameRoutes, { store, random });
   app.register(itemRoutes, { store });
+  app.register(craftingRoutes, { store, random });
 
-  /** Static game data: races, archetypes, skills, the world map, items and the market's stock. */
+  /** Static game data: races, archetypes, skills, the world map, items, recipes and what the market and smithy sell. */
   app.get("/api/meta", async () => ({
     races: RACES,
     archetypes: ARCHETYPES,
@@ -53,6 +56,8 @@ export function buildApp(opts: AppOptions = {}) {
     mobs: MOBS,
     items: ITEMS,
     shop: SHOP_STOCK,
+    smithy: SMITHY_STOCK,
+    recipes: RECIPES,
     limits: { bagSlots: BAG_SLOTS, warehouseSlots: WAREHOUSE_SLOTS, warehouseFee: WAREHOUSE_FEE },
   }));
 

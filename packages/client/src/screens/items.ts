@@ -11,7 +11,13 @@ import {
   TIERS,
   WAREHOUSE_FEE,
   WAREHOUSE_SLOTS,
+  RECIPES,
+  SMITHY_STOCK,
+  craftProblem,
+  bagCount,
   equipProblem,
+  isSellable,
+  recipeChance,
   equipmentStats,
   isEquipment,
   itemName,
@@ -21,6 +27,7 @@ import {
   sellPrice,
   stockItem,
   type CharacterSummary,
+  type Recipe,
   type Item,
   type NewItem,
   type Slot,
@@ -33,7 +40,11 @@ const SLOT_NAMES: Record<Slot, string> = { weapon: "Weapon", head: "Head", chest
 /** Placeholder icon until real art exists: a letter for the kind of item, edged by rarity. */
 export function itemIcon(i: Pick<NewItem, "templateId" | "rarity">) {
   const t = itemTemplate(i.templateId);
-  const letter = !t ? "?" : t.kind === "equipment" ? SLOT_NAMES[t.slot].charAt(0) : t.kind === "charge" ? "✦" : t.kind === "draught" ? "⚗" : "◆";
+  const letter = !t
+    ? "?"
+    : t.kind === "equipment"
+      ? SLOT_NAMES[t.slot].charAt(0)
+      : { charge: "✦", draught: "⚗", resource: "◆", recipe: "§", quest: "★" }[t.kind];
   return `<span class="icon icon-${t?.kind ?? "unknown"} rarity-${i.rarity ?? "common"}" aria-hidden="true">${letter}</span>`;
 }
 
@@ -72,7 +83,7 @@ export function inventoryHtml(c: CharacterSummary, items: Item[]) {
       ? line(i, btn("Take off", { item: "unequip", slot }), ` <span class="muted small">${SLOT_NAMES[slot]}</span>`)
       : `<li class="item"><span class="icon icon-empty" aria-hidden="true"></span><div class="grow muted">${SLOT_NAMES[slot]}: nothing</div></li>`;
   }).join("");
-  const order = { equipment: 0, draught: 1, charge: 2, resource: 3 } as const;
+  const order = { equipment: 0, draught: 1, charge: 2, quest: 3, recipe: 4, resource: 5 } as const;
   const rank = (i: Item) => order[itemTemplate(i.templateId)?.kind ?? "resource"];
   const bag = byPlace(items, "bag").sort((a, b) => rank(a) - rank(b) || a.id - b.id);
   const bagLines = bag
@@ -85,6 +96,9 @@ export function inventoryHtml(c: CharacterSummary, items: Item[]) {
       } else if (t?.kind === "draught") {
         const usable = t.restores === "hp" || ARCHETYPES[c.archetype].resource === "mana";
         actions = btn("Drink", { item: "use", id: i.id }, !usable);
+      } else if (t?.kind === "recipe") {
+        const known = c.recipes.includes(t.recipe);
+        actions = btn(known ? "Known" : "Learn", { item: "use", id: i.id }, known);
       }
       return line(i, actions);
     })
@@ -120,6 +134,7 @@ export function marketHtml(c: CharacterSummary, items: Item[]) {
   const gear = SHOP_STOCK.filter((s) => s.itemLevel !== null && mine(s));
   const sellable = byPlace(items, "bag")
     .map((i) => {
+      if (!isSellable(itemTemplate(i.templateId))) return "";
       const each = sellPrice(i);
       const actions = [
         i.quantity > 1 ? btn(`Sell 1 · ${each}s`, { item: "sell", id: i.id, qty: 1 }) : "",
@@ -173,5 +188,46 @@ export function warehouseHtml(c: CharacterSummary, items: Item[]) {
     <section class="panel"><h3>Store from your bag</h3>
       <p class="small muted">The keeper charges ${WAREHOUSE_FEE} silver for each thing you store. Taking things out is free.</p>
       ${store ? `<ul class="items">${store}</ul>` : `<p class="muted small">Your bag is empty.</p>`}
+    </section>`;
+}
+
+const own = (c: CharacterSummary, r: Recipe) => !r.archetype || r.archetype === c.archetype;
+
+/** One recipe in the book: what it needs (have / need), the fee and the chance, and a Craft button. */
+function recipeLine(c: CharacterSummary, items: Item[], r: Recipe) {
+  const needs = r.inputs
+    .map((i) => {
+      const have = bagCount(items, i.item);
+      return `<span class="${have >= i.quantity ? "" : "bad"}">${esc(itemTemplate(i.item)?.name ?? i.item)} ${have}/${i.quantity}</span>`;
+    })
+    .join(", ");
+  const problem = craftProblem(r, c, items);
+  const made = r.makes.length > 1 ? `${r.makes.length} pieces` : `${r.makes[0]!.quantity > 1 ? `${r.makes[0]!.quantity} × ` : ""}${esc(itemTemplate(r.makes[0]!.item)?.name ?? "")}`;
+  const level = r.itemLevel !== null ? ` · item level ${r.itemLevel}` : "";
+  return `<li class="item"><span class="icon icon-recipe" aria-hidden="true">§</span><div class="grow">${esc(r.name)}
+    <div class="small muted">Makes ${made}${level} · ${Math.round(recipeChance(r, c.race) * 100)}% · fee ${r.fee}s</div>
+    <div class="small">${needs}</div></div>
+    <div class="row">${btn("Craft", { item: "craft", recipe: r.id }, problem !== null, problem ?? "")}</div></li>`;
+}
+
+/** The smithy: the recipe book, crafting, and recipes for sale. */
+export function smithyHtml(c: CharacterSummary, items: Item[]) {
+  const known = c.recipes.map((id) => RECIPES[id]).filter((r): r is Recipe => r !== undefined);
+  const forSale = SMITHY_STOCK.filter((s) => {
+    const t = itemTemplate(s.templateId);
+    return t?.kind === "recipe" && own(c, RECIPES[t.recipe]!) && !c.recipes.includes(t.recipe);
+  });
+  const offer = (s: StockEntry) => {
+    const price = itemValue(stockItem(s, 1));
+    return line(stockItem(s, 1), btn(`${price}s`, { item: "buy", stock: s.id, qty: 1 }, c.silver < price));
+  };
+  return `
+    <section class="panel"><h3>Recipe book</h3>
+      <p class="small muted">Resources must be in your bag. On a failure the smith keeps the fee and half of each resource; you keep the recipe.</p>
+      ${known.length ? `<ul class="items">${known.map((r) => recipeLine(c, items, r)).join("")}</ul>` : `<p class="muted small">You know no recipes yet. Buy one below and learn it from your bag.</p>`}
+    </section>
+    <section class="panel"><h3>Recipes for sale <span class="muted small">${c.silver} silver</span></h3>
+      ${forSale.length ? `<ul class="items">${forSale.map(offer).join("")}</ul>` : `<p class="muted small">You know everything the smith sells.</p>`}
+      <p class="small muted">Steelsworn gear recipes are not sold. Elites and the Ashen Warden carry them.</p>
     </section>`;
 }

@@ -3,7 +3,7 @@
  * `store.withCharacter`, so it sees a consistent character, fight and
  * inventory and commits atomically, then answers with the new game view.
  */
-import { InvalidAction, type FightResult } from "@l2n/shared";
+import { InvalidAction, type FightResult, type NewItem } from "@l2n/shared";
 import type { FastifyReply } from "fastify";
 import type { CharacterTx, Store, StoredFight } from "../store/index.js";
 import { fightView, gameView } from "./view.js";
@@ -28,7 +28,17 @@ export const notFighting = (tx: CharacterTx) => {
   if (tx.fight) throw new GameError(409, "in_fight", "Finish the fight first.");
 };
 
-export type ActFn = (tx: CharacterTx) => Promise<FightResult | void>;
+/** What a crafting attempt did, sent along with the game view. */
+export interface CraftResult {
+  recipeId: string;
+  success: boolean;
+  fee: number;
+  used: { item: string; quantity: number }[];
+  made: NewItem[];
+}
+
+/** An action may report a finished fight's result or a crafting attempt. */
+export type ActFn = (tx: CharacterTx) => Promise<FightResult | { craft: CraftResult } | void>;
 
 export function makeAct(store: Store) {
   /** Run one action on the caller's character and answer with the new game view. */
@@ -62,7 +72,8 @@ export function makeAct(store: Store) {
           deleteItem: (id) => tx.deleteItem(id),
         };
         const result = await fn(tracked);
-        return { ...gameView(character, fight, tx.items), ...(result && ended ? { result, ended: fightView(ended) } : {}) };
+        const extra = result && "craft" in result ? { craft: result.craft } : result && ended ? { result, ended: fightView(ended) } : {};
+        return { ...gameView(character, fight, tx.items), ...extra };
       });
       if (!out) return reply.code(404).send({ error: "not_found", message: "Character not found." });
       return out;

@@ -4,7 +4,7 @@ A turn-based fantasy RPG with the feel of early-2000s online RPGs, for the
 browser and mobile. Original world, names and data; see the
 [design document](docs/design.md).
 
-Status: early prototype (MVP stage 3: loot, gear, market and warehouse).
+Status: early prototype (MVP stage 4: crafting, Thornwood Hollow, Cinder Barrows and the Ashen Warden).
 
 ## Docs
 

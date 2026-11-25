@@ -4,6 +4,7 @@
  * here; they come from the tier formulas and the item level of each copy.
  */
 import type { ArchetypeId } from "../types.js";
+import { RECIPES, recipeItemId } from "./recipes.js";
 
 export type Slot = "weapon" | "head" | "chest" | "legs" | "gloves" | "boots";
 export const SLOTS: Slot[] = ["weapon", "head", "chest", "legs", "gloves", "boots"];
@@ -68,7 +69,21 @@ export interface ResourceTemplate extends BaseTemplate {
   kind: "resource";
   value: number;
 }
-export type ItemTemplate = EquipmentTemplate | ChargeTemplate | DraughtTemplate | ResourceTemplate;
+/** A smithy recipe; learning it (from the bag) adds it to the character's recipe book. */
+export interface RecipeTemplate extends BaseTemplate {
+  kind: "recipe";
+  /** Id in RECIPES (data/recipes.ts). */
+  recipe: string;
+  /** Recipes for one archetype's gear only drop for that archetype. */
+  archetype?: ArchetypeId;
+  value: number;
+}
+/** Quest items: kept, never sold. */
+export interface QuestTemplate extends BaseTemplate {
+  kind: "quest";
+  value: number;
+}
+export type ItemTemplate = EquipmentTemplate | ChargeTemplate | DraughtTemplate | ResourceTemplate | RecipeTemplate | QuestTemplate;
 
 const EQUIPMENT_NAMES: Record<Tier, Record<ArchetypeId, Record<Slot, string>>> = {
   1: {
@@ -111,8 +126,8 @@ export const chargeId = (archetype: ArchetypeId, tier: Tier) => `${archetype ===
 const OTHER: ItemTemplate[] = [
   { id: "whetstone_1", name: "Whetstone (I)", kind: "charge", tier: 1, archetype: "warrior", value: 2, description: "Sharpens one basic attack with an Ironbound weapon: ×1.3 damage." },
   { id: "whetstone_2", name: "Whetstone (II)", kind: "charge", tier: 2, archetype: "warrior", value: 5, description: "Sharpens one basic attack with a Steelsworn weapon: ×1.3 damage." },
-  { id: "ember_vial_1", name: "Ember Vial (I)", kind: "charge", tier: 1, archetype: "mage", value: 2, description: "Feeds one basic attack with an Ironbound staff: ×1.3 damage." },
-  { id: "ember_vial_2", name: "Ember Vial (II)", kind: "charge", tier: 2, archetype: "mage", value: 5, description: "Feeds one basic attack with a Steelsworn staff: ×1.3 damage." },
+  { id: "ember_vial_1", name: "Ember Vial (I)", kind: "charge", tier: 1, archetype: "mage", value: 2, description: "Feeds one damaging spell cast with an Ironbound staff: ×1.3 damage." },
+  { id: "ember_vial_2", name: "Ember Vial (II)", kind: "charge", tier: 2, archetype: "mage", value: 4, description: "Feeds one damaging spell cast with a Steelsworn staff: ×1.3 damage." },
   { id: "healing_draught", name: "Healing Draught", kind: "draught", restores: "hp", value: 10, description: "Restores 30% of max HP. In a fight it takes your turn." },
   { id: "mana_draught", name: "Mana Draught", kind: "draught", restores: "mana", value: 10, description: "Restores 30% of max Mana. In a fight it takes your turn." },
   { id: "rough_hide", name: "Rough Hide", kind: "resource", value: 4, description: "Scraped from field beasts. Leatherworkers want it." },
@@ -120,9 +135,30 @@ const OTHER: ItemTemplate[] = [
   { id: "iron_scrap", name: "Iron Scrap", kind: "resource", value: 6, description: "Bent nails, buckles and broken blades. The smith melts it down." },
   { id: "resin_lump", name: "Resin Lump", kind: "resource", value: 5, description: "Sticky pitch from old timbers. Burns slow and hot." },
   { id: "marsh_herb", name: "Marsh Herb", kind: "resource", value: 5, description: "A bitter green that grows by still water. Brewers use it." },
+  { id: "thick_pelt", name: "Thick Pelt", kind: "resource", value: 7, description: "A heavy forest hide, tough enough for straps and padding." },
+  { id: "heartwood", name: "Heartwood", kind: "resource", value: 7, description: "Dense, dark wood from the heart of an old tree." },
+  { id: "spider_silk", name: "Spider Silk", kind: "resource", value: 8, description: "Strong grey thread, spun from the webs of Spider Dell." },
+  { id: "glowcap", name: "Glowcap", kind: "resource", value: 8, description: "A mushroom that glows faintly blue. Mages brew it." },
+  { id: "ash_dust", name: "Ash Dust", kind: "resource", value: 9, description: "Fine grey ash from the barrows. It never quite goes cold." },
+  { id: "grave_iron", name: "Grave Iron", kind: "resource", value: 12, description: "Old iron from burial goods, dark and hard." },
+  { id: "ember_shard", name: "Ember Shard", kind: "resource", value: 12, description: "A splinter of glassy stone with a spark trapped inside." },
+  { id: "lantern_ward_charm", name: "Lantern Ward Charm", kind: "quest", value: 0, description: "A small lantern of glass and grave iron. It is said to keep the dark at bay." },
 ];
 
-export const ITEMS: Record<string, ItemTemplate> = Object.fromEntries([...equipment(), ...OTHER].map((t) => [t.id, t]));
+/** Recipe items, one per recipe; see data/recipes.ts. */
+function recipeItems(): RecipeTemplate[] {
+  return Object.values(RECIPES).map((r) => ({
+    id: recipeItemId(r.id),
+    name: `Recipe: ${r.name}`,
+    kind: "recipe",
+    recipe: r.id,
+    ...(r.archetype ? { archetype: r.archetype } : {}),
+    value: r.value,
+    description: `Teaches the smithy recipe for ${r.name}. Learn it from your bag.`,
+  }));
+}
+
+export const ITEMS: Record<string, ItemTemplate> = Object.fromEntries([...equipment(), ...OTHER, ...recipeItems()].map((t) => [t.id, t]));
 
 export const itemTemplate = (id: string): ItemTemplate | undefined => (Object.hasOwn(ITEMS, id) ? ITEMS[id] : undefined);
 

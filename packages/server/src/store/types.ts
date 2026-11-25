@@ -30,7 +30,7 @@ export interface StoredFight {
   state: FightState;
 }
 
-export type CharacterPatch = Partial<Pick<CharacterSummary, "level" | "xp" | "hp" | "resource" | "location" | "silver" | "autoCharges">>;
+export type CharacterPatch = Partial<Pick<CharacterSummary, "level" | "xp" | "hp" | "resource" | "location" | "silver" | "autoCharges" | "recipes">>;
 
 export type ItemPatch = Partial<Pick<Item, "quantity" | "location">>;
 

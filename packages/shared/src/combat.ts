@@ -60,7 +60,7 @@ export interface PlayerCombatant extends Combatant {
   resource: number;
   maxResource: number;
   skills: string[];
-  /** Charges loaded for this fight; each boosts one basic attack. */
+  /** Charges loaded for this fight; each boosts one warrior basic attack or one damaging mage spell. */
   charges: number;
   /** Item the charges came from, so unused ones go back to the bag. */
   chargeItem?: string;
@@ -197,7 +197,21 @@ export function usableSkills(p: PlayerCombatant): Skill[] {
   return p.skills.map((id) => skillById(id)).filter((s): s is Skill => s !== undefined && s.cost <= p.resource);
 }
 
-function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combatant, log: LogEntry[]) {
+/** Charges boost warriors' basic attacks and mages' damaging spells (decided 2026-11-25). */
+export const chargesBoost = (archetype: ArchetypeId, action: "attack" | Skill) => {
+  if (ARCHETYPES[archetype].resource !== "mana") return action === "attack";
+  return action !== "attack" && (action.effect.damage !== undefined || action.effect.dot !== undefined);
+};
+
+/** Spend one charge if this action takes one; returns the damage multiplier. */
+function spendCharge(player: PlayerCombatant, action: "attack" | Skill): number {
+  if (player.charges <= 0 || !chargesBoost(player.archetype, action)) return 1;
+  player.charges -= 1;
+  if (player.charges === 0) delete player.chargeItem;
+  return CHARGE_MULTIPLIER;
+}
+
+function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combatant, log: LogEntry[], boost = 1) {
   const e = skill.effect;
   if (e.heal !== undefined) {
     const amount = Math.min(player.maxHp - player.hp, Math.round(player.maxHp * e.heal));
@@ -222,7 +236,7 @@ function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combat
   let landed: boolean;
   if (e.damage) {
     const lowHp = e.damage.execute && enemy.hp < enemy.maxHp * e.damage.execute.belowHpShare;
-    const r = strike(rng, player, enemy, lowHp ? e.damage.execute!.power : e.damage.power);
+    const r = strike(rng, player, enemy, (lowHp ? e.damage.execute!.power : e.damage.power) * boost);
     landed = r.hit;
     if (r.hit) {
       enemy.hp -= r.amount;
@@ -239,7 +253,7 @@ function useSkill(rng: Rng, skill: Skill, player: PlayerCombatant, enemy: Combat
   }
   if (e.dot) {
     const d = e.dot;
-    const amount = Math.max(1, Math.round(baseDamage(player.atk * attackMultiplier(player), enemy.def, d.power) * (1 + player.damageBonus)));
+    const amount = Math.max(1, Math.round(baseDamage(player.atk * attackMultiplier(player), enemy.def, d.power * boost) * (1 + player.damageBonus)));
     enemy.effects = enemy.effects.filter((x) => !(x.kind === "dot" && x.name === d.name));
     enemy.effects.push({ kind: "dot", name: d.name, amount, turns: d.turns, source: skill.id });
   }
@@ -340,13 +354,7 @@ export function resolveRound(state: FightState, action: Action): FightState {
     else player.resource += amount;
     log.push({ t: "draught", item: id, amount });
   } else if (action.type === "attack") {
-    let power = 1;
-    if (player.charges > 0) {
-      player.charges -= 1;
-      if (player.charges === 0) delete player.chargeItem;
-      power *= CHARGE_MULTIPLIER;
-    }
-    const r = strike(rng, player, enemy, power);
+    const r = strike(rng, player, enemy, spendCharge(player, "attack"));
     if (r.hit) {
       enemy.hp -= r.amount;
       log.push({ t: "hit", who: "player", amount: r.amount, crit: r.crit, source: "attack" });
@@ -354,7 +362,7 @@ export function resolveRound(state: FightState, action: Action): FightState {
     if (!isMage) player.resource = Math.min(MAX_FOCUS, player.resource + 1);
   } else {
     player.resource -= skill!.cost;
-    useSkill(rng, skill!, player, enemy, log);
+    useSkill(rng, skill!, player, enemy, log, spendCharge(player, skill!));
   }
 
   if (enemy.hp <= 0) outcome = "won";
@@ -402,10 +410,11 @@ export function autoAction(state: FightState): Action {
     if (heal) return { type: "skill", skillId: heal.id };
     if (draughtsLeft(p, "healing_draught") > 0) return { type: "item", itemId: "healing_draught" };
   }
-  const attack = p.charges > 0 ? CHARGE_MULTIPLIER : 1;
+  const boosted = (a: "attack" | Skill) => (p.charges > 0 && chargesBoost(p.archetype, a) ? CHARGE_MULTIPLIER : 1);
+  const attack = boosted("attack");
   let best: { id: string; score: number } | undefined;
   for (const s of usable) {
-    const score = skillScore(s, state.enemy);
+    const score = skillScore(s, state.enemy) * boosted(s);
     if (score > attack && (!best || score > best.score)) best = { id: s.id, score };
   }
   return best ? { type: "skill", skillId: best.id } : { type: "attack" };
