@@ -1,0 +1,145 @@
+{
+  "about": "How each mob, scene and portrait was made, so the set can be made again (node scripts/generate-icons.mjs --set art). See \"Art\" in docs/design.md. An image with \"generated\": null has not been made yet.",
+  "style": {
+    "name": "Lantern-lit linocut",
+    "mobPrompt": "Game bestiary illustration: exactly one {subject}, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+    "scenePrompt": "Game location illustration, wide view at dusk: {subject}. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+    "portraitPrompt": "Game character portrait, head and shoulders: {subject}, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame."
+  },
+  "model": {
+    "id": "z-image-turbo",
+    "name": "Z-Image Turbo",
+    "provider": "Venice",
+    "priceUsdPerImage": 0.01,
+    "promptCharacterLimit": 7500,
+    "why": "The model of the icon set, tried first so the art matches it. Swap with --model if it does not hold the style on faces and wide scenes."
+  },
+  "images": [
+    {
+      "id": "mire_rat",
+      "kind": "mob",
+      "subject": "fat ditch rat with matted wet fur, a long bare tail and bared yellow teeth",
+      "file": "mobs/mire_rat.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one fat ditch rat with matted wet fur, a long bare tail and bared yellow teeth, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2001
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dell_spider",
+      "kind": "mob",
+      "subject": "long-legged forest spider the size of a shield, with a striped teal abdomen and eight amber eyes",
+      "file": "mobs/dell_spider.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one long-legged forest spider the size of a shield, with a striped teal abdomen and eight amber eyes, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2002
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "ashen_warden",
+      "kind": "mob",
+      "subject": "towering armoured knight made of burnt black iron and ash, glowing embers in the cracks of its armour, holding up a dark burnt-out lantern on a chain, a ragged cloak of smoke",
+      "file": "mobs/ashen_warden.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one towering armoured knight made of burnt black iron and ash, glowing embers in the cracks of its armour, holding up a dark burnt-out lantern on a chain, a ragged cloak of smoke, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2003
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "mossgate_old_road",
+      "kind": "scene",
+      "subject": "a cracked old stone road leading away from a small village, overgrown at the edges with weeds, wet ditches on both sides, a leaning unlit lantern post, flat fields beyond",
+      "file": "scenes/mossgate_old_road.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a cracked old stone road leading away from a small village, overgrown at the edges with weeds, wet ditches on both sides, a leaning unlit lantern post, flat fields beyond. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3001
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "orc_warrior",
+      "kind": "portrait",
+      "subject": "an orc warrior of the high steppe with grey-green skin, short tusks, a broad jaw, braided black hair, wearing plain riveted iron mail over wool",
+      "file": "portraits/orc_warrior.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: an orc warrior of the high steppe with grey-green skin, short tusks, a broad jaw, braided black hair, wearing plain riveted iron mail over wool, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4001
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dusk_elf_mage",
+      "kind": "portrait",
+      "subject": "a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe",
+      "file": "portraits/dusk_elf_mage.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4002
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    }
+  ]
+}

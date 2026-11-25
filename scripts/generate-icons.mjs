@@ -1,32 +1,44 @@
 #!/usr/bin/env node
 /**
- * Regenerates item and skill icons from packages/client/src/assets/icons/manifest.json
- * through the Venice API, for example with a better model than the first set used.
+ * Generates images from a manifest through the Venice API: the item and skill
+ * icons (packages/client/src/assets/icons/manifest.json, the default) or the
+ * larger art, mobs, scenes and portraits (--set art, assets/art/manifest.json).
  *
- *   VENICE_API_KEY=… node scripts/generate-icons.mjs [--model <id>] [--only id,id] [--dry-run]
+ *   VENICE_API_KEY=… node scripts/generate-icons.mjs [--set icons|art] [--model <id>] [--only id,id] [--seed-offset n] [--dry-run]
  *
- * Each icon keeps its prompt and seed; --model swaps the model for the icons
- * generated. Raw 1024 px PNGs go to a temporary folder, then ImageMagick
- * (`magick`) applies the icon's `postprocess` step (crop the margin, scale,
- * WebP) into the assets folder, and the manifest is updated with the model and
- * date. Review the new icons before committing them.
+ * Each image keeps its prompt and seed; --model swaps the model for the images
+ * generated, and --seed-offset adds to every seed for another attempt (the
+ * manifest records the seed used). Raw PNGs go to a temporary folder, then
+ * ImageMagick (`magick`) applies the image's `postprocess` step (crop the
+ * margin, scale, WebP) into the assets folder, and the manifest is updated
+ * with the model and date. Review the new images before committing them.
  */
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, readFileSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { parseArgs } from "node:util";
 
-const dir = new URL("../packages/client/src/assets/icons/", import.meta.url).pathname;
-const manifestPath = join(dir, "manifest.json");
-
 const { values } = parseArgs({
-  options: { model: { type: "string" }, only: { type: "string" }, "dry-run": { type: "boolean", default: false } },
+  options: {
+    set: { type: "string", default: "icons" },
+    model: { type: "string" },
+    only: { type: "string" },
+    "seed-offset": { type: "string", default: "0" },
+    "dry-run": { type: "boolean", default: false },
+  },
 });
+if (!["icons", "art"].includes(values.set)) throw new Error("--set must be icons or art.");
+const seedOffset = Number(values["seed-offset"]);
+if (!Number.isInteger(seedOffset)) throw new Error("--seed-offset must be a whole number.");
+
+const dir = new URL(`../packages/client/src/assets/${values.set}/`, import.meta.url).pathname;
+const manifestPath = join(dir, "manifest.json");
 const manifest = JSON.parse(readFileSync(manifestPath, "utf8"));
 const only = values.only ? new Set(values.only.split(",")) : null;
-const icons = manifest.icons.filter((i) => !only || only.has(i.id));
-if (only && icons.length !== only.size) throw new Error(`Unknown icon id in --only: ${values.only}`);
+// The icon manifest lists its entries under `icons`, the art manifest under `images`.
+const icons = (manifest.icons ?? manifest.images).filter((i) => !only || only.has(i.id));
+if (only && icons.length !== only.size) throw new Error(`Unknown id in --only: ${values.only}`);
 
 const key = process.env.VENICE_API_KEY;
 if (!key && !values["dry-run"]) throw new Error("Set VENICE_API_KEY (or use --dry-run).");
@@ -42,7 +54,7 @@ function request(icon) {
     prompt: icon.prompt,
     width: p.width,
     height: p.height,
-    seed: p.seed,
+    seed: p.seed + seedOffset,
     format: "png",
     hide_watermark: true,
     safe_mode: false,
@@ -55,9 +67,13 @@ function request(icon) {
 /** Crop the margin, scale and encode, as the icon's `postprocess` says. */
 function postprocess(icon, png) {
   const { cropInset, size, format, quality } = icon.postprocess;
-  const side = Math.round(icon.parameters.width * (1 - 2 * cropInset));
-  const offset = Math.round(icon.parameters.width * cropInset);
-  execFileSync("magick", [png, "-crop", `${side}x${side}+${offset}+${offset}`, "+repage", "-resize", `${size}x${size}`, "-quality", String(quality), `${format}:${join(dir, icon.file)}`]);
+  const { width, height } = icon.parameters;
+  // `size` is the output width; the height keeps the aspect ratio of the generated image.
+  const [w, h] = [width, height].map((v) => Math.round(v * (1 - 2 * cropInset)));
+  const [x, y] = [width, height].map((v) => Math.round(v * cropInset));
+  const out = join(dir, icon.file);
+  mkdirSync(dirname(out), { recursive: true });
+  execFileSync("magick", [png, "-crop", `${w}x${h}+${x}+${y}`, "+repage", "-resize", `${size}x${Math.round((size * h) / w)}`, "-quality", String(quality), `${format}:${out}`]);
 }
 
 for (const icon of icons) {
@@ -77,6 +93,7 @@ for (const icon of icons) {
   writeFileSync(png, Buffer.from(images[0], "base64"));
   postprocess(icon, png);
   icon.model = body.model;
+  icon.parameters.seed = body.seed;
   if (body.steps === undefined) delete icon.parameters.steps;
   icon.generated = today;
   writeFileSync(manifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
