@@ -14,7 +14,7 @@
     "promptCharacterLimit": 7500,
     "why": "The model of the icon set, tried first so the art matches it. Swap with --model if it does not hold the style on faces and wide scenes."
   },
-  "generatedWith": "Venice Studio web app (venice.ai/studio/image), Z-Image Turbo, prompt enhancement off, fixed seed, no style preset, PNG; 1:1 for mobs and portraits, 16:9 (1280x720) for the scene. Steps are the model default (8), not shown in Studio. Made on pay-per-use credits after the daily free quota ran out, so the images carry no Venice watermark and need no crop. The Old Road scene comes out with a thin parchment frame round the picture, which its cropInset of 0.05 removes. Its subject was reworded on 2026-11-25 from a plain village (which came out as modern houses) to medieval timber-framed cottages and a stone watchtower; seed 3002 is used because 3001 of the first wording drew a fake printer's caption under the frame.",
+  "generatedWith": "Venice Studio web app (venice.ai/studio/image), Z-Image Turbo, prompt enhancement off, fixed seed, no style preset, PNG; 1:1 for mobs and portraits, 16:9 (1280x720) for the scene. Steps are the model default (8), not shown in Studio. Made on pay-per-use credits after the daily free quota ran out, so the images carry no Venice watermark and need no crop. The Old Road scene comes out with a thin parchment frame round the picture, which its cropInset of 0.05 removes. Its subject was reworded on 2026-11-25 from a plain village (which came out as modern houses) to medieval timber-framed cottages and a stone watchtower, and its lantern post (which came out as a modern street lamp) to a rough wooden post with an iron lantern on a hook; seed 3002 is used because 3001 of the first wording drew a fake printer's caption under the frame.",
   "images": [
     {
       "id": "mire_rat",
@@ -91,10 +91,10 @@
     {
       "id": "mossgate_old_road",
       "kind": "scene",
-      "subject": "a cracked old stone road leading away from a small medieval fantasy village of crooked timber-framed cottages with steep thatched roofs, smoking chimneys and a squat stone watchtower, overgrown at the edges with weeds, wet ditches on both sides, a leaning unlit lantern post, flat fields beyond",
+      "subject": "a cracked old stone road leading away from a small medieval fantasy village of crooked timber-framed cottages with steep thatched roofs, smoking chimneys and a squat stone watchtower, overgrown at the edges with weeds, wet ditches on both sides, a leaning rough wooden post with an old unlit iron lantern hanging from a hook, flat fields beyond",
       "file": "scenes/mossgate_old_road.webp",
       "model": "z-image-turbo",
-      "prompt": "Game location illustration, wide view at dusk: a cracked old stone road leading away from a small medieval fantasy village of crooked timber-framed cottages with steep thatched roofs, smoking chimneys and a squat stone watchtower, overgrown at the edges with weeds, wet ditches on both sides, a leaning unlit lantern post, flat fields beyond. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "prompt": "Game location illustration, wide view at dusk: a cracked old stone road leading away from a small medieval fantasy village of crooked timber-framed cottages with steep thatched roofs, smoking chimneys and a squat stone watchtower, overgrown at the edges with weeds, wet ditches on both sides, a leaning rough wooden post with an old unlit iron lantern hanging from a hook, flat fields beyond. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
       "parameters": {
         "width": 1280,
         "height": 720,
