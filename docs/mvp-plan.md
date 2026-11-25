@@ -3,7 +3,7 @@
 Each stage ends with something playable in the browser and green CI. Docs are
 updated in the same PRs.
 
-## Stage 0 — Foundations (this PR)
+## Stage 0 — Foundations (done)
 
 - [x] Monorepo with `shared`, `server`, `client`, CI.
 - [x] Design document, decision log, this plan.
@@ -13,11 +13,20 @@ updated in the same PRs.
 - [x] Postgres schema for accounts and characters, migration runner.
 - [x] Client PWA shell that runs a demo fight against the server.
 
-## Stage 1 — Accounts and characters
+## Stage 1 — Accounts and characters (done)
 
-- Sign up / log in (email + password, hashed; session cookie).
-- Create a character: name, race, archetype. List and pick characters.
-- Character sheet screen with stats derived from the shared formulas.
+- [x] Sign up / log in / log out (email + password hashed with scrypt; session
+      cookie backed by a `sessions` table; failed-login limit per email).
+- [x] Create a character: name, race, archetype, with a live level 1 preview.
+      Up to 4 characters per account, names unique regardless of case.
+- [x] List and pick characters.
+- [x] Character sheet screen with stats derived from the shared formulas, plus
+      a practice auto-fight at the character's level.
+- [x] Store contract tests run against both the in-memory store and Postgres
+      (Postgres in CI).
+
+Left for later: deleting characters, password reset (needs email sending),
+applying racial passives to numbers (stage 2).
 
 ## Stage 2 — Real fights and leveling
 

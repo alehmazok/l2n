@@ -26,3 +26,34 @@ ol.log { padding-left: 1.5em; margin: 0; }
 .good { color: var(--good); }
 .bad { color: var(--bad); }
 .muted { color: var(--muted); }
+h2, h3 { color: var(--accent); font-weight: normal; margin: 0 0 0.5em; }
+h3 { font-size: 1.05em; }
+a { color: var(--accent); }
+.small { font-size: 0.875em; }
+.top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; flex-wrap: wrap; }
+.stack { display: flex; flex-direction: column; gap: 10px; }
+.stack > label, .panel > label { display: flex; flex-direction: column; gap: 4px; }
+input { font: inherit; padding: 6px 10px; border-radius: 6px; border: 1px solid #4a3f30; background: #16120d; color: var(--text); }
+button:disabled { opacity: 0.6; cursor: default; }
+button.link { background: none; color: var(--accent); padding: 0; text-decoration: underline; }
+a.button { display: inline-block; background: var(--accent); color: #1b1712; padding: 6px 10px; border-radius: 6px; text-decoration: none; }
+.tabs { display: flex; gap: 8px; margin-bottom: 12px; }
+.tab { background: #16120d; color: var(--muted); border: 1px solid #4a3f30; }
+.tab.active { background: var(--accent); color: #1b1712; }
+.cards, .choices { display: flex; flex-direction: column; gap: 8px; }
+.card, .choice { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 6px; border: 1px solid #4a3f30; background: #16120d; color: var(--text); text-decoration: none; cursor: pointer; }
+.choice:has(input:checked) { border-color: var(--accent); }
+.choice input { accent-color: var(--accent); }
+.portrait { flex: none; width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; font-size: 1.4em; color: #1b1712; background: var(--muted); }
+.portrait-human { background: #c9a978; }
+.portrait-dawn_elf { background: #b9c98a; }
+.portrait-dusk_elf { background: #9d8fbf; }
+.portrait-orc { background: #8fa86a; }
+.portrait-dwarf { background: #c48a5e; }
+.head { gap: 12px; }
+.head h2 { margin: 0; }
+.sheet { display: flex; gap: 24px; flex-wrap: wrap; }
+table.stats { border-collapse: collapse; }
+table.stats th { text-align: left; font-weight: normal; color: var(--muted); padding: 2px 16px 2px 0; }
+table.stats td { text-align: right; }
+ul.skills { padding-left: 1.2em; margin: 0; }

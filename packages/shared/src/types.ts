@@ -11,6 +11,8 @@ export interface Race {
   /** Added to the base of 10 in every stat. */
   statMods: Partial<Stats>;
   passive: { name: string; description: string };
+  /** One-line lore note shown at character creation. */
+  blurb: string;
 }
 
 export interface Archetype {

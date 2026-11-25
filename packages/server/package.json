@@ -12,6 +12,7 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@fastify/cookie": "^11.1.5",
     "@l2n/shared": "workspace:*",
     "fastify": "^5.12.8",
     "pg": "^8.23.1"
