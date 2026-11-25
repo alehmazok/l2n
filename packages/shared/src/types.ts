@@ -35,11 +35,26 @@ export interface ProfessionInfo {
   role: string;
 }
 
-export type SkillEffect =
-  | { kind: "damage"; school: DamageSchool; power: number }
-  | { kind: "heal"; percentOfMaxHp: number }
-  /** Designed but not yet implemented by the combat engine. */
-  | { kind: "planned"; description: string };
+/**
+ * What a skill does. Parts combine: Rending Cut is damage plus a damage over
+ * time, Shield Bash is damage plus a stun chance. Riders on a damaging skill
+ * (stun, dot) only apply when the hit lands.
+ */
+export interface SkillEffect {
+  /** Direct damage multiplier; `execute` raises it while the target is low. */
+  damage?: { power: number; execute?: { belowHpShare: number; power: number } };
+  /** Heal as a share of max HP. */
+  heal?: number;
+  /** Chance that the target loses its next action. */
+  stun?: number;
+  /** Damage over time: `power` per tick, ticking at the end of `turns` rounds. */
+  dot?: { name: "bleed" | "burn"; power: number; turns: number };
+  /** A buff on the caster for the rest of this round and the next `turns` rounds. */
+  buff?:
+    | { kind: "attack_up"; value: number; turns: number }
+    | { kind: "guard"; value: number; turns: number }
+    | { kind: "shield"; shareOfMaxHp: number; turns: number };
+}
 
 export interface Skill {
   id: string;
@@ -50,4 +65,6 @@ export interface Skill {
   /** Focus points for warriors, mana for mages. */
   cost: number;
   effect: SkillEffect;
+  /** One-line rules text for the UI. */
+  description: string;
 }

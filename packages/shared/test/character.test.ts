@@ -40,9 +40,9 @@ describe("character sheet", () => {
   it("matches the design doc for a level 1 orc warrior", () => {
     const s = characterSheet("orc", "warrior");
     expect(s.stats).toEqual({ might: 17, agility: 9, vitality: 15, intellect: 9, spirit: 10 });
-    expect(s.maxHp).toBe(72); // 60 * (1 + 0.04 * 5)
+    expect(s.maxHp).toBe(78); // 60 * (1 + 0.04 * 5) = 72, +8% Thick Hide
     expect(s.resource).toEqual({ kind: "focus", max: 5, startsAt: 0 });
-    expect(s.attack).toBe(8); // 6 * 1.28 = 7.68
+    expect(s.attack).toBe(13); // 6 * 1.28 = 7.68, + 5 starter weapon
     expect(s.xpToNext).toBe(160);
     expect(s.passive.name).toBe("Thick Hide");
     expect(s.skills.learned.map((k) => k.id)).toEqual(["heavy_blow"]);

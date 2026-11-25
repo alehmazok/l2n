@@ -12,10 +12,10 @@ import {
   characterStats,
   critChance,
   defensePower,
-  maxHp,
   maxMana,
   xpToNext,
 } from "./formulas.js";
+import { characterMaxHp, provisionalGear, racialBonuses } from "./progression.js";
 import type { ArchetypeId, RaceId, Skill, Stats } from "./types.js";
 
 export const MAX_CHARACTERS_PER_ACCOUNT = 4;
@@ -76,31 +76,36 @@ export interface CharacterSheet {
   stats: Stats;
   maxHp: number;
   resource: { kind: "focus" | "mana"; max: number; startsAt: number };
+  /** Attack and defence include the provisional starter kit (see provisionalGear). */
   attack: number;
   defence: number;
   critChance: number;
+  /** Extra damage dealt from passives, e.g. 0.05 for +5%. */
+  damageBonus: number;
+  xpBonus: number;
   xpToNext: number | null;
   passive: { name: string; description: string };
   skills: { learned: Skill[]; upcoming: Skill[] };
 }
 
-/**
- * Derived numbers for a character without gear. Racial passives are shown
- * but not yet applied to the numbers; that lands with real fights (stage 2).
- */
+/** Derived numbers for a character, with the racial passive applied. */
 export function characterSheet(race: RaceId, archetype: ArchetypeId, level = 1): CharacterSheet {
   const a = ARCHETYPES[archetype];
   const stats = characterStats(race, archetype);
   const resourceMax = a.resource === "mana" ? maxMana(level, stats.spirit) : MAX_FOCUS;
   const next = xpToNext(level);
+  const bonus = racialBonuses(race);
+  const gear = provisionalGear(level);
   const own = SKILLS.filter((s) => s.archetype === archetype);
   return {
     stats,
-    maxHp: maxHp(archetype, level, stats.vitality),
+    maxHp: characterMaxHp(race, archetype, level),
     resource: { kind: a.resource, max: resourceMax, startsAt: a.resource === "mana" ? resourceMax : 0 },
-    attack: Math.round(attackPower(level, stats[a.mainStat], 0)),
-    defence: Math.round(defensePower(level, stats.vitality, 0)),
-    critChance: critChance(stats.agility),
+    attack: Math.round(attackPower(level, stats[a.mainStat], gear.weaponPower)),
+    defence: Math.round(defensePower(level, stats.vitality, gear.armour)),
+    critChance: critChance(stats.agility, bonus.crit),
+    damageBonus: bonus.damage,
+    xpBonus: bonus.xp,
     xpToNext: Number.isFinite(next) ? next : null,
     passive: RACES[race].passive,
     skills: { learned: own.filter((s) => s.level <= level), upcoming: own.filter((s) => s.level > level) },

@@ -4,7 +4,7 @@ A turn-based fantasy RPG with the feel of early-2000s online RPGs, for the
 browser and mobile. Original world, names and data; see the
 [design document](docs/design.md).
 
-Status: early prototype (MVP stage 1: accounts and characters).
+Status: early prototype (MVP stage 2: map, real fights and leveling).
 
 ## Docs
 
@@ -34,7 +34,8 @@ pnpm db:migrate     # apply migrations
 pnpm dev            # server on :3000, client on :5173
 ```
 
-Open http://localhost:5173, create an account and a character.
+Open http://localhost:5173, create an account and a character, walk from
+Brackwell Square to the Old Road and hunt.
 
 Without `DATABASE_URL` the dev server falls back to an in-memory store and
 warns about it: handy for a quick look, but accounts vanish on restart.
@@ -52,9 +53,15 @@ All game endpoints take and return JSON. Errors look like
 | GET | `/api/auth/me` | Current account, or 401. |
 | GET | `/api/characters` | The account's characters and the slot limit. |
 | POST | `/api/characters` | `{ name, race, archetype }`. Returns the character and its sheet. |
-| GET | `/api/characters/:id` | One character with its sheet. |
-| GET | `/api/meta` | Races, archetypes, skills. |
-| GET | `/api/demo-fight` | Practice auto-fight; replaced by real fights in stage 2. |
+| GET | `/api/characters/:id` | One character with its sheet and the fight in progress (or `null`). |
+| POST | `/api/characters/:id/move` | `{ to }`: walk to an adjacent map node. |
+| POST | `/api/characters/:id/rest` | Restore HP and Mana; town nodes only. |
+| POST | `/api/characters/:id/hunt` | Start a fight with a mob of the current hunting node. |
+| POST | `/api/characters/:id/fight` | `{ action: { type: "attack" \| "skill" \| "flee" \| "auto", skillId? } }`. Resolves one round (or the whole fight for `auto`). When the fight ends the answer adds `result` (XP, level-ups, death) and `ended` (the final fight state). |
+| GET | `/api/meta` | Races, archetypes, skills, zones, map nodes, mobs. |
+
+Game actions answer with `{ character, sheet, fight }`. They return 409
+`in_fight` when a fight is in progress and the action needs you to be free.
 
 ## Checks
 

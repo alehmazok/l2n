@@ -13,6 +13,7 @@ import {
 import type { FastifyInstance } from "fastify";
 import type { Store } from "../store/index.js";
 import { requireAccount } from "./auth.js";
+import { gameView } from "./view.js";
 
 const withSheet = (c: CharacterSummary) => ({ character: c, sheet: characterSheet(c.race, c.archetype, c.level) });
 
@@ -69,6 +70,6 @@ export async function characterRoutes(app: FastifyInstance, opts: { store: Store
     const id = Number(req.params.id);
     const c = Number.isSafeInteger(id) && id > 0 ? await store.getCharacter(req.account!.id, id) : undefined;
     if (!c) return reply.code(404).send({ error: "not_found", message: "Character not found." });
-    return withSheet(c);
+    return gameView(c, await store.getOngoingFight(c.id));
   });
 }

@@ -1,4 +1,5 @@
 import { beforeEach, describe, expect, it } from "vitest";
+import { buildMob, buildPlayer, playerInputFor, resolveRound, startFight, type FightState } from "@l2n/shared";
 import type { NewCharacter, Store } from "../src/store/index.js";
 
 /** Behaviour every Store must have. Run against MemoryStore and PgStore. */
@@ -46,7 +47,7 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       const b = await store.createAccount("d@example.com", "h");
       if (a === "email_taken" || b === "email_taken") throw new Error("unexpected");
       const c = await store.createCharacter(char(a.id, "Grosh"));
-      expect(c).toMatchObject({ name: "Grosh", race: "orc", archetype: "warrior", level: 1, xp: 0, hp: 72, silver: 0, location: "brackwell", profession: null });
+      expect(c).toMatchObject({ name: "Grosh", race: "orc", archetype: "warrior", level: 1, xp: 0, hp: 72, silver: 0, location: "brackwell_square", profession: null });
       if (typeof c === "string") throw new Error("unexpected");
       await store.createCharacter(char(a.id, "Ilwen", { race: "dawn_elf", archetype: "mage", hp: 38, resource: 33 }));
       expect((await store.listCharacters(a.id)).map((x) => x.name)).toEqual(["Grosh", "Ilwen"]);
@@ -69,6 +70,78 @@ export function storeContract(name: string, makeStore: () => Promise<Store>) {
       await store.createCharacter(char(a.id, "Onea", { maxPerAccount: 2 }));
       await store.createCharacter(char(a.id, "Twob", { maxPerAccount: 2 }));
       expect(await store.createCharacter(char(a.id, "Three", { maxPerAccount: 2 }))).toBe("limit_reached");
+    });
+
+    const fightState = (seed = 1): FightState =>
+      startFight(
+        buildPlayer(playerInputFor({ name: "Grosh", race: "orc", archetype: "warrior", level: 1, xp: 0, hp: 72, resource: 0 })),
+        buildMob("Mire Rat", 1),
+        seed,
+      );
+
+    async function hero() {
+      const a = await store.createAccount(`f${Math.random()}@example.com`, "h");
+      if (a === "email_taken") throw new Error("unexpected");
+      const c = await store.createCharacter(char(a.id, "Fighter"));
+      if (typeof c === "string") throw new Error("unexpected");
+      return { accountId: a.id, id: c.id };
+    }
+
+    it("runs character actions only for the owner", async () => {
+      const { id } = await hero();
+      const other = await store.createAccount("other@example.com", "h");
+      if (other === "email_taken") throw new Error("unexpected");
+      expect(await store.withCharacter(other.id, id, async () => "ran")).toBeUndefined();
+    });
+
+    it("updates characters and keeps one fight in progress", async () => {
+      const { accountId, id } = await hero();
+      const moved = await store.withCharacter(accountId, id, (tx) => tx.updateCharacter({ location: "mossgate_old_road", hp: 50 }));
+      expect(moved).toMatchObject({ location: "mossgate_old_road", hp: 50, xp: 0 });
+
+      const s0 = fightState();
+      const created = await store.withCharacter(accountId, id, (tx) => tx.createFight({ mobId: "mire_rat", nodeId: "mossgate_old_road", state: s0 }));
+      expect(created).toMatchObject({ characterId: id, mobId: "mire_rat", state: s0 });
+      expect(await store.getOngoingFight(id)).toEqual(created);
+
+      const seen = await store.withCharacter(accountId, id, async (tx) => tx.fight);
+      expect(seen).toEqual(created);
+      await expect(
+        store.withCharacter(accountId, id, (tx) => tx.createFight({ mobId: "mire_rat", nodeId: "x", state: s0 })),
+      ).rejects.toThrow();
+
+      const s1 = resolveRound(s0, { type: "attack" });
+      await store.withCharacter(accountId, id, (tx) => tx.saveFight(s1));
+      expect((await store.getOngoingFight(id))?.state).toEqual(s1);
+
+      await store.withCharacter(accountId, id, (tx) => tx.saveFight({ ...s1, outcome: "fled" }));
+      expect(await store.getOngoingFight(id)).toBeUndefined();
+      expect(await store.withCharacter(accountId, id, async (tx) => tx.fight)).toBeUndefined();
+    });
+
+    it("keeps nothing from an action that throws", async () => {
+      const { accountId, id } = await hero();
+      await expect(
+        store.withCharacter(accountId, id, async (tx) => {
+          await tx.updateCharacter({ xp: 99 });
+          await tx.createFight({ mobId: "mire_rat", nodeId: "mossgate_old_road", state: fightState() });
+          throw new Error("boom");
+        }),
+      ).rejects.toThrow("boom");
+      expect((await store.getCharacter(accountId, id))?.xp).toBe(0);
+      expect(await store.getOngoingFight(id)).toBeUndefined();
+    });
+
+    it("serialises parallel actions on one character", async () => {
+      const { accountId, id } = await hero();
+      const bump = () =>
+        store.withCharacter(accountId, id, async (tx) => {
+          const xp = tx.character.xp;
+          await new Promise((r) => setTimeout(r, 5));
+          return tx.updateCharacter({ xp: xp + 1 });
+        });
+      await Promise.all([bump(), bump(), bump(), bump()]);
+      expect((await store.getCharacter(accountId, id))?.xp).toBe(4);
     });
   });
 }

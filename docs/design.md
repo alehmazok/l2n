@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.1 (2026-11-25). Short name: **L2N**.
+Status: draft v0.2 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -44,7 +44,8 @@ from bounties and relic hunting, and maybe find out what put the lanterns out.
 ### MVP locations
 
 The map is a graph of nodes. Moving between adjacent nodes is free and instant
-in the MVP; each hunting node has a mob pool.
+in the MVP; each hunting node has a mob pool. Node and mob data live in
+`packages/shared/src/data/world.ts`.
 
 | Location | Levels | Nodes | Notes |
 | --- | --- | --- | --- |
@@ -52,6 +53,30 @@ in the MVP; each hunting node has a mob pool.
 | **Mossgate Fields** | 1–7 | Old Road, Drowned Mill, Burrows | Beasts and vermin. Tutorial quests. |
 | **Thornwood Hollow** | 7–14 | Bramble Edge, Spider Dell, Hermit's Rise | Forest creatures and bandits. First elites. |
 | **Cinder Barrows** | 14–20 | Ash Gate, Bone Gallery, Warden's Crypt | Undead and constructs. Zone boss: **the Ashen Warden** (level 20, boss role). |
+
+### Brackwell and Mossgate Fields (built in stage 2)
+
+```
+Market   Smithy   Warehouse   Notice Board
+     \     |        |        /
+         Brackwell Square ──── Old Road ──── Drowned Mill ──── Burrows
+```
+
+- **Town nodes** are safe. Resting there restores HP and Mana to full, free
+  and instantly. Market, Smithy, Warehouse and Notice Board are placeholders
+  until their services arrive (stages 3–5).
+- **Hunting nodes** have a pool of mobs. Hunting starts a fight with one of
+  them, weighted towards the player's level: a mob at or below your level has
+  weight 3, one level above 2, two or more levels above 1.
+- You cannot move, rest or start another hunt while a fight is in progress.
+
+| Node | Mobs (level) |
+| --- | --- |
+| Old Road | Mire Rat (1), Hedge Crow (2), Mangy Cur (3) |
+| Drowned Mill | Mill Toad (3), Silt Crawler (4), Drowned Scavenger (5) |
+| Burrows | Burrow Mole (5), Tusked Digger (6), Burrow Hulk (7) |
+
+All are normal mobs; the Burrows elite arrives with its quest in stage 5.
 
 ## 3. Races
 
@@ -66,6 +91,10 @@ but none is locked.
 | Dusk Elf | +1 | +2 | −1 | +3 | −1 | **Nightblood**: +5% damage dealt |
 | Orc | +3 | −1 | +3 | −1 | | **Thick Hide**: +8% max HP |
 | Dwarf | +2 | −2 | +3 | | +1 | **Forge-born**: +5% craft success, +10% resource drops |
+
+Passives apply to the numbers on the sheet and in fights (see
+`racialBonuses` in `packages/shared/src/progression.ts`). Forge-born takes effect
+when crafting and resource drops arrive (stages 3–4).
 
 Short lore notes (to expand later):
 
@@ -86,12 +115,12 @@ A player account holds up to **4** characters. Creating one means choosing a
 name, a race and an archetype; there are no stat points to spend, so every
 character of a given race and archetype starts with the same numbers. Names are
 3–16 letters (A–Z), shown capitalised, and unique across the server regardless
-of case. A new character starts at level 1 in Brackwell with full HP, 0 silver,
+of case. A new character starts at level 1 in Brackwell Square with full HP, 0 silver,
 full mana (mages) or 0 Focus (warriors).
 
 The character sheet shows the stats, derived numbers (HP, Mana or Focus,
-attack and defence without gear, crit chance), the racial passive and the
-archetype's skills with the level they unlock at.
+attack and defence, crit chance, all with the racial passive applied), the
+racial passive and the archetype's skills with the level they unlock at.
 
 ### Stats
 
@@ -125,8 +154,20 @@ that builds the profession quest.
 
 ### Skills
 
-The engine already implements damage and heal skills; the rest are designed and
-marked `planned` in data.
+All skills are implemented by the engine (stage 2). Timing rules:
+
+- A rider on a damaging skill (stun, bleed) applies only if the hit lands.
+  Searing Brand, which has no direct damage, rolls to hit for its burn.
+- **Stun**: the enemy skips its next action, which is the one in the same
+  round. A target cannot hold two stuns.
+- **Buffs** (War Cry, Iron Stance, Arcane Ward) last for the rest of the round
+  they are used in plus the listed number of rounds. Using one again refreshes it.
+- **Damage over time** (bleed, burn) ticks at the end of each round, starting
+  with the round it is applied in, for the listed number of ticks. Its damage
+  per tick is fixed when applied: `atk² / (atk + def) · power`, no crit.
+  Re-applying replaces it.
+- **Arcane Ward** absorbs damage until its pool is used up or it expires.
+  **Iron Stance** applies before the ward.
 
 | Skill | Archetype | Level | Cost | Effect |
 | --- | --- | --- | --- | --- |
@@ -148,14 +189,20 @@ marked `planned` in data.
 ## 5. Combat
 
 One player against one enemy, in rounds. Each round the player picks one action:
-**Attack**, **Skill**, **Item** (planned), or **Flee**. The player acts first,
-then the enemy, if both are still standing. (Agility-based initiative is a
-candidate for later.)
+**Attack**, **Skill**, **Item** (planned), or **Flee**. A round goes: mage Mana
+regeneration, the player's action, the enemy's action (if both still stand and
+it is not stunned), then end of round (damage over time ticks, buffs count
+down). (Agility-based initiative is a candidate for later.)
 
 The engine is pure and deterministic: given the fight state and a seed it always
-produces the same result. The server stores the state and seed, the client only
-sends actions and draws the log. This lets the server validate everything and
-lets tests pin exact outcomes.
+produces the same result. The server stores the state, including the RNG
+state, in Postgres between rounds; the client only sends actions and draws the
+log, and never sees the RNG state, so it cannot predict rolls. This lets the
+server validate everything and lets tests pin exact outcomes.
+
+A fight starts with the character's current HP and Mana; Focus starts at 0.
+When it ends, the remaining HP and Mana are kept, so a run of fights wears you
+down until you rest in town.
 
 ### Formulas
 
@@ -169,7 +216,7 @@ All implemented in `packages/shared/src/formulas.ts`. `L` is level.
 | Damage | `atk² / (atk + def) · skillPower · rand(0.9, 1.1) · (1 + damageBonus)`, ×1.75 on crit, min 1 |
 | Hit chance | `0.92 + 0.01·(AgiA − AgiD) + 0.02·(LA − LD)`, clamped to 60–99% |
 | Crit chance | `0.05 + 0.005·(Agi − 10) + bonus`, clamped to 1–30% |
-| Flee chance | `0.5 + 0.02·(AgiP − AgiE)` |
+| Flee chance | `0.5 + 0.02·(AgiP − AgiE)`, clamped to 5–95% |
 | Charge bonus | Basic attack ×1.3 while a charge is active, one charge per attack |
 
 `atk² / (atk + def)` never reaches zero, and defence matters more against weak
@@ -191,29 +238,36 @@ armoured, venomous) on top of the template.
 ### Balance targets
 
 Checked by a simulation test in `packages/shared/test/combat.test.ts` for every
-race × archetype at levels 1, 10 and 20, with gear of the matching tier:
+race × archetype at levels 1, 10 and 20, with racial passives and gear of the
+matching tier, played by the auto-battle policy:
 
 - An even-level normal mob dies in **3–5 rounds** for warriors and **2–4
   rounds** for mages on a full mana bar (the test allows 2–7).
-- The player wins more than 95% of the time and loses about **15–30%** of HP.
-  Current simulation: warriors lose 14–24%, mages 14–27%.
+- The player wins more than 95% of the time and loses about **15–30%** of HP
+  (the test fails above 40%). Current simulation: warriors take 3.0–4.3
+  rounds and lose 13–25% HP, mages take 2.0–3.4 rounds and lose 13–28%.
+- Mobs two levels above you are a real risk: a level 1 mage on full HP wins
+  only about 60% of fights against a level 3 mob. Encounter weighting keeps
+  them rare.
 - Elites should need a potion or a careful skill rotation; the boss should need
   preparation (charges, potions, a level or two of margin).
 
-### Proposal: fast fights and auto-battle
+### Fast fights and auto-battle
 
 - Target 20–30 seconds per normal fight, including reading the log.
-- **Auto-battle** for mobs 4 or more levels below the player: the server
-  resolves the fight instantly with the built-in policy (heal below 35% HP,
-  else the strongest affordable damage skill, else attack). This keeps
-  farming quick without removing the danger of even-level mobs.
+- **Auto-battle** (decided 2026-11-25) for mobs 4 or more levels below the
+  player: the server resolves the rest of the fight in one request with the
+  built-in policy (heal below 35% HP, else the affordable skill with the most
+  expected damage, counting damage over time not yet on the target, else
+  attack). This keeps farming quick without removing the danger of
+  even-level mobs.
 
 ### Death
 
-**Proposal: keep a real death penalty.** On death the player loses 4% of the
-current level's XP bar (never dropping a level in the MVP), respawns in
-Brackwell with 30% HP, and the fight's loot is lost. The fear of dying is part
-of the genre.
+**A real death penalty** (decided 2026-11-25). On death the player loses 4% of
+the current level's XP bar (never dropping a level in the MVP), respawns in
+Brackwell Square with 30% HP and 30% Mana, and the fight's loot is lost. The
+fear of dying is part of the genre.
 
 ## 6. Progression
 
@@ -225,6 +279,9 @@ of the genre.
   from 1 to 20 before quest XP. At ~25 seconds a fight that is about 4 hours of
   pure fighting; quests should cover about a third of the total XP, so the MVP
   takes around 5–6 hours of play to finish.
+- XP is stored as progress inside the current level; extra XP carries into
+  the next level. At the cap, XP stops counting.
+- A level-up restores HP and Mana to full.
 - Skills are learned automatically at their level in the MVP. A trainer NPC
   and skill costs can come later.
 
@@ -242,6 +299,13 @@ Weapon, head, chest, legs, gloves, boots. Accessories come later.
 | II | **Steelsworn** | 10 | `8 + itemLevel` | `4 + 0.8·itemLevel` |
 
 Armour values are the total for a full set; each piece carries a share.
+
+### Until equipment exists
+
+Stage 2 has no inventory yet. Until stage 3, every character fights with a
+**provisional starter kit**: weapon power and armour of Ironbound gear at the
+character's level (Steelsworn from level 10), the same gear the balance
+simulation assumes. Stage 3 replaces it with real equipped items.
 
 ### Rarity
 

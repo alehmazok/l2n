@@ -1,6 +1,6 @@
-import type { CharacterSummary } from "@l2n/shared";
+import type { CharacterSummary, FightState } from "@l2n/shared";
 import type pg from "pg";
-import type { Account, NewCharacter, Store } from "./types.js";
+import type { Account, CharacterPatch, CharacterTx, NewCharacter, Store, StoredFight } from "./types.js";
 
 const UNIQUE_VIOLATION = "23505";
 
@@ -35,6 +35,33 @@ const toCharacter = (r: CharacterRow): CharacterSummary => ({
   location: r.location,
   createdAt: r.created_at.toISOString(),
 });
+
+interface FightRow {
+  id: string;
+  character_id: string;
+  mob_id: string;
+  node_id: string;
+  state: FightState;
+}
+
+const FIGHT_COLUMNS = "id, character_id, mob_id, node_id, state";
+
+const toFight = (r: FightRow): StoredFight => ({
+  id: Number(r.id),
+  characterId: Number(r.character_id),
+  mobId: r.mob_id,
+  nodeId: r.node_id,
+  state: r.state,
+});
+
+/** Column names a CharacterPatch may set; keys are checked against this list before going into SQL. */
+const PATCH_COLUMNS: Record<keyof CharacterPatch, string> = {
+  level: "level",
+  xp: "xp",
+  hp: "hp",
+  resource: "resource",
+  location: "location",
+};
 
 export class PgStore implements Store {
   constructor(private readonly pool: pg.Pool) {}
@@ -121,6 +148,80 @@ export class PgStore implements Store {
     } catch (err) {
       await client.query("ROLLBACK");
       if ((err as { code?: string }).code === UNIQUE_VIOLATION) return "name_taken";
+      throw err;
+    } finally {
+      client.release();
+    }
+  }
+
+  async getOngoingFight(characterId: number) {
+    const { rows } = await this.pool.query<FightRow>(
+      `SELECT ${FIGHT_COLUMNS} FROM fights WHERE character_id = $1 AND outcome = 'ongoing'`,
+      [characterId],
+    );
+    return rows[0] && toFight(rows[0]);
+  }
+
+  async withCharacter<T>(accountId: number, id: number, fn: (tx: CharacterTx) => Promise<T>): Promise<T | undefined> {
+    const client = await this.pool.connect();
+    try {
+      await client.query("BEGIN");
+      // The row lock serialises every game action on this character.
+      const found = await client.query<CharacterRow>(
+        `SELECT ${CHARACTER_COLUMNS} FROM characters WHERE account_id = $1 AND id = $2 FOR UPDATE`,
+        [accountId, id],
+      );
+      if (!found.rows[0]) {
+        await client.query("ROLLBACK");
+        return undefined;
+      }
+      const ongoing = await client.query<FightRow>(
+        `SELECT ${FIGHT_COLUMNS} FROM fights WHERE character_id = $1 AND outcome = 'ongoing'`,
+        [id],
+      );
+      let fightId = ongoing.rows[0] ? Number(ongoing.rows[0].id) : undefined;
+      const tx: CharacterTx = {
+        character: toCharacter(found.rows[0]),
+        fight: ongoing.rows[0] && toFight(ongoing.rows[0]),
+        updateCharacter: async (patch) => {
+          const keys = (Object.keys(patch) as (keyof CharacterPatch)[]).filter((k) => patch[k] !== undefined);
+          const sets = keys.map((k, i) => {
+            if (!Object.hasOwn(PATCH_COLUMNS, k)) throw new Error(`Unknown column ${k}`);
+            return `${PATCH_COLUMNS[k]} = $${i + 2}`;
+          });
+          const { rows } = await client.query<CharacterRow>(
+            sets.length
+              ? `UPDATE characters SET ${sets.join(", ")} WHERE id = $1 RETURNING ${CHARACTER_COLUMNS}`
+              : `SELECT ${CHARACTER_COLUMNS} FROM characters WHERE id = $1`,
+            [id, ...keys.map((k) => patch[k])],
+          );
+          return toCharacter(rows[0]!);
+        },
+        createFight: async (f) => {
+          if (fightId !== undefined) throw new Error("Character already has a fight in progress");
+          const { rows } = await client.query<FightRow>(
+            `INSERT INTO fights (character_id, mob_id, node_id, outcome, state)
+             VALUES ($1, $2, $3, $4, $5) RETURNING ${FIGHT_COLUMNS}`,
+            [id, f.mobId, f.nodeId, f.state.outcome, JSON.stringify(f.state)],
+          );
+          if (f.state.outcome === "ongoing") fightId = Number(rows[0]!.id);
+          return toFight(rows[0]!);
+        },
+        saveFight: async (state) => {
+          if (fightId === undefined) throw new Error("No fight in progress");
+          const { rows } = await client.query<FightRow>(
+            `UPDATE fights SET state = $2, outcome = $3, updated_at = now() WHERE id = $1 RETURNING ${FIGHT_COLUMNS}`,
+            [fightId, JSON.stringify(state), state.outcome],
+          );
+          if (state.outcome !== "ongoing") fightId = undefined;
+          return toFight(rows[0]!);
+        },
+      };
+      const result = await fn(tx);
+      await client.query("COMMIT");
+      return result;
+    } catch (err) {
+      await client.query("ROLLBACK");
       throw err;
     } finally {
       client.release();
