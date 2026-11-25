@@ -659,10 +659,18 @@ mob and every race and archetype pair.
 A trial of six images (2026-11-25) showed that Z-Image Turbo holds the style
 on scenes and beasts, draws portraits flatter than a print but well enough
 for 256 px, and is weak on the boss. It also drew the "glow behind the
-creature" as a cream sticker outline, so the mob prompt now asks for lantern
-light from the front and forbids outlines. Made so far: the Old Road scene
-and two portraits (orc warrior, dusk elf mage); the three trial mobs are in
-place but are to be made again from the new prompt.
+creature" as a cream sticker outline. A second prompt asked for lantern light
+from the front and forbade glows and outlines, but Z-Image Turbo read it the
+other way: a lantern beside every creature and a thicker sticker outline. The
+mob prompt now asks for warm amber light, names no outline at all, and opens
+with "Dark fantasy bestiary illustration" and a menacing creature with
+realistic proportions, which ended the stickers and most of the cute beasts.
+All 31 mobs and the 10 portraits were made on 2026-11-25. The Ashen Warden
+stayed a plain knight on Z-Image Turbo and was made with **Flux 2 Pro**
+(US$0.03 an image), which drew the lava-cracked armour, the faceless crowned
+helm and the lantern flail. Weakest of the set, to redo first: the Hollow
+Stag (a plain stag, no bark or branch antlers), the Mangy Cur (not starved)
+and the Drowned Scavenger (drawn inside a frame, cropped).
 
 ### Fight scene
 
