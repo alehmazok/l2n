@@ -10,7 +10,8 @@ import {
   type RaceId,
 } from "@l2n/shared";
 import { api, ApiError } from "../api.js";
-import { $, STAT_LABELS, esc, portrait, sheetHtml } from "../ui.js";
+import { $, STAT_LABELS, esc, sheetHtml } from "../ui.js";
+import { portrait } from "../art.js";
 
 const mods = (m: Partial<Record<keyof typeof STAT_LABELS, number>>) =>
   Object.entries(m)
@@ -26,7 +27,7 @@ export function renderCreate(root: HTMLElement, onCreated: (id: number) => void)
       (r) => `
       <label class="choice">
         <input type="radio" name="race" value="${r.id}" ${r.id === race ? "checked" : ""} />
-        ${portrait(r.id, r.name)}
+        <span data-race-portrait="${r.id}">${portrait(r.id, archetype, r.name)}</span>
         <span><b>${esc(r.name)}</b> <span class="muted small">${mods(r.statMods)}</span><br />
         <span class="small">${esc(r.blurb)}</span></span>
       </label>`,
@@ -59,7 +60,16 @@ export function renderCreate(root: HTMLElement, onCreated: (id: number) => void)
 
   const form = $<HTMLFormElement>("#create", root);
   const nameInput = $<HTMLInputElement>("input[name=name]", form);
-  const preview = () => ($("#preview", root).innerHTML = sheetHtml(characterSheet(race, archetype, 1, starterGear(archetype))));
+  const preview = () => {
+    // The portraits follow the archetype: each race has a warrior and a mage.
+    root.querySelectorAll<HTMLElement>("[data-race-portrait]").forEach((el) => {
+      const id = el.dataset.racePortrait as RaceId;
+      el.innerHTML = portrait(id, archetype, RACES[id].name);
+    });
+    $("#preview", root).innerHTML =
+      `<div class="row head">${portrait(race, archetype, RACES[race].name, "portrait-large")}<b>${esc(RACES[race].name)} ${esc(ARCHETYPES[archetype].name)}</b></div>` +
+      sheetHtml(characterSheet(race, archetype, 1, starterGear(archetype)));
+  };
   form.addEventListener("change", (e) => {
     const t = e.target as HTMLInputElement;
     if (t.name === "race") race = t.value as RaceId;

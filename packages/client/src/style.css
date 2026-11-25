@@ -48,7 +48,9 @@ a.button { display: inline-block; background: var(--accent); color: #1b1712; pad
 .card, .choice { display: flex; gap: 12px; align-items: center; padding: 8px 10px; border-radius: 6px; border: 1px solid #4a3f30; background: #16120d; color: var(--text); text-decoration: none; cursor: pointer; }
 .choice:has(input:checked) { border-color: var(--accent); }
 .choice input { accent-color: var(--accent); }
-.portrait { flex: none; width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; font-size: 1.4em; color: #1b1712; background: var(--muted); }
+.portrait { flex: none; width: 44px; height: 44px; border-radius: 6px; display: grid; place-items: center; font-size: 1.4em; color: #1b1712; background: var(--muted); overflow: hidden; }
+.portrait img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.portrait-large { width: 72px; height: 72px; border-radius: 8px; }
 .portrait-human { background: #c9a978; }
 .portrait-dawn_elf { background: #b9c98a; }
 .portrait-dusk_elf { background: #9d8fbf; }
@@ -167,3 +169,31 @@ ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
   .sheet { gap: 12px; }
 }
 .offline-banner { position: sticky; top: 0; z-index: 2; background: #5a1f17; color: var(--text); text-align: center; padding: 4px 8px; border-radius: 0 0 6px 6px; font-size: 0.875em; }
+
+/* The fight scene: the node's picture behind, the hero on the left, the mob on the right. */
+.scene { position: relative; aspect-ratio: 16 / 9; margin: 8px 0; border-radius: 8px; border: 1px solid #4a3f30; overflow: hidden; background: #16120d radial-gradient(ellipse at 50% 120%, #4a3a22, #16120d 70%) center / cover no-repeat; }
+.scene::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(27 23 18 / 0.85), rgb(27 23 18 / 0.1) 65%); }
+.fighter { position: absolute; bottom: 7%; }
+.fighter-player { left: 7%; width: 22%; }
+.fighter-enemy { right: 7%; width: 36%; }
+.role-elite .fighter-enemy { width: 40%; }
+.role-boss .fighter-enemy { width: 45%; }
+.fighter .portrait, .mob-card { display: grid; place-items: center; width: 100%; height: auto; aspect-ratio: 1; border-radius: 8px; border: 2px solid #4a3f30; box-shadow: 0 6px 16px rgb(0 0 0 / 0.65); overflow: hidden; font-size: 2em; color: var(--muted); background: var(--panel); }
+.fighter .portrait { color: #1b1712; }
+.mob-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.role-elite .mob-card { border-color: var(--accent); }
+.role-boss .mob-card { border-color: var(--bad); box-shadow: 0 0 22px rgb(208 112 90 / 0.55), 0 6px 16px rgb(0 0 0 / 0.65); }
+.float { position: absolute; left: 50%; top: 12%; z-index: 2; pointer-events: none; white-space: nowrap; font-weight: bold; font-size: 1.35em; color: var(--text); text-shadow: 0 2px 3px #000, 0 0 6px #000; }
+.fighter-player .float-hit, .fighter-player .float-crit { color: var(--bad); }
+.fighter-enemy .float-crit { color: var(--accent); }
+.float-heal { color: var(--good); }
+.float-mana { color: #86aee8; }
+.float-miss, .float-stun, .float-buff, .float-curse { font-size: 1em; color: var(--muted); }
+/* Once the last blow has been played, the loser goes down. */
+.scene .fighter { transition: transform 0.45s ease-in, filter 0.45s, opacity 0.45s; }
+.scene-won.scene-settled .fighter-enemy, .scene-lost.scene-settled .fighter-player { transform: translateY(10%) rotate(9deg); filter: grayscale(1) brightness(0.45); }
+.scene-fled.scene-settled .fighter-player { transform: translateX(-60%); opacity: 0; }
+@media (prefers-reduced-motion: no-preference) {
+  .fight .scene .mob-card { animation: breathe 3.2s ease-in-out infinite; }
+}
+@keyframes breathe { 50% { transform: scale(1.025); } }

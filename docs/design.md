@@ -637,8 +637,6 @@ Relic (meant to be cold and dark, but glows), Searing Brand (a hand holding
 a hammer and a torch instead of a branding iron) and the two Ember Vials,
 which look almost the same.
 
-Character portraits are still a tinted tile with a letter.
-
 ### Illustrations
 
 Decided 2026-11-25: the game gets pictures without an engine. The client
@@ -653,11 +651,31 @@ textures. Sprite animation and a walkable map stay out until a 2D engine.
 The art is made like the icons: `packages/client/src/assets/art/manifest.json`
 holds the prompt, model, seed and post-processing of every image, and
 `node scripts/generate-icons.mjs --set art` makes them through the Venice
-API. The first step is a trial of six images (Mire Rat, Dell Spider, Ashen
-Warden, Old Road, an orc warrior and a dusk elf mage) to check that the
-model holds the style on creatures, faces and wide scenes before the full
-set is generated. The six were made on 2026-11-25 in Venice Studio with
-Z-Image Turbo and are in `packages/client/src/assets/art`.
+API, or by hand in Venice Studio with the same prompt and seed. Art arrives in
+batches, so every lookup in `packages/client/src/art.ts` has a fallback (a
+letter on a tile) and a client test checks that the manifest covers every
+mob and every race and archetype pair.
+
+A trial of six images (2026-11-25) showed that Z-Image Turbo holds the style
+on scenes and beasts, draws portraits flatter than a print but well enough
+for 256 px, and is weak on the boss. It also drew the "glow behind the
+creature" as a cream sticker outline, so the mob prompt now asks for lantern
+light from the front and forbids outlines. Made so far: the Old Road scene
+and two portraits (orc warrior, dusk elf mage); the three trial mobs are in
+place but are to be made again from the new prompt.
+
+### Fight scene
+
+A fight is shown as a picture (since the first visuals step): the node's
+scene behind, the hero's portrait on the left and the mob's card on the
+right, larger and edged in amber for elites and in red for the boss. After
+each action the client turns the new entries of the fight log into steps
+(`packages/client/src/fightfx.ts`): the striker lunges, the target shakes and
+flashes, the number flies up and the HP bars move step by step, about a
+third of a second per step. More than eight new entries at once (an
+auto-battle) are not played, and nothing is played for players who ask their
+system for reduced motion. When the fight ends the loser's card falls and
+greys out above the result. The log stays as text below.
 
 ## 15. Technical shape
 

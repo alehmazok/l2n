@@ -1,8 +1,8 @@
 {
-  "about": "How each mob, scene and portrait was made, so the set can be made again (node scripts/generate-icons.mjs --set art). See \"Art\" in docs/design.md. An image with \"generated\": null has not been made yet.",
+  "about": "How each mob, scene and portrait was made, so the set can be made again (node scripts/generate-icons.mjs --set art). See \"Art\" in docs/design.md. An image with \"generated\": null has not been made yet, or (see its \"note\") has to be made again.",
   "style": {
     "name": "Lantern-lit linocut",
-    "mobPrompt": "Game bestiary illustration: exactly one {subject}, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+    "mobPrompt": "Game bestiary illustration: exactly one {subject}, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
     "scenePrompt": "Game location illustration, wide view at dusk: {subject}. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
     "portraitPrompt": "Game character portrait, head and shoulders: {subject}, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame."
   },
@@ -19,18 +19,15 @@
     {
       "id": "mire_rat",
       "kind": "mob",
-      "subject": "fat ditch rat with matted wet fur, a long bare tail and bared yellow teeth",
+      "subject": "gaunt ditch rat with wet matted dark fur, a scarred snout, long bared yellow teeth, small mean eyes and a long bare tail, hunched and snarling",
       "file": "mobs/mire_rat.webp",
       "model": "z-image-turbo",
-      "prompt": "Game bestiary illustration: exactly one fat ditch rat with matted wet fur, a long bare tail and bared yellow teeth, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "prompt": "Game bestiary illustration: exactly one gaunt ditch rat with wet matted dark fur, a scarred snout, long bared yellow teeth, small mean eyes and a long bare tail, hunched and snarling, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
       "parameters": {
         "width": 1024,
         "height": 1024,
         "steps": 8,
-        "seed": 2001,
-        "enhancePrompt": false,
-        "stylePreset": null,
-        "format": "png"
+        "seed": 2101
       },
       "postprocess": {
         "cropInset": 0,
@@ -38,7 +35,260 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": "2026-11-25"
+      "generated": null,
+      "note": "The image in place is the trial one from the earlier prompt; make it again."
+    },
+    {
+      "id": "hedge_crow",
+      "kind": "mob",
+      "subject": "large ragged black crow with a heavy beak, wings half spread, a stolen brass buckle in its claws",
+      "file": "mobs/hedge_crow.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one large ragged black crow with a heavy beak, wings half spread, a stolen brass buckle in its claws, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2102
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "mangy_cur",
+      "kind": "mob",
+      "subject": "starved feral dog with patchy fur, ribs showing, hackles raised and teeth bared",
+      "file": "mobs/mangy_cur.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one starved feral dog with patchy fur, ribs showing, hackles raised and teeth bared, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2103
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "mill_toad",
+      "kind": "mob",
+      "subject": "huge warty toad the size of a bucket, with a wide mouth, bulging amber eyes and wet teal skin",
+      "file": "mobs/mill_toad.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one huge warty toad the size of a bucket, with a wide mouth, bulging amber eyes and wet teal skin, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2104
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "silt_crawler",
+      "kind": "mob",
+      "subject": "pale giant centipede with many legs, a segmented armoured body and curved pincers, dripping with mud",
+      "file": "mobs/silt_crawler.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one pale giant centipede with many legs, a segmented armoured body and curved pincers, dripping with mud, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2105
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "drowned_scavenger",
+      "kind": "mob",
+      "subject": "drowned corpse of a looter, bloated and grey, in rotten soaked clothes, hung with waterweed, clutching a rusty knife and a sodden coin purse",
+      "file": "mobs/drowned_scavenger.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one drowned corpse of a looter, bloated and grey, in rotten soaked clothes, hung with waterweed, clutching a rusty knife and a sodden coin purse, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2106
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "burrow_mole",
+      "kind": "mob",
+      "subject": "big blind mole with no visible eyes, a pink star-shaped snout and huge digging claws, rearing up",
+      "file": "mobs/burrow_mole.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one big blind mole with no visible eyes, a pink star-shaped snout and huge digging claws, rearing up, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2107
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "tusked_digger",
+      "kind": "mob",
+      "subject": "squat tunnelling boar with a shovel-like snout, two long curved tusks and clods of earth on its bristly back",
+      "file": "mobs/tusked_digger.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one squat tunnelling boar with a shovel-like snout, two long curved tusks and clods of earth on its bristly back, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2108
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "burrow_hulk",
+      "kind": "mob",
+      "subject": "enormous old mole-like digging beast with scarred grey hide, massive shoulders and claws like spades",
+      "file": "mobs/burrow_hulk.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one enormous old mole-like digging beast with scarred grey hide, massive shoulders and claws like spades, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2109
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "burrow_queen",
+      "kind": "mob",
+      "subject": "gigantic bloated queen mole as big as a cart, with pale scarred hide, a crown of twisted roots grown into her head and enormous claws",
+      "file": "mobs/burrow_queen.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one gigantic bloated queen mole as big as a cart, with pale scarred hide, a crown of twisted roots grown into her head and enormous claws, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2110
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "briar_boar",
+      "kind": "mob",
+      "subject": "wild boar whose hide is covered in thorny bramble vines, with short tusks, head lowered to charge",
+      "file": "mobs/briar_boar.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one wild boar whose hide is covered in thorny bramble vines, with short tusks, head lowered to charge, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2111
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "thicket_wolf",
+      "kind": "mob",
+      "subject": "lean grey wolf with a torn ear, crouched low and snarling",
+      "file": "mobs/thicket_wolf.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one lean grey wolf with a torn ear, crouched low and snarling, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2112
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "roadside_cutpurse",
+      "kind": "mob",
+      "subject": "thin bandit in a patched hood and ragged cloak, face half covered by a scarf, holding a short knife low",
+      "file": "mobs/roadside_cutpurse.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one thin bandit in a patched hood and ragged cloak, face half covered by a scarf, holding a short knife low, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2113
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
     },
     {
       "id": "dell_spider",
@@ -46,15 +296,12 @@
       "subject": "long-legged forest spider the size of a shield, with a striped teal abdomen and eight amber eyes",
       "file": "mobs/dell_spider.webp",
       "model": "z-image-turbo",
-      "prompt": "Game bestiary illustration: exactly one long-legged forest spider the size of a shield, with a striped teal abdomen and eight amber eyes, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "prompt": "Game bestiary illustration: exactly one long-legged forest spider the size of a shield, with a striped teal abdomen and eight amber eyes, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
       "parameters": {
         "width": 1024,
         "height": 1024,
         "steps": 8,
-        "seed": 2002,
-        "enhancePrompt": false,
-        "stylePreset": null,
-        "format": "png"
+        "seed": 2114
       },
       "postprocess": {
         "cropInset": 0,
@@ -62,23 +309,357 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": "2026-11-25"
+      "generated": null,
+      "note": "The image in place is the trial one from the earlier prompt; make it again."
+    },
+    {
+      "id": "web_lurker",
+      "kind": "mob",
+      "subject": "dark hairy spider with very long thin legs, hanging upside down from a single thick thread of silk, fangs spread",
+      "file": "mobs/web_lurker.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one dark hairy spider with very long thin legs, hanging upside down from a single thick thread of silk, fangs spread, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2115
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "fungal_shambler",
+      "kind": "mob",
+      "subject": "shambling humanoid heap of rotting wood and moss, covered in pale mushroom caps, with long dragging arms and no face",
+      "file": "mobs/fungal_shambler.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one shambling humanoid heap of rotting wood and moss, covered in pale mushroom caps, with long dragging arms and no face, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2116
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brood_matron",
+      "kind": "mob",
+      "subject": "enormous spider with a hugely swollen pale abdomen covered in egg sacs, thick armoured legs and a cluster of rust red eyes",
+      "file": "mobs/brood_matron.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one enormous spider with a hugely swollen pale abdomen covered in egg sacs, thick armoured legs and a cluster of rust red eyes, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2117
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "crag_lynx",
+      "kind": "mob",
+      "subject": "tufted-eared lynx with a spotted coat, leaping with claws out",
+      "file": "mobs/crag_lynx.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one tufted-eared lynx with a spotted coat, leaping with claws out, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2118
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "hollow_stag",
+      "kind": "mob",
+      "subject": "gaunt stag whose antlers are living branches with a few leaves, with bark growing over its flanks and empty glowing amber eyes",
+      "file": "mobs/hollow_stag.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one gaunt stag whose antlers are living branches with a few leaves, with bark growing over its flanks and empty glowing amber eyes, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2119
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "toll_brigand",
+      "kind": "mob",
+      "subject": "burly bandit in a dented iron cap and a leather jerkin, holding a spiked club, one hand held out for a toll",
+      "file": "mobs/toll_brigand.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one burly bandit in a dented iron cap and a leather jerkin, holding a spiked club, one hand held out for a toll, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2120
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brigand_captain",
+      "kind": "mob",
+      "subject": "scarred bandit captain in mismatched stolen steel armour and a torn red cloak, with a heavy sabre resting on one shoulder",
+      "file": "mobs/brigand_captain.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one scarred bandit captain in mismatched stolen steel armour and a torn red cloak, with a heavy sabre resting on one shoulder, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2121
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "cinder_hound",
+      "kind": "mob",
+      "subject": "skeletal burnt black hound with glowing embers showing between its ribs, smoke rising from its back",
+      "file": "mobs/cinder_hound.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one skeletal burnt black hound with glowing embers showing between its ribs, smoke rising from its back, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2122
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "ashbound_sentry",
+      "kind": "mob",
+      "subject": "guard statue of cracked grey stone holding a stone halberd, with a glowing red coal set in its chest and ash falling from its joints",
+      "file": "mobs/ashbound_sentry.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one guard statue of cracked grey stone holding a stone halberd, with a glowing red coal set in its chest and ash falling from its joints, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2123
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "restless_bones",
+      "kind": "mob",
+      "subject": "human skeleton with a rusty sword and a broken round shield, wearing scraps of old mail, jaw hanging open",
+      "file": "mobs/restless_bones.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one human skeleton with a rusty sword and a broken round shield, wearing scraps of old mail, jaw hanging open, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2124
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "ossuary_crawler",
+      "kind": "mob",
+      "subject": "monster of many human bones knitted together, shaped like a giant insect with a spine for a body, rib legs and three skulls for a head",
+      "file": "mobs/ossuary_crawler.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one monster of many human bones knitted together, shaped like a giant insect with a spine for a body, rib legs and three skulls for a head, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2125
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "gallery_wight",
+      "kind": "mob",
+      "subject": "pale gaunt ghostly corpse in a tattered burial shroud, with long thin hands and hollow teal eyes, drifting above the ground",
+      "file": "mobs/gallery_wight.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one pale gaunt ghostly corpse in a tattered burial shroud, with long thin hands and hollow teal eyes, drifting above the ground, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2126
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "bone_colossus",
+      "kind": "mob",
+      "subject": "towering giant built from hundreds of stacked human bones and skulls, with huge fists and a skull-heap head",
+      "file": "mobs/bone_colossus.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one towering giant built from hundreds of stacked human bones and skulls, with huge fists and a skull-heap head, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2127
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "crypt_keeper",
+      "kind": "mob",
+      "subject": "hunched undead caretaker in a rotten hooded robe, with a ring of iron keys at its belt, gripping an old broom like a weapon",
+      "file": "mobs/crypt_keeper.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one hunched undead caretaker in a rotten hooded robe, with a ring of iron keys at its belt, gripping an old broom like a weapon, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2128
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "ember_revenant",
+      "kind": "mob",
+      "subject": "dead knight in scorched plate armour whose open helmet holds only flame instead of a face, carrying a blackened sword",
+      "file": "mobs/ember_revenant.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one dead knight in scorched plate armour whose open helmet holds only flame instead of a face, carrying a blackened sword, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2129
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "gravebound_champion",
+      "kind": "mob",
+      "subject": "tall undead champion in ornate tarnished steel armour and a tattered teal tabard, holding a greatsword upright in both hands, faint teal light in the visor",
+      "file": "mobs/gravebound_champion.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game bestiary illustration: exactly one tall undead champion in ornate tarnished steel armour and a tattered teal tabard, holding a greatsword upright in both hands, faint teal light in the visor, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 2130
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 512,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
     },
     {
       "id": "ashen_warden",
       "kind": "mob",
-      "subject": "towering armoured knight made of burnt black iron and ash, glowing embers in the cracks of its armour, holding up a dark burnt-out lantern on a chain, a ragged cloak of smoke",
+      "subject": "towering gaunt giant in burnt black plate armour cracked like cooling lava, with rust red embers glowing in every crack, a tall crown-like helm with no face, ash and smoke pouring from its shoulders like a cloak, carrying a huge dark iron lantern on a heavy chain like a flail",
       "file": "mobs/ashen_warden.webp",
       "model": "z-image-turbo",
-      "prompt": "Game bestiary illustration: exactly one towering armoured knight made of burnt black iron and ash, glowing embers in the cracks of its armour, holding up a dark burnt-out lantern on a chain, a ragged cloak of smoke, whole body in view, shown alone, turned to face the left. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the creature. Plain solid very dark brown background, no scenery. The creature fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
+      "prompt": "Game bestiary illustration: exactly one towering gaunt giant in burnt black plate armour cracked like cooling lava, with rust red embers glowing in every crack, a tall crown-like helm with no face, ash and smoke pouring from its shoulders like a cloak, carrying a huge dark iron lantern on a heavy chain like a flail, whole body in view, shown alone, turned to face the left, hostile and dangerous. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm lantern light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. No glow, no halo, no white outline and no sticker border around the figure. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
       "parameters": {
         "width": 1024,
         "height": 1024,
         "steps": 8,
-        "seed": 2003,
-        "enhancePrompt": false,
-        "stylePreset": null,
-        "format": "png"
+        "seed": 2131
       },
       "postprocess": {
         "cropInset": 0,
@@ -86,7 +667,8 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": "2026-11-25"
+      "generated": null,
+      "note": "The image in place is the trial one from the earlier prompt; make it again."
     },
     {
       "id": "mossgate_old_road",
@@ -107,6 +689,135 @@
       "postprocess": {
         "cropInset": 0.05,
         "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "human_warrior",
+      "kind": "portrait",
+      "subject": "a human warrior, a weathered man with short brown hair and stubble, wearing plain riveted iron mail over wool",
+      "file": "portraits/human_warrior.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a human warrior, a weathered man with short brown hair and stubble, wearing plain riveted iron mail over wool, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4101
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "human_mage",
+      "kind": "portrait",
+      "subject": "a human mage, a sharp-eyed woman with dark hair in a braid, wearing a wool hood and a plain robe with an amber clasp",
+      "file": "portraits/human_mage.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a human mage, a sharp-eyed woman with dark hair in a braid, wearing a wool hood and a plain robe with an amber clasp, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4102
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dawn_elf_warrior",
+      "kind": "portrait",
+      "subject": "a dawn elf warrior with fair skin, long pointed ears and golden hair in a tight braid, wearing a light iron helm pushed back and mail with a teal scarf",
+      "file": "portraits/dawn_elf_warrior.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dawn elf warrior with fair skin, long pointed ears and golden hair in a tight braid, wearing a light iron helm pushed back and mail with a teal scarf, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4103
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dawn_elf_mage",
+      "kind": "portrait",
+      "subject": "a dawn elf mage with fair skin, long pointed ears and long golden hair, wearing a cream hood and robe with a small lantern charm at the collar",
+      "file": "portraits/dawn_elf_mage.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dawn elf mage with fair skin, long pointed ears and long golden hair, wearing a cream hood and robe with a small lantern charm at the collar, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4104
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dusk_elf_warrior",
+      "kind": "portrait",
+      "subject": "a dusk elf warrior with ash-grey skin, long pointed ears and short silver hair, wearing dark riveted iron mail with a rust red collar",
+      "file": "portraits/dusk_elf_warrior.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dusk elf warrior with ash-grey skin, long pointed ears and short silver hair, wearing dark riveted iron mail with a rust red collar, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4105
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dusk_elf_mage",
+      "kind": "portrait",
+      "subject": "a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe",
+      "file": "portraits/dusk_elf_mage.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4002,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
         "format": "webp",
         "quality": 80
       },
@@ -137,20 +848,17 @@
       "generated": "2026-11-25"
     },
     {
-      "id": "dusk_elf_mage",
+      "id": "orc_mage",
       "kind": "portrait",
-      "subject": "a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe",
-      "file": "portraits/dusk_elf_mage.webp",
+      "subject": "an orc mage of the high steppe with grey-green skin, short tusks and a shaved head with painted rust red clan marks, wearing a heavy wool robe and bone beads",
+      "file": "portraits/orc_mage.webp",
       "model": "z-image-turbo",
-      "prompt": "Game character portrait, head and shoulders: a dusk elf mage with ash-grey skin, long pointed ears, silver hair tied back, pale violet eyes, wearing a dark wool hood and robe, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "prompt": "Game character portrait, head and shoulders: an orc mage of the high steppe with grey-green skin, short tusks and a shaved head with painted rust red clan marks, wearing a heavy wool robe and bone beads, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
       "parameters": {
         "width": 1024,
         "height": 1024,
         "steps": 8,
-        "seed": 4002,
-        "enhancePrompt": false,
-        "stylePreset": null,
-        "format": "png"
+        "seed": 4108
       },
       "postprocess": {
         "cropInset": 0,
@@ -158,7 +866,49 @@
         "format": "webp",
         "quality": 80
       },
-      "generated": "2026-11-25"
+      "generated": null
+    },
+    {
+      "id": "dwarf_warrior",
+      "kind": "portrait",
+      "subject": "a dwarf warrior with a broad nose and a thick braided red beard, wearing a round iron helm and heavy riveted mail",
+      "file": "portraits/dwarf_warrior.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dwarf warrior with a broad nose and a thick braided red beard, wearing a round iron helm and heavy riveted mail, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4109
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "dwarf_mage",
+      "kind": "portrait",
+      "subject": "a dwarf mage with a grey braided beard, bushy brows and small round brass spectacles, wearing a wool hood and a robe with rune-stamped brass clasps",
+      "file": "portraits/dwarf_mage.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game character portrait, head and shoulders: a dwarf mage with a grey braided beard, bushy brows and small round brass spectacles, wearing a wool hood and a robe with rune-stamped brass clasps, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 4110
+      },
+      "postprocess": {
+        "cropInset": 0,
+        "size": 256,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
     }
   ]
 }
