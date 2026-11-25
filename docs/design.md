@@ -700,6 +700,18 @@ level range. Markers carry the living world: a green count of other players
 there and a red mark where someone fell. Until the map backdrop is
 generated, the roads and markers sit on a plain dark parchment tone.
 
+### Interface
+
+The interface is dressed as a printed page, in CSS only: headings are set in
+IM Fell English (SIL Open Font Licence, bundled from the
+`@fontsource/im-fell-english` package, so nothing is fetched from a font
+service), panels carry a thin inner rule and a faint hatch, buttons press
+down, and bars are hatched like a print. The header has a small lantern
+mark. A visitor who is not signed in sees a scene (the town square, or the
+Old Road until that is drawn) with one line of the premise above the
+sign-in form. Screens fade in when the route changes, unless the system
+asks for reduced motion.
+
 ## 15. Technical shape
 
 - `packages/shared`: types, data, formulas, combat engine. Pure and
