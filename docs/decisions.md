@@ -16,6 +16,9 @@ decided yet live in [design.md](design.md), marked **Proposal**.
 | 2026-11-25 | Title: **Lost to Nostalgia**, short name **L2N**. | Chosen by Aleh; matches the repo name. |
 | 2026-11-25 | Docs live in the repo (README, design doc, this log, MVP plan) and are updated in the same pull requests as code. | Docs that drift from code are worse than none. |
 | 2026-11-25 | Combat engine is pure and seeded; numbers come from formulas in the design doc, checked by a balance simulation test. | Reproducible fights, server-side validation, balance changes are reviewable. |
+| 2026-11-25 | Accounts use email + password. Passwords are hashed with Node's built-in scrypt; sessions are random tokens in an HttpOnly, SameSite=Lax cookie, stored in Postgres only as a SHA-256 hash, valid 30 days. | No native dependencies and no third-party auth service; a leaked database does not leak live sessions; easy to revoke. |
+| 2026-11-25 | Character names: 3–16 letters A–Z, stored capitalised ("Aldric"), unique regardless of case. Up to 4 characters per account. | Readable names in chat and the chronicle, no look-alike impersonation. The slot count can grow later. |
+| 2026-11-25 | Persistence goes through a `Store` interface with a Postgres and an in-memory implementation that pass the same contract tests. Without `DATABASE_URL` the dev server uses the in-memory store; in production it refuses to start. | Fast tests and a zero-setup dev loop without letting the two drift apart. |
 
 Open: whether the repository becomes public and under which licence. No
 LICENSE file until that is decided.

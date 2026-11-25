@@ -80,6 +80,19 @@ Short lore notes (to expand later):
 - **Dwarves** are guild-folk of the deep halls, makers of the original lanterns.
   They want to know why their work failed.
 
+### Character creation
+
+A player account holds up to **4** characters. Creating one means choosing a
+name, a race and an archetype; there are no stat points to spend, so every
+character of a given race and archetype starts with the same numbers. Names are
+3–16 letters (A–Z), shown capitalised, and unique across the server regardless
+of case. A new character starts at level 1 in Brackwell with full HP, 0 silver,
+full mana (mages) or 0 Focus (warriors).
+
+The character sheet shows the stats, derived numbers (HP, Mana or Focus,
+attack and defence without gear, crit chance), the racial passive and the
+archetype's skills with the level they unlock at.
+
 ### Stats
 
 | Stat | Effect |
