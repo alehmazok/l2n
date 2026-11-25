@@ -23,6 +23,7 @@ import {
 } from "@l2n/shared";
 import { api, ApiError, type CraftResult, type FightAction, type GameView, type QuestResult } from "../api.js";
 import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
+import { skillIcon } from "../icons.js";
 import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
 import { boardHtml, questResultHtml, trackerHtml } from "./quests.js";
 import { startWorld } from "./world.js";
@@ -243,14 +244,14 @@ function fightHtml(view: GameView) {
     .map((sid) => skillById(sid)!)
     .map(
       (k) =>
-        `<button data-act="skill" data-skill="${esc(k.id)}" title="${esc(k.description)}" ${k.cost > available ? "disabled" : ""}>${esc(k.name)} <span class="small">${k.cost}</span></button>`,
+        `<button data-act="skill" data-skill="${esc(k.id)}" title="${esc(k.description)}" ${k.cost > available ? "disabled" : ""}>${skillIcon(k.id)}${esc(k.name)} <span class="small">${k.cost}</span></button>`,
     )
     .join("");
   const draughts = (["healing_draught", "mana_draught"] as const)
     .filter((d) => draughtsLeft(p, d) > 0)
     .map(
       (d) =>
-        `<button data-act="item" data-draught="${d}" class="quiet" title="${esc(ITEMS[d]!.description)}">${esc(ITEMS[d]!.name)} <span class="small">×${draughtsLeft(p, d)}</span></button>`,
+        `<button data-act="item" data-draught="${d}" class="quiet" title="${esc(ITEMS[d]!.description)}">${itemIcon({ templateId: d, rarity: null })}${esc(ITEMS[d]!.name)} <span class="small">×${draughtsLeft(p, d)}</span></button>`,
     )
     .join("");
   const charges = p.charges > 0 && p.chargeItem ? ` ${esc(ITEMS[p.chargeItem]?.name ?? "Charges")}: ${p.charges} left.` : "";

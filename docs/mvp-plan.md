@@ -58,7 +58,7 @@ Board nodes (Market and Warehouse done in stage 3).
 - [x] Economy test: silver per kill against charges spent.
 
 Left for later: account-wide warehouse, gear for the other archetype in drops,
-item icons (placeholders for now). The ember vial question was settled in
+item icons (arrived in stage 6). The ember vial question was settled in
 stage 4.
 
 ## Stage 4 — Crafting and the rest of the world (done)
@@ -99,10 +99,12 @@ quest (everything goes through the notice board for now).
 - [x] Installable PWA (PNG and maskable icons) with an offline shell; a
       mobile layout pass: chat as a bottom sheet on phones, a sidebar on wide
       screens, bigger tap targets.
-- [ ] First icon set: waits for art generated with Venice (Aleh's choice);
-      letter placeholders stay until then.
+- [x] First icon set: 68 item and skill icons generated with Venice's
+      cheapest image model in one original style, with a manifest of
+      prompts, model and settings and a script to make them again.
 
 Left for later: push updates instead of polling, reporting players, chat
-history beyond the latest 50 lines.
+history beyond the latest 50 lines, character portraits (still a letter on
+a tinted tile), icons from a better model.
 
 After the MVP: async arena, then Capacitor builds for the stores.

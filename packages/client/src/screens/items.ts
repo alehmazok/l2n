@@ -34,19 +34,11 @@ import {
   type StockEntry,
 } from "@l2n/shared";
 import { esc } from "../ui.js";
+import { itemIcon, recipeIcon } from "../icons.js";
+
+export { itemIcon };
 
 const SLOT_NAMES: Record<Slot, string> = { weapon: "Weapon", head: "Head", chest: "Chest", legs: "Legs", gloves: "Gloves", boots: "Boots" };
-
-/** Placeholder icon until real art exists: a letter for the kind of item, edged by rarity. */
-export function itemIcon(i: Pick<NewItem, "templateId" | "rarity">) {
-  const t = itemTemplate(i.templateId);
-  const letter = !t
-    ? "?"
-    : t.kind === "equipment"
-      ? SLOT_NAMES[t.slot].charAt(0)
-      : { charge: "✦", draught: "⚗", resource: "◆", recipe: "§", quest: "★" }[t.kind];
-  return `<span class="icon icon-${t?.kind ?? "unknown"} rarity-${i.rarity ?? "common"}" aria-hidden="true">${letter}</span>`;
-}
 
 /** One line of item facts: stats, level needed, rare bonus. */
 export function itemFacts(i: Pick<NewItem, "templateId" | "itemLevel" | "rarity" | "bonus">) {
@@ -204,7 +196,7 @@ function recipeLine(c: CharacterSummary, items: Item[], r: Recipe) {
   const problem = craftProblem(r, c, items);
   const made = r.makes.length > 1 ? `${r.makes.length} pieces` : `${r.makes[0]!.quantity > 1 ? `${r.makes[0]!.quantity} × ` : ""}${esc(itemTemplate(r.makes[0]!.item)?.name ?? "")}`;
   const level = r.itemLevel !== null ? ` · item level ${r.itemLevel}` : "";
-  return `<li class="item"><span class="icon icon-recipe" aria-hidden="true">§</span><div class="grow">${esc(r.name)}
+  return `<li class="item">${recipeIcon()}<div class="grow">${esc(r.name)}
     <div class="small muted">Makes ${made}${level} · ${Math.round(recipeChance(r, c.race) * 100)}% · fee ${r.fee}s</div>
     <div class="small">${needs}</div></div>
     <div class="row">${btn("Craft", { item: "craft", recipe: r.id }, problem !== null, problem ?? "")}</div></li>`;

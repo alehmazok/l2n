@@ -1,0 +1,1653 @@
+{
+  "about": "How each item and skill icon was made, so the set can be made again (scripts/generate-icons.mjs). See \"Art\" in docs/design.md.",
+  "style": {
+    "name": "Lantern-lit linocut",
+    "itemPrompt": "Game inventory icon: exactly one {subject}, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+    "skillPrompt": "Game ability icon: {subject}, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame."
+  },
+  "model": {
+    "id": "z-image-turbo",
+    "name": "Z-Image Turbo",
+    "provider": "Venice",
+    "priceUsdPerImage": 0.01,
+    "why": "Venice's cheapest image model on 2026-11-25 (tied at US$0.01 with Venice SD35, Chroma and a few NSFW or anime models); open weights under Apache 2.0.",
+    "source": "https://huggingface.co/Tongyi-MAI/Z-Image-Turbo",
+    "license": "Apache-2.0",
+    "promptCharacterLimit": 7500
+  },
+  "generatedWith": "Venice Studio web app (venice.ai/studio/image), prompt enhancement off, fixed seed, no style preset, 1:1, PNG. Steps are the model default (8), not shown in Studio. Free-plan images carry a small Venice watermark in the bottom-left corner, which the crop removes.",
+  "icons": [
+    {
+      "id": "ironbound_warrior_weapon",
+      "kind": "item",
+      "subject": "plain iron short sword with a leather-wrapped grip and a riveted crossguard, pointing diagonally up to the right",
+      "file": "ironbound_warrior_weapon.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one plain iron short sword with a leather-wrapped grip and a riveted crossguard, pointing diagonally up to the right, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_warrior_head",
+      "kind": "item",
+      "subject": "dented open-faced iron helmet with a nose guard and visible rivets",
+      "file": "ironbound_warrior_head.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one dented open-faced iron helmet with a nose guard and visible rivets, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_warrior_chest",
+      "kind": "item",
+      "subject": "short-sleeved shirt of grey iron chainmail rings with a brown leather collar and patched leather trim",
+      "file": "ironbound_warrior_chest.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one short-sleeved shirt of grey iron chainmail rings with a brown leather collar and patched leather trim, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_warrior_legs",
+      "kind": "item",
+      "subject": "pair of riveted iron leg greaves with leather straps",
+      "file": "ironbound_warrior_legs.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of riveted iron leg greaves with leather straps, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_warrior_gloves",
+      "kind": "item",
+      "subject": "pair of riveted iron gauntlets with leather cuffs",
+      "file": "ironbound_warrior_gloves.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of riveted iron gauntlets with leather cuffs, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_warrior_boots",
+      "kind": "item",
+      "subject": "pair of sturdy leather boots with iron toe caps",
+      "file": "ironbound_warrior_boots.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of sturdy leather boots with iron toe caps, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_weapon",
+      "kind": "item",
+      "subject": "gnarled wooden walking staff with a small glowing amber stone bound to its top with cord, pointing diagonally up to the right",
+      "file": "ironbound_mage_weapon.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one gnarled wooden walking staff with a small glowing amber stone bound to its top with cord, pointing diagonally up to the right, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_head",
+      "kind": "item",
+      "subject": "medieval pilgrim's hood of rough brown wool with a short shoulder cape and patched seams",
+      "file": "ironbound_mage_head.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one medieval pilgrim's hood of rough brown wool with a short shoulder cape and patched seams, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_chest",
+      "kind": "item",
+      "subject": "plain patched brown wool robe with a rope belt",
+      "file": "ironbound_mage_chest.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one plain patched brown wool robe with a rope belt, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_legs",
+      "kind": "item",
+      "subject": "pair of simple patched brown cloth breeches",
+      "file": "ironbound_mage_legs.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of simple patched brown cloth breeches, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_gloves",
+      "kind": "item",
+      "subject": "pair of two plain brown fingerless wool gloves lying side by side",
+      "file": "ironbound_mage_gloves.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of two plain brown fingerless wool gloves lying side by side, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ironbound_mage_boots",
+      "kind": "item",
+      "subject": "pair of soft worn brown leather shoes",
+      "file": "ironbound_mage_boots.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of soft worn brown leather shoes, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_weapon",
+      "kind": "item",
+      "subject": "polished steel longsword with a teal enamel crossguard and an amber gem in the pommel, pointing diagonally up to the right",
+      "file": "steelsworn_warrior_weapon.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one polished steel longsword with a teal enamel crossguard and an amber gem in the pommel, pointing diagonally up to the right, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_head",
+      "kind": "item",
+      "subject": "polished steel great helm with teal enamel trim and a narrow visor slit",
+      "file": "steelsworn_warrior_head.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one polished steel great helm with teal enamel trim and a narrow visor slit, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_chest",
+      "kind": "item",
+      "subject": "polished steel breastplate cuirass with teal enamel trim and an amber sunburst emblem on the chest",
+      "file": "steelsworn_warrior_chest.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one polished steel breastplate cuirass with teal enamel trim and an amber sunburst emblem on the chest, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_legs",
+      "kind": "item",
+      "subject": "pair of polished steel plate leg greaves with teal enamel knee guards",
+      "file": "steelsworn_warrior_legs.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of polished steel plate leg greaves with teal enamel knee guards, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_gloves",
+      "kind": "item",
+      "subject": "pair of polished articulated steel plate gauntlets with teal enamel trim",
+      "file": "steelsworn_warrior_gloves.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of polished articulated steel plate gauntlets with teal enamel trim, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_warrior_boots",
+      "kind": "item",
+      "subject": "pair of armoured boots made of overlapping polished steel plates with teal enamel trim",
+      "file": "steelsworn_warrior_boots.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of armoured boots made of overlapping polished steel plates with teal enamel trim, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_weapon",
+      "kind": "item",
+      "subject": "tall dark wood staff capped with steel, holding a glowing amber crystal in a small lantern cage at its top, pointing diagonally up to the right",
+      "file": "steelsworn_mage_weapon.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one tall dark wood staff capped with steel, holding a glowing amber crystal in a small lantern cage at its top, pointing diagonally up to the right, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_head",
+      "kind": "item",
+      "subject": "deep teal hooded cowl with amber embroidered trim and a small steel clasp",
+      "file": "steelsworn_mage_head.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one deep teal hooded cowl with amber embroidered trim and a small steel clasp, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_chest",
+      "kind": "item",
+      "subject": "flowing deep teal mage robe vestments with amber embroidery and a steel clasp",
+      "file": "steelsworn_mage_chest.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one flowing deep teal mage robe vestments with amber embroidery and a steel clasp, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_legs",
+      "kind": "item",
+      "subject": "pair of deep teal cloth leggings with amber embroidered trim",
+      "file": "steelsworn_mage_legs.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of deep teal cloth leggings with amber embroidered trim, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_gloves",
+      "kind": "item",
+      "subject": "pair of fine deep teal cloth gloves with amber embroidered cuffs",
+      "file": "steelsworn_mage_gloves.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of fine deep teal cloth gloves with amber embroidered cuffs, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "steelsworn_mage_boots",
+      "kind": "item",
+      "subject": "pair of tall deep teal cloth boots with steel buckles",
+      "file": "steelsworn_mage_boots.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one pair of tall deep teal cloth boots with steel buckles, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "whetstone_1",
+      "kind": "item",
+      "subject": "rough grey sharpening whetstone, a small rectangular stone block with scratches",
+      "file": "whetstone_1.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one rough grey sharpening whetstone, a small rectangular stone block with scratches, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "whetstone_2",
+      "kind": "item",
+      "subject": "flat rectangular dark blue-grey sharpening stone with a polished steel band around its middle, lying flat",
+      "file": "whetstone_2.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one flat rectangular dark blue-grey sharpening stone with a polished steel band around its middle, lying flat, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ember_vial_1",
+      "kind": "item",
+      "subject": "small corked glass vial holding a glowing orange ember",
+      "file": "ember_vial_1.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small corked glass vial holding a glowing orange ember, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ember_vial_2",
+      "kind": "item",
+      "subject": "small glass vial with a polished steel cap, holding a bright glowing orange ember",
+      "file": "ember_vial_2.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small glass vial with a polished steel cap, holding a bright glowing orange ember, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "healing_draught",
+      "kind": "item",
+      "subject": "round glass potion flask filled with red liquid, sealed with a cork",
+      "file": "healing_draught.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one round glass potion flask filled with red liquid, sealed with a cork, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "mana_draught",
+      "kind": "item",
+      "subject": "round glass potion flask filled with glowing teal liquid, sealed with a cork",
+      "file": "mana_draught.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one round glass potion flask filled with glowing teal liquid, sealed with a cork, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "rough_hide",
+      "kind": "item",
+      "subject": "folded piece of rough brown animal hide",
+      "file": "rough_hide.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one folded piece of rough brown animal hide, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "bone_shard",
+      "kind": "item",
+      "subject": "small heap of splintered pale bone shards",
+      "file": "bone_shard.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small heap of splintered pale bone shards, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "iron_scrap",
+      "kind": "item",
+      "subject": "small heap of bent iron nails, a buckle and a broken blade tip",
+      "file": "iron_scrap.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small heap of bent iron nails, a buckle and a broken blade tip, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "resin_lump",
+      "kind": "item",
+      "subject": "sticky lump of golden amber tree resin",
+      "file": "resin_lump.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one sticky lump of golden amber tree resin, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "marsh_herb",
+      "kind": "item",
+      "subject": "bundle of green marsh herbs tied with string",
+      "file": "marsh_herb.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one bundle of green marsh herbs tied with string, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "thick_pelt",
+      "kind": "item",
+      "subject": "folded heavy dark brown fur pelt",
+      "file": "thick_pelt.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one folded heavy dark brown fur pelt, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "heartwood",
+      "kind": "item",
+      "subject": "short split log of dense dark heartwood showing its tree rings",
+      "file": "heartwood.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one short split log of dense dark heartwood showing its tree rings, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "spider_silk",
+      "kind": "item",
+      "subject": "wound skein of strong grey spider silk thread",
+      "file": "spider_silk.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one wound skein of strong grey spider silk thread, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "glowcap",
+      "kind": "item",
+      "subject": "cluster of mushrooms with faintly glowing blue caps",
+      "file": "glowcap.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one cluster of mushrooms with faintly glowing blue caps, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ash_dust",
+      "kind": "item",
+      "subject": "small cloth pouch spilling fine grey ash with faint embers",
+      "file": "ash_dust.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small cloth pouch spilling fine grey ash with faint embers, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "grave_iron",
+      "kind": "item",
+      "subject": "rough, pitted ingot of old black iron lying flat",
+      "file": "grave_iron.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one rough, pitted ingot of old black iron lying flat, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ember_shard",
+      "kind": "item",
+      "subject": "jagged shard of glassy dark stone with a glowing spark trapped inside",
+      "file": "ember_shard.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one jagged shard of glassy dark stone with a glowing spark trapped inside, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "lantern_ward_charm",
+      "kind": "item",
+      "subject": "small hand lantern charm of glass and dark iron with a warm flame inside, hanging from a short chain",
+      "file": "lantern_ward_charm.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one small hand lantern charm of glass and dark iron with a warm flame inside, hanging from a short chain, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "millers_ledger",
+      "kind": "item",
+      "subject": "water-swollen old leather account book with wavy damp pages",
+      "file": "millers_ledger.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one water-swollen old leather account book with wavy damp pages, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "dimmed_relic",
+      "kind": "item",
+      "subject": "broken ornate lantern top of blackened dark metal, cracked and cold, with smoky dark glass and no light inside",
+      "file": "dimmed_relic.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one broken ornate lantern top of blackened dark metal, cracked and cold, with smoky dark glass and no light inside, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "recipe",
+      "kind": "item",
+      "subject": "rolled parchment scroll tied with red string and a wax seal",
+      "file": "recipe.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game inventory icon: exactly one rolled parchment scroll tied with red string and a wax seal, shown alone. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "heavy_blow",
+      "kind": "skill",
+      "subject": "a sword smashing downward into the ground with a big impact burst",
+      "file": "heavy_blow.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a sword smashing downward into the ground with a big impact burst, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "shield_bash",
+      "kind": "skill",
+      "subject": "a round wooden shield slamming forward with a burst of impact stars",
+      "file": "shield_bash.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a round wooden shield slamming forward with a burst of impact stars, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "war_cry",
+      "kind": "skill",
+      "subject": "a raised clenched fist with bold shout waves bursting outward",
+      "file": "war_cry.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a raised clenched fist with bold shout waves bursting outward, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "rending_cut",
+      "kind": "skill",
+      "subject": "a curved blade slash leaving three red bleeding cut marks",
+      "file": "rending_cut.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a curved blade slash leaving three red bleeding cut marks, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "second_wind",
+      "kind": "skill",
+      "subject": "a swirling gust of wind wrapped around a glowing red heart",
+      "file": "second_wind.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a swirling gust of wind wrapped around a glowing red heart, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "iron_stance",
+      "kind": "skill",
+      "subject": "an iron shield planted firmly on a solid stone base",
+      "file": "iron_stance.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: an iron shield planted firmly on a solid stone base, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "finishing_strike",
+      "kind": "skill",
+      "subject": "a sword plunging straight down through a shattering cracked stone",
+      "file": "finishing_strike.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a sword plunging straight down through a shattering cracked stone, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "ember_bolt",
+      "kind": "skill",
+      "subject": "a flaming ember bolt streaking diagonally with a fiery trail",
+      "file": "ember_bolt.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a flaming ember bolt streaking diagonally with a fiery trail, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "frost_shackle",
+      "kind": "skill",
+      "subject": "an open iron shackle cuff encased in pale blue ice crystals",
+      "file": "frost_shackle.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: an open iron shackle cuff encased in pale blue ice crystals, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "arcane_ward",
+      "kind": "skill",
+      "subject": "a glowing teal hexagonal magic shield bubble",
+      "file": "arcane_ward.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a glowing teal hexagonal magic shield bubble, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "searing_brand",
+      "kind": "skill",
+      "subject": "an iron branding rod held diagonally with a glowing red-hot tip and flying sparks",
+      "file": "searing_brand.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: an iron branding rod held diagonally with a glowing red-hot tip and flying sparks, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "mend",
+      "kind": "skill",
+      "subject": "a cracked heart being stitched back together by threads of glowing light",
+      "file": "mend.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a cracked heart being stitched back together by threads of glowing light, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "chain_spark",
+      "kind": "skill",
+      "subject": "a crackling teal lightning spark jumping between three iron chain links",
+      "file": "chain_spark.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a crackling teal lightning spark jumping between three iron chain links, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "falling_star",
+      "kind": "skill",
+      "subject": "a blazing star falling from the sky with a long fiery tail",
+      "file": "falling_star.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a blazing star falling from the sky with a long fiery tail, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "bulwark_strike",
+      "kind": "skill",
+      "subject": "a heavy tower shield striking forward with a glowing red heart on its face",
+      "file": "bulwark_strike.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a heavy tower shield striking forward with a glowing red heart on its face, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "shield_wall",
+      "kind": "skill",
+      "subject": "three overlapping tall tower shields standing side by side as a wall",
+      "file": "shield_wall.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: three overlapping tall tower shields standing side by side as a wall, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "savage_cleave",
+      "kind": "skill",
+      "subject": "a large two-handed axe cleaving through the air in a wide red arc",
+      "file": "savage_cleave.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a large two-handed axe cleaving through the air in a wide red arc, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "blood_frenzy",
+      "kind": "skill",
+      "subject": "two crossed axes in front of roaring blood-red flames",
+      "file": "blood_frenzy.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: two crossed axes in front of roaring blood-red flames, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "thunderclap",
+      "kind": "skill",
+      "subject": "a dark thundercloud releasing a huge lightning bolt with a shockwave ring",
+      "file": "thunderclap.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a dark thundercloud releasing a huge lightning bolt with a shockwave ring, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "storm_lash",
+      "kind": "skill",
+      "subject": "a whip made of crackling lightning coiling through the air",
+      "file": "storm_lash.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a whip made of crackling lightning coiling through the air, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "life_drain",
+      "kind": "skill",
+      "subject": "a glowing red life wisp being drawn into a dark teal spiral",
+      "file": "life_drain.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a glowing red life wisp being drawn into a dark teal spiral, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    },
+    {
+      "id": "withering_curse",
+      "kind": "skill",
+      "subject": "a withered blackened rose giving off sickly green smoke",
+      "file": "withering_curse.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game ability icon: a withered blackened rose giving off sickly green smoke, as one bold emblem. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal, with a soft warm amber glow behind the object. Plain solid very dark brown background. The object is small enough to leave a wide empty margin on every side. No text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1024,
+        "height": 1024,
+        "steps": 8,
+        "seed": 1001,
+        "enhancePrompt": false,
+        "stylePreset": null,
+        "format": "png"
+      },
+      "postprocess": {
+        "cropInset": 0.07,
+        "size": 128,
+        "format": "webp",
+        "quality": 85
+      },
+      "generated": "2026-11-25"
+    }
+  ]
+}
