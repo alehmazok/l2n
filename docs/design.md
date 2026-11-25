@@ -656,8 +656,8 @@ holds the prompt, model, seed and post-processing of every image, and
 API. The first step is a trial of six images (Mire Rat, Dell Spider, Ashen
 Warden, Old Road, an orc warrior and a dusk elf mage) to check that the
 model holds the style on creatures, faces and wide scenes before the full
-set is generated. Their entries are in the manifest; the images are not
-made yet.
+set is generated. The six were made on 2026-11-25 in Venice Studio with
+Z-Image Turbo and are in `packages/client/src/assets/art`.
 
 ## 15. Technical shape
 
