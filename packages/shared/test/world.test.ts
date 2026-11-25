@@ -46,7 +46,7 @@ describe("world data", () => {
   });
 
   it("every mob is keyed by its id and lives somewhere", () => {
-    const placed = new Set(Object.values(NODES).flatMap((n) => n.mobs));
+    const placed = new Set(Object.values(NODES).flatMap((n) => [...n.mobs, ...(n.boss ? [n.boss] : [])]));
     for (const [key, mob] of Object.entries(MOBS)) {
       expect(mob.id).toBe(key);
       expect(placed.has(key), key).toBe(true);
@@ -68,6 +68,7 @@ describe("encounters", () => {
     expect(encounterWeight(6, 5)).toBe(2);
     expect(encounterWeight(7, 5)).toBe(1);
     expect(encounterWeight(12, 5)).toBe(1);
+    expect(encounterWeight(3, 5, "elite")).toBe(1);
   });
 
   it("maps r across the weighted mobs in order", () => {
@@ -80,6 +81,24 @@ describe("encounters", () => {
     expect(pick(4.99 / 6)).toBe("tusked_digger");
     expect(pick(5 / 6)).toBe("burrow_hulk");
     expect(pick(0.999999)).toBe("burrow_hulk");
+  });
+
+  it("only bosses are challenged, and only where they live", () => {
+    const bosses = Object.values(NODES).filter((n) => n.boss);
+    expect(bosses.map((n) => n.id)).toEqual(["cinder_wardens_crypt"]);
+    expect(MOBS.ashen_warden).toMatchObject({ level: 20, role: "boss" });
+    for (const n of Object.values(NODES)) for (const m of n.mobs) expect(MOBS[m]!.role, m).not.toBe("boss");
+  });
+
+  it("every zone has its elites: none in Mossgate, two each in Thornwood and Cinder", () => {
+    const elites = (zone: string) =>
+      Object.values(NODES)
+        .filter((n) => n.zone === zone)
+        .flatMap((n) => n.mobs)
+        .filter((m) => MOBS[m]!.role === "elite");
+    expect(elites("mossgate_fields")).toEqual([]);
+    expect(elites("thornwood_hollow")).toEqual(["brood_matron", "brigand_captain"]);
+    expect(elites("cinder_barrows")).toEqual(["bone_colossus", "gravebound_champion"]);
   });
 
   it("refuses to hunt where there are no mobs", () => {

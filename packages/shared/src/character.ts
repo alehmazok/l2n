@@ -72,6 +72,8 @@ export interface CharacterSummary {
   location: string;
   /** Load matching charges into every fight automatically. */
   autoCharges: boolean;
+  /** Smithy recipes the character has learned (ids in RECIPES). */
+  recipes: string[];
   createdAt: string;
 }
 

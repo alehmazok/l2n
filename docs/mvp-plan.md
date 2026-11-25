@@ -58,13 +58,22 @@ Board nodes (Market and Warehouse done in stage 3).
 - [x] Economy test: silver per kill against charges spent.
 
 Left for later: account-wide warehouse, gear for the other archetype in drops,
-item icons (placeholders for now), the ember vial question in design.md §9.
+item icons (placeholders for now). The ember vial question was settled in
+stage 4.
 
-## Stage 4 — Crafting and the rest of the world
+## Stage 4 — Crafting and the rest of the world (done)
 
-- Blacksmith crafting with the ~15 recipes and success chance.
-- Thornwood Hollow and Cinder Barrows, elites, the Ashen Warden.
-- Economy simulation test (silver in vs. out per hour).
+- [x] Smithy crafting with 15 recipes, success chance, failure losses and
+      rarity rolls; recipes bought from the smith or dropped by elites and
+      the boss, learned into a recipe book.
+- [x] Thornwood Hollow and Cinder Barrows (six hunting nodes, 21 mobs),
+      four elites, the Ashen Warden as a boss you challenge on purpose.
+- [x] Ember vials boost damaging spells (the open question from stage 3).
+- [x] Balance tests for elites and the boss; economy simulation test
+      (silver in vs. out per hour of hunting).
+
+Left for later: a respawn timer for the boss, the Lantern ward charm recipe
+(given by the profession quest in stage 5), the Burrows elite (stage 5).
 
 ## Stage 5 — Quests and professions
 

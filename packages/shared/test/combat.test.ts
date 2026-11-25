@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import {
   ARCHETYPES,
+  MOBS,
+  chargeId,
   referenceGear,
   RACES,
   autoResolve,
@@ -178,5 +180,49 @@ describe("combat", () => {
         });
       }
     }
+  }
+});
+
+describe("elites and the boss", () => {
+  // docs/design.md, "Balance targets": elites need a draught or a careful
+  // rotation; the Ashen Warden needs preparation (charges and draughts).
+  const races = Object.keys(RACES) as RaceId[];
+  const fight = (archetype: ArchetypeId, mobId: string, level: number, prepared: { charges: number; draughts: number }, seed: number, race: RaceId) => {
+    const mob = MOBS[mobId]!;
+    const tier = level >= 10 ? 2 : 1;
+    const p = buildPlayer(
+      playerInputFor(
+        { name: "T", race, archetype, level, xp: 0, hp: 9999, resource: 9999, gear: referenceGear(archetype, level) },
+        { charges: prepared.charges, chargeItem: chargeId(archetype, tier), draughts: { healing_draught: prepared.draughts } },
+      ),
+    );
+    return autoResolve(startFight(p, buildMob(mob.name, mob.level, mob.role), seed), 300);
+  };
+  const odds = (archetype: ArchetypeId, mobId: string, level: number, prepared: { charges: number; draughts: number }) => {
+    let wins = 0;
+    let hpLost = 0;
+    const n = 40;
+    for (const race of races)
+      for (let seed = 1; seed <= n; seed++) {
+        const end = fight(archetype, mobId, level, prepared, seed, race);
+        if (end.outcome === "won") wins++;
+        hpLost += 1 - end.player.hp / end.player.maxHp;
+      }
+    return { win: wins / (n * races.length), hpLost: hpLost / (n * races.length) };
+  };
+
+  for (const archetype of ["warrior", "mage"] as const) {
+    it(`a ${archetype} beats an even-level elite but loses a third of their HP or more`, () => {
+      for (const [mob, level] of [["brood_matron", 11], ["brigand_captain", 14], ["bone_colossus", 18], ["gravebound_champion", 20]] as const) {
+        const r = odds(archetype, mob, level, { charges: 200, draughts: 3 });
+        expect(r.win, mob).toBeGreaterThan(0.95);
+        expect(r.hpLost, mob).toBeGreaterThan(0.3);
+      }
+    });
+
+    it(`a prepared level 20 ${archetype} usually beats the Ashen Warden; an unprepared one does not`, () => {
+      expect(odds(archetype, "ashen_warden", 20, { charges: 300, draughts: 10 }).win).toBeGreaterThan(0.85);
+      expect(odds(archetype, "ashen_warden", 20, { charges: 0, draughts: 2 }).win).toBeLessThan(0.1);
+    });
   }
 });

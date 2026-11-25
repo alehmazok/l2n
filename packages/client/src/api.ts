@@ -1,4 +1,4 @@
-import type { ArchetypeId, CharacterSheet, CharacterSummary, DraughtId, FightResult, Item, PublicFightState, RaceId, Slot } from "@l2n/shared";
+import type { ArchetypeId, CharacterSheet, CharacterSummary, DraughtId, FightResult, Item, NewItem, PublicFightState, RaceId, Slot } from "@l2n/shared";
 
 export class ApiError extends Error {
   constructor(
@@ -50,6 +50,15 @@ export interface GameView extends CharacterWithSheet {
   /** Present when the action ended a fight: what it gave or cost, and its final state. */
   result?: FightResult;
   ended?: FightView;
+  /** Present after a crafting attempt. */
+  craft?: CraftResult;
+}
+export interface CraftResult {
+  recipeId: string;
+  success: boolean;
+  fee: number;
+  used: { item: string; quantity: number }[];
+  made: NewItem[];
 }
 export type FightAction =
   | { type: "attack" | "flee" | "auto" }
@@ -68,6 +77,8 @@ export const api = {
   move: (id: number, to: string) => call<GameView>("POST", `/api/characters/${id}/move`, { to }),
   rest: (id: number) => call<GameView>("POST", `/api/characters/${id}/rest`),
   hunt: (id: number) => call<GameView>("POST", `/api/characters/${id}/hunt`),
+  challenge: (id: number) => call<GameView>("POST", `/api/characters/${id}/challenge`),
+  craft: (id: number, recipeId: string) => call<GameView>("POST", `/api/characters/${id}/craft`, { recipeId }),
   act: (id: number, action: FightAction) => call<GameView>("POST", `/api/characters/${id}/fight`, { action }),
   equip: (id: number, itemId: number) => call<GameView>("POST", `/api/characters/${id}/equip`, { itemId }),
   unequip: (id: number, slot: Slot) => call<GameView>("POST", `/api/characters/${id}/unequip`, { slot }),

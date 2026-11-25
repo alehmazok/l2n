@@ -90,7 +90,7 @@ export type MobRole = "normal" | "elite" | "boss";
 const ROLE: Record<MobRole, { hp: number; atk: number; def: number }> = {
   normal: { hp: 1, atk: 1, def: 1 },
   elite: { hp: 2.2, atk: 1.25, def: 1.2 },
-  boss: { hp: 6, atk: 1.5, def: 1.4 },
+  boss: { hp: 5, atk: 1.4, def: 1.3 },
 };
 
 export function mobStats(level: number, role: MobRole = "normal") {

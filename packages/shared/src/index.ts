@@ -10,3 +10,5 @@ export * from "./progression.js";
 export * from "./data/world.js";
 export * from "./data/items.js";
 export * from "./items.js";
+export * from "./data/recipes.js";
+export * from "./crafting.js";

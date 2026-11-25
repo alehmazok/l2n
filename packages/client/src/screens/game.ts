@@ -4,6 +4,7 @@ import {
   MOBS,
   NODES,
   OPEN_SERVICES,
+  RECIPES,
   ZONES,
   draughtsLeft,
   itemName,
@@ -16,9 +17,9 @@ import {
   type PublicFightState,
   type Slot,
 } from "@l2n/shared";
-import { api, ApiError, type FightAction, type GameView } from "../api.js";
+import { api, ApiError, type CraftResult, type FightAction, type GameView } from "../api.js";
 import { archetypeName, esc, portrait, raceName, sheetHtml } from "../ui.js";
-import { inventoryHtml, itemIcon, marketHtml, warehouseHtml } from "./items.js";
+import { inventoryHtml, itemIcon, marketHtml, smithyHtml, warehouseHtml } from "./items.js";
 
 /**
  * The main game screen for one character: status bars, then either the
@@ -38,6 +39,7 @@ export async function renderGame(root: HTMLElement, id: number) {
   }
 
   let last: { result: FightResult; fight: PublicFightState } | null = null;
+  let crafted: CraftResult | null = null;
   let busy = false;
   let error = "";
 
@@ -51,6 +53,7 @@ export async function renderGame(root: HTMLElement, id: number) {
       // Keep the final state of a fight that just ended so its log stays on screen.
       if (next.result && next.ended) last = { result: next.result, fight: next.ended.state };
       else if (next.fight) last = null;
+      crafted = next.craft ?? null;
       view = next;
     } catch (err) {
       error = err instanceof Error ? err.message : String(err);
@@ -76,6 +79,7 @@ export async function renderGame(root: HTMLElement, id: number) {
       ${error ? `<p class="bad panel" role="alert">${esc(error)}</p>` : ""}
       ${fight ? fightHtml(view) : ""}
       ${last ? resultHtml(last.result, last.fight) : ""}
+      ${crafted && !fight ? craftHtml(crafted) : ""}
       ${fight ? "" : placeHtml(view)}
       ${fight ? "" : inventoryHtml(c, view.items)}
       <details class="panel"><summary>Character sheet</summary>${sheetHtml(sheet)}
@@ -111,6 +115,7 @@ export async function renderGame(root: HTMLElement, id: number) {
           sell: () => api.sell(id, itemId, qty),
           deposit: () => api.deposit(id, itemId, qty),
           withdraw: () => api.withdraw(id, itemId, qty),
+          craft: () => api.craft(id, d.recipe!),
         };
         const call = calls[d.item!];
         if (call) void run(call);
@@ -121,6 +126,7 @@ export async function renderGame(root: HTMLElement, id: number) {
       void run(() => api.settings(id, on));
     });
     root.querySelector("#hunt")?.addEventListener("click", () => run(() => api.hunt(id)));
+    root.querySelector("#challenge")?.addEventListener("click", () => run(() => api.challenge(id)));
     root.querySelector("#rest")?.addEventListener("click", () => run(() => api.rest(id)));
     root.querySelectorAll<HTMLButtonElement | HTMLInputElement>("button, input").forEach((b) => {
       if (busy && !b.classList.contains("link")) b.disabled = true;
@@ -152,7 +158,11 @@ function placeHtml(view: GameView) {
       return `<button class="road" data-go="${esc(n.id)}">${esc(n.name)}${n.zone !== node.zone ? ` <span class="small">(${esc(ZONES[n.zone].name)})</span>` : ""}${lv ? ` <span class="small">L${lv[0]}–${lv[1]}</span>` : ""}</button>`;
     })
     .join("");
-  const mobs = node.mobs.map((m) => MOBS[m]!).map((m) => `<li>${esc(m.name)} <span class="muted small">L${m.level}</span></li>`).join("");
+  const mobs = node.mobs
+    .map((m) => MOBS[m]!)
+    .map((m) => `<li>${esc(m.name)} <span class="muted small">L${m.level}${m.role === "elite" ? " · elite" : ""}</span></li>`)
+    .join("");
+  const boss = node.boss ? MOBS[node.boss] : undefined;
   return `
     <section class="panel">
       <p class="muted small">${esc(zone.name)}${levels ? ` · levels ${levels[0]}–${levels[1]}` : " · safe"}</p>
@@ -160,13 +170,16 @@ function placeHtml(view: GameView) {
       <p>${esc(node.description)}</p>
       ${node.service && !OPEN_SERVICES.includes(node.service) ? `<p class="muted small">${esc(SERVICE_NAMES[node.service])}: opens in a later update.</p>` : ""}
       ${mobs ? `<p class="small muted">Seen here:</p><ul class="small mobs">${mobs}</ul>` : ""}
+      ${boss ? `<p class="small">${esc(boss.description)} Come prepared: charges, draughts and a full bar.</p>` : ""}
       <div class="row">
         ${node.kind === "hunt" ? `<button id="hunt">Hunt</button>` : ""}
+        ${boss ? `<button id="challenge" class="danger" title="${esc(boss.description)}">Challenge ${esc(boss.name)} <span class="small">L${boss.level} boss</span></button>` : ""}
         ${node.kind === "town" ? `<button id="rest" ${full ? "disabled" : ""}>${full ? "Rested" : "Rest"}</button>` : ""}
       </div>
     </section>
     ${node.service === "shop" ? marketHtml(c, view.items) : ""}
     ${node.service === "warehouse" ? warehouseHtml(c, view.items) : ""}
+    ${node.service === "crafting" ? smithyHtml(c, view.items) : ""}
     <section class="panel"><h3>Roads</h3><div class="roads">${roads}</div></section>`;
 }
 
@@ -250,6 +263,17 @@ function resultHtml(r: FightResult, s: PublicFightState) {
   }
   return `<section class="panel result">${lines.map((l) => `<p>${l}</p>`).join("")}
     <details><summary class="small">Fight log</summary>${logHtml(s)}</details></section>`;
+}
+
+function craftHtml(r: CraftResult) {
+  const name = RECIPES[r.recipeId]?.name ?? r.recipeId;
+  const used = r.used.map((u) => `${u.quantity} ${esc(ITEMS[u.item]?.name ?? u.item)}`).join(", ");
+  const made = r.made.map((i) => `${itemIcon(i)} ${esc(itemName(i))}${i.quantity > 1 ? ` ×${i.quantity}` : ""}`).join(", ");
+  return `<section class="panel result">${
+    r.success
+      ? `<p><b class="good">Success.</b> The smith hands you ${made}.</p>`
+      : `<p><b class="bad">The work fails.</b> ${esc(name)} did not come out right.</p>`
+  }<p class="small muted">Used ${used} and ${r.fee} silver.</p></section>`;
 }
 
 const skillName = (id: string) => (id === "attack" ? "attack" : (skillById(id)?.name ?? id));

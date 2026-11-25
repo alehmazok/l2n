@@ -1,6 +1,6 @@
 # Lost to Nostalgia — Game Design Document
 
-Status: draft v0.3 (2026-11-25). Short name: **L2N**.
+Status: draft v0.4 (2026-11-25). Short name: **L2N**.
 
 This document is the source of truth for game rules and numbers. Game data in
 `packages/shared/src` is derived from it; when one changes, the other changes in
@@ -54,20 +54,33 @@ in the MVP; each hunting node has a mob pool. Node and mob data live in
 | **Thornwood Hollow** | 7–14 | Bramble Edge, Spider Dell, Hermit's Rise | Forest creatures and bandits. First elites. |
 | **Cinder Barrows** | 14–20 | Ash Gate, Bone Gallery, Warden's Crypt | Undead and constructs. Zone boss: **the Ashen Warden** (level 20, boss role). |
 
-### Brackwell and Mossgate Fields (built in stage 2)
+All four are built (Thornwood Hollow and Cinder Barrows in stage 4).
+
+### The map
 
 ```
 Market   Smithy   Warehouse   Notice Board
      \     |        |        /
          Brackwell Square ──── Old Road ──── Drowned Mill ──── Burrows
+                 │                                               │
+                 └──────── (cart track) ──────── Bramble Edge ───┘
+                                                     │
+                                Spider Dell ─────────┘
+                                     │
+                               Hermit's Rise ──── Ash Gate ──── Bone Gallery ──── Warden's Crypt
 ```
 
 - **Town nodes** are safe. Resting there restores HP and Mana to full, free
   and instantly. The Market and Warehouse are open (stage 3, see "Items" and
-  "Economy"); the Smithy and Notice Board are placeholders until stages 4–5.
+  "Economy"), and the Smithy opened in stage 4 (see "Crafting"); the Notice
+  Board is a placeholder until stage 5.
 - **Hunting nodes** have a pool of mobs. Hunting starts a fight with one of
   them, weighted towards the player's level: a mob at or below your level has
-  weight 3, one level above 2, two or more levels above 1.
+  weight 3, one level above 2, two or more levels above 1. Elites always
+  have weight 1, so they turn up about one hunt in eight to ten.
+- **Bosses** never turn up while hunting. The Ashen Warden waits in the
+  Warden's Crypt and is fought only when the player chooses to challenge it.
+  There is no respawn timer in the MVP.
 - You cannot move, rest or start another hunt while a fight is in progress.
 
 | Node | Mobs (level) |
@@ -76,7 +89,15 @@ Market   Smithy   Warehouse   Notice Board
 | Drowned Mill | Mill Toad (3), Silt Crawler (4), Drowned Scavenger (5) |
 | Burrows | Burrow Mole (5), Tusked Digger (6), Burrow Hulk (7) |
 
-All are normal mobs; the Burrows elite arrives with its quest in stage 5.
+| Bramble Edge | Briar Boar (7), Thicket Wolf (8), Roadside Cutpurse (9) |
+| Spider Dell | Dell Spider (9), Web Lurker (10), Fungal Shambler (11), **Brood Matron** (11, elite) |
+| Hermit's Rise | Crag Lynx (12), Hollow Stag (13), Toll Brigand (14), **Brigand Captain** (14, elite) |
+| Ash Gate | Cinder Hound (14), Ashbound Sentry (15), Restless Bones (16) |
+| Bone Gallery | Ossuary Crawler (16), Gallery Wight (17), **Bone Colossus** (18, elite) |
+| Warden's Crypt | Crypt Keeper (18), Ember Revenant (19), **Gravebound Champion** (20, elite); boss **Ashen Warden** (20) |
+
+Mossgate Fields has no elites yet; the Burrows elite arrives with its quest in
+stage 5.
 
 ## 3. Races
 
@@ -94,8 +115,8 @@ but none is locked.
 
 Passives apply to the numbers on the sheet and in fights (see
 `racialBonuses` in `packages/shared/src/progression.ts`). Forge-born's resource
-bonus multiplies each resource drop chance by 1.1; its crafting bonus arrives
-with crafting in stage 4.
+bonus multiplies each resource drop chance by 1.1, and it adds 5 points to
+every crafting success chance.
 
 Short lore notes (to expand later):
 
@@ -225,7 +246,7 @@ All implemented in `packages/shared/src/formulas.ts`. `L` is level.
 | Hit chance | `0.92 + 0.01·(AgiA − AgiD) + 0.02·(LA − LD)`, clamped to 60–99% |
 | Crit chance | `0.05 + 0.005·(Agi − 10) + bonus`, clamped to 1–30% |
 | Flee chance | `0.5 + 0.02·(AgiP − AgiE)`, clamped to 5–95% |
-| Charge bonus | Basic attack ×1.3 while a charge is active, one charge per attack |
+| Charge bonus | ×1.3 damage, one charge each: a warrior's basic attack, or a mage's damaging spell (direct damage or burn) |
 
 `atk² / (atk + def)` never reaches zero, and defence matters more against weak
 attackers than against strong ones, so low-level mobs barely scratch you.
@@ -238,7 +259,7 @@ Mob stats come from level and role, not from hand-written tables:
 | --- | --- | --- | --- |
 | Normal | `20 + 12L` | `6 + 2.5L` | `2 + 1.5L` |
 | Elite | ×2.2 | ×1.25 | ×1.2 |
-| Boss | ×6 | ×1.5 | ×1.4 |
+| Boss | ×5 | ×1.4 | ×1.3 |
 
 Mob agility is 10. Individual mobs may later get a small modifier set (fast,
 armoured, venomous) on top of the template.
@@ -258,7 +279,15 @@ matching tier, played by the auto-battle policy:
   only about 60% of fights against a level 3 mob. Encounter weighting keeps
   them rare.
 - Elites should need a draught or a careful skill rotation; the boss should need
-  preparation (charges, draughts, a level or two of margin).
+  preparation (charges, draughts, a full bar). Checked in the same test file
+  with charges loaded: every race × archetype beats an even-level elite more
+  than 95% of the time but loses at least 30% of HP (currently 45–65%). A
+  level 20 character with charges and 10 healing draughts beats the Ashen
+  Warden more than 85% of the time (currently warriors ~100%, mages ~92%, in
+  20–22 rounds, drinking about 6 draughts); without charges and with only 2
+  draughts, less than 10% (currently ~1%). The boss role was lowered from
+  ×6 HP, ×1.5 attack, ×1.4 defence in stage 4: with those numbers even a
+  prepared mage won less than half the time.
 
 ### Fast fights and auto-battle
 
@@ -329,12 +358,15 @@ were given that kit as worn common gear by the stage 3 migration.
 **Item rarity** (decided 2026-11-25). Common (×1.00), Uncommon (×1.08) and Rare (×1.16) multiply the item's base
 stats. Rare items also roll one bonus, +2% crit chance or +3% max HP, with equal
 odds. Dropped equipment is 80% common, 17% uncommon, 3% rare. Shop gear is
-always common; crafts will roll rarity in stage 4.
+always common. Crafted equipment rolls each piece separately with slightly
+better odds: 75% common, 20% uncommon, 5% rare.
 
 ### Consumables
 
-- **Whetstones** (warriors) and **ember vials** (mages), grades I and II: each
-  charge boosts one basic attack by ×1.3. A charge works only with a weapon of
+- **Whetstones** (warriors) and **ember vials** (mages), grades I and II: a
+  whetstone boosts one basic attack by ×1.3, an ember vial one damaging spell
+  (decided 2026-11-25; spells with direct damage or a burn, not Arcane Ward
+  or Mend). Warriors' skills and mages' basic attacks take no charge. A charge works only with a weapon of
   the same grade. With auto-use on (the default), every matching charge in the
   bag is loaded into each fight. They are the main coin sink.
 - **Healing draughts** and **mana draughts**: restore 30% of the bar,
@@ -361,28 +393,56 @@ fight's own server-side RNG:
 - **Equipment**: 3% normal, 20% elite, 100% boss. A random slot, for the
   killer's archetype, with the mob's level as item level and a rarity roll.
 
-Mossgate Fields resources: Rough Hide, Bone Shard, Iron Scrap, Resin Lump,
-Marsh Herb. They are sold for now and feed crafting in stage 4.
+- **Recipes**: elites and the Ashen Warden can drop the Steelsworn gear
+  recipes (8–10% per elite kill, 25% each from the Warden). Like equipment,
+  only recipes for the killer's archetype drop.
+
+Resources by zone (silver value): Mossgate Fields: Rough Hide (4), Bone Shard
+(4), Iron Scrap (6), Resin Lump (5), Marsh Herb (5). Thornwood Hollow: Thick
+Pelt (7), Heartwood (7), Spider Silk (8), Glowcap (8). Cinder Barrows: Ash
+Dust (9), Grave Iron (12), Ember Shard (12). They feed crafting.
 
 ## 8. Crafting
 
-Mobs drop **resources** (hide, bone, resin, iron scraps, ash dust, and so on).
-At the Brackwell smithy the player combines resources, a recipe and a coin fee.
+Built in stage 4. Recipe data lives in `packages/shared/src/data/recipes.ts`,
+the rules in `packages/shared/src/crafting.ts`.
 
+Mobs drop **resources**. At the Brackwell smithy the player combines
+resources from the bag with a learned recipe and pays the smith a fee.
+
+- **Recipes** are items. The smith sells the first ten; the Steelsworn gear
+  recipes drop from elites and the Ashen Warden; the Lantern ward charm
+  recipe comes from the profession quest (stage 5). Using a recipe from the
+  bag learns it for good (a character's recipe book), and the item is used up.
 - Success chance: `clamp(base + bonus, 5%, 95%)`. Dwarves get +5%.
-- On failure the coin fee and half of each resource are lost; the recipe is kept.
-- Recipes drop from mobs or are bought; about 15 in the MVP:
+- The fee is paid on every attempt. On failure half of each resource
+  (rounded up) is lost too; the recipe is kept.
+- Set recipes make all five armour pieces at once; each piece rolls its own
+  rarity. Crafted Ironbound gear has item level 8 and Steelsworn item level
+  18, levels the market does not sell.
+- The bag must have room for everything a success makes before the attempt.
 
-| # | Recipe | Base chance |
-| --- | --- | --- |
-| 1–2 | Whetstone charges I, Ember vials I | 90% |
-| 3–4 | Healing draught, Mana draught | 85% |
-| 5–6 | Ironbound sword, Ironbound staff | 70% |
-| 7–8 | Ironbound mail set, Ironbound robe set | 70% |
-| 9–10 | Whetstone charges II, Ember vials II | 80% |
-| 11–12 | Steelsworn blade, Steelsworn staff | 55% |
-| 13–14 | Steelsworn plate set, Steelsworn vestments set | 55% |
-| 15 | Lantern ward charm (quest item for the profession chain) | 60% |
+| # | Recipe | Makes | Resources | Fee | Base chance | Smithy price |
+| --- | --- | --- | --- | --- | --- | --- |
+| 1 | Whetstones (I) | 25 Whetstone (I) | 2 Iron Scrap, 1 Resin Lump | 20 | 90% | 40 |
+| 2 | Ember Vials (I) | 25 Ember Vial (I) | 2 Resin Lump, 1 Marsh Herb | 20 | 90% | 40 |
+| 3 | Healing Draughts | 3 Healing Draught | 2 Marsh Herb, 1 Bone Shard | 5 | 85% | 50 |
+| 4 | Mana Draughts | 3 Mana Draught | 1 Marsh Herb, 2 Resin Lump | 5 | 85% | 50 |
+| 5 | Ironbound Sword | iL 8 sword | 6 Iron Scrap, 2 Bone Shard, 2 Rough Hide | 60 | 70% | 150 |
+| 6 | Ironbound Staff | iL 8 staff | 5 Resin Lump, 3 Bone Shard, 2 Marsh Herb | 60 | 70% | 150 |
+| 7 | Ironbound Mail Set | iL 8 warrior armour, 5 pieces | 8 Iron Scrap, 6 Rough Hide, 2 Bone Shard | 120 | 70% | 250 |
+| 8 | Ironbound Robe Set | iL 8 mage armour, 5 pieces | 6 Rough Hide, 4 Marsh Herb, 4 Resin Lump | 120 | 70% | 250 |
+| 9 | Whetstones (II) | 25 Whetstone (II) | 2 Iron Scrap, 1 Heartwood | 50 | 80% | 200 |
+| 10 | Ember Vials (II) | 25 Ember Vial (II) | 2 Glowcap, 1 Resin Lump | 50 | 80% | 200 |
+| 11 | Steelsworn Blade | iL 18 blade | 6 Grave Iron, 3 Heartwood, 2 Thick Pelt | 300 | 55% | drop |
+| 12 | Steelsworn Staff | iL 18 staff | 5 Heartwood, 3 Ember Shard, 2 Spider Silk | 300 | 55% | drop |
+| 13 | Steelsworn Plate Set | iL 18 warrior armour, 5 pieces | 10 Grave Iron, 6 Thick Pelt, 4 Ash Dust | 600 | 55% | drop |
+| 14 | Steelsworn Vestments Set | iL 18 mage armour, 5 pieces | 10 Spider Silk, 4 Ember Shard, 4 Ash Dust | 600 | 55% | drop |
+| 15 | Lantern Ward Charm | quest item for the profession chain | 2 each of Ember Shard, Ash Dust, Spider Silk, Heartwood | 100 | 60% | quest |
+
+Crafted supplies cost less than buying them, counting the expected cost of
+failures and the resources at full value (a test checks this), so crafting
+is where resources are worth the most. Quest items cannot be sold.
 
 ## 9. Economy
 
@@ -395,17 +455,29 @@ Currency: **silver**.
   trickle, not an income stream.
 - Rule of thumb: an even-level kill should pay slightly more silver than the
   charges it used, so hunting with charges is affordable but not free. The
-  economy test in `packages/shared/test/items.test.ts` checks that a warrior's
-  even-level kill pays 1.1–3.5× the charges spent on it at every level.
-  Currently warriors spend about 2 charges per fight: ratio 1.3 at level 1
-  rising to 3.2 at level 9, then 1.4 at level 10 rising to 2.2 at 20.
+  economy test in `packages/shared/test/items.test.ts` checks that an
+  even-level kill pays 1.1–3.5× the charges spent on it at every level, for
+  both archetypes. Warriors spend about 2 charges per fight: ratio 1.3 at
+  level 1 rising to 3.2 at level 9, then 1.4 at level 10 rising to 2.2 at
+  20. Mages spend about 3 (one per damaging spell): 1.3 at level 1 rising to
+  2.2 at 9, then about 1.2 at level 10 rising to 3.0 at 20. Mages use more
+  charges per fight, which is why the grade II ember vial costs 4, not 5.
+- **Economy simulation** (`packages/shared/test/economy.test.ts`): an hour of
+  hunting (144 fights) at every level on the highest node that spans it,
+  with charges and healing draughts, counting coin and resources sold
+  against charges and draughts used. Over levels 1–20 a player must keep
+  15–65% of their income; currently warriors keep about 52% and mages about
+  45%. A single level may run at a loss of up to 50% where elites or mobs a
+  level or two up sit in the pool (mages at levels 1 and 9 currently run
+  at a loss), and a player dies at most twice an hour.
 
 ### Brackwell market prices
 
 | Item | Price |
 | --- | --- |
 | Whetstone / Ember Vial (I) | 2 |
-| Whetstone / Ember Vial (II) | 5 |
+| Whetstone (II) | 5 |
+| Ember Vial (II) | 4 |
 | Healing / Mana Draught | 10 |
 | Weapon, or a full armour set | `(4·iL² + 30)`, ×1.5 for Steelsworn |
 
@@ -414,9 +486,6 @@ levels 1, 5, 10 and 15 (e.g. an iL 5 sword is 130, an iL 10 Steelsworn blade
 645). Uncommon items are valued ×1.5 and rare ×2.5 when sold. Resources are
 worth 3–6 silver.
 
-**Open question:** charges only boost basic attacks, and mages almost never
-make one while they have mana, so ember vials are close to useless for them
-and mages keep more of their silver than warriors.
 - Player trading is deferred, so there is no market to balance in the MVP.
 
 ## 10. Quests

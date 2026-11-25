@@ -26,6 +26,15 @@ describe("api", () => {
     expect(fetch).toHaveBeenCalledWith("/api/characters/7/rest", { method: "POST", credentials: "same-origin", headers: {}, body: null });
   });
 
+  it("posts crafting and boss challenges", async () => {
+    const fetch = respond(200, {});
+    vi.stubGlobal("fetch", fetch);
+    await api.craft(3, "whetstones_1");
+    expect(fetch).toHaveBeenLastCalledWith("/api/characters/3/craft", expect.objectContaining({ method: "POST", body: JSON.stringify({ recipeId: "whetstones_1" }) }));
+    await api.challenge(3);
+    expect(fetch).toHaveBeenLastCalledWith("/api/characters/3/challenge", expect.objectContaining({ method: "POST", body: null }));
+  });
+
   it("turns server errors into ApiError with the server's code and message", async () => {
     vi.stubGlobal("fetch", respond(409, { error: "name_taken", message: "That name is taken." }));
     const err = await api.createCharacter("Aldric", "human", "warrior").catch((e: unknown) => e);

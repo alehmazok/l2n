@@ -70,6 +70,7 @@ export class MemoryStore implements Store {
       silver: 0,
       location: START_NODE,
       autoCharges: true,
+      recipes: [] as string[],
       createdAt: new Date().toISOString(),
     };
     this.characters.push(c);
@@ -116,7 +117,7 @@ export class MemoryStore implements Store {
       character: strip(draft),
       fight: fight && stripFight(fight),
       updateCharacter: async (patch) => {
-        Object.assign(draft, patch);
+        Object.assign(draft, clone(patch));
         return strip(draft);
       },
       createFight: async (f) => {
@@ -161,7 +162,7 @@ export class MemoryStore implements Store {
   }
 }
 
-const strip = ({ accountId: _, ...c }: CharRow): CharacterSummary => ({ ...c });
+const strip = ({ accountId: _, ...c }: CharRow): CharacterSummary => clone(c);
 const stripFight = ({ outcome: _, ...f }: FightRow): StoredFight => clone(f);
 /** The same rules as the Postgres unique indexes: one item per slot, one stack per place. */
 function checkItems(items: ItemRow[]) {
