@@ -3,8 +3,8 @@ import { ARCHETYPES, MOBS, NODES, RACES } from "@l2n/shared";
 import { ART, mobArt, portrait, portraitArt, sceneArt } from "../src/art.js";
 import manifest from "../src/assets/art/manifest.json";
 
-const PROMPTS = { mob: manifest.style.mobPrompt, scene: manifest.style.scenePrompt, portrait: manifest.style.portraitPrompt };
-const FOLDERS = { mob: "mobs", scene: "scenes", portrait: "portraits" };
+const PROMPTS = { mob: manifest.style.mobPrompt, scene: manifest.style.scenePrompt, portrait: manifest.style.portraitPrompt, map: manifest.style.mapPrompt };
+const FOLDERS = { mob: "mobs", scene: "scenes", portrait: "portraits", map: "maps" };
 
 describe("art manifest", () => {
   it("builds every prompt from the shared style and names files by id", () => {
@@ -28,9 +28,11 @@ describe("art manifest", () => {
     }
   });
 
-  it("plans a picture for every mob and every race and archetype pair", () => {
+  it("plans a picture for every mob, every node, every race and archetype pair, and the map", () => {
     const ids = (kind: string) => manifest.images.filter((i) => i.kind === kind).map((i) => i.id).sort();
     expect(ids("mob")).toEqual(Object.keys(MOBS).sort());
+    expect(ids("scene")).toEqual(Object.keys(NODES).sort());
+    expect(ids("map")).toEqual(["hollowreach"]);
     expect(ids("portrait")).toEqual(Object.keys(RACES).flatMap((r) => Object.keys(ARCHETYPES).map((a) => `${r}_${a}`)).sort());
   });
 

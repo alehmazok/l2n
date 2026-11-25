@@ -121,6 +121,13 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
     const here = location();
     game.querySelectorAll<HTMLElement>("[data-online]").forEach((el) => {
       const n = online[el.dataset.online!] ?? 0;
+      // On the map there is room for a number only: the others at a place, not counting yourself.
+      if (el.dataset.short !== undefined) {
+        const others = el.dataset.online === here ? n - 1 : n;
+        el.textContent = others > 0 ? ` ●${others}` : "";
+        el.title = others > 0 ? `${others} ${others > 1 ? "players" : "player"} here` : "";
+        return;
+      }
       el.textContent = el.dataset.online === here ? (n > 1 ? `You and ${n - 1} other${n > 2 ? "s" : ""} are here.` : "") : n ? `· ${n} here` : "";
     });
     game.querySelectorAll<HTMLElement>("[data-fallen]").forEach((el) => {

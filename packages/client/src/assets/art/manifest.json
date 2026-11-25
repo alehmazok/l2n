@@ -1,10 +1,11 @@
 {
-  "about": "How each mob, scene and portrait was made, so the set can be made again (node scripts/generate-icons.mjs --set art). See \"Art\" in docs/design.md. An image with \"generated\": null has not been made yet, or (see its \"note\") has to be made again.",
+  "about": "How each mob, scene, portrait and map was made, so the set can be made again (node scripts/generate-icons.mjs --set art). See \"Art\" in docs/design.md. An image with \"generated\": null has not been made yet, or (see its \"note\") has to be made again.",
   "style": {
     "name": "Lantern-lit linocut",
     "mobPrompt": "Dark fantasy bestiary illustration: exactly one {subject}, whole body in view, shown alone, turned to face the left, hostile, menacing and dangerous, with realistic proportions. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Lit from the front by warm amber light, standing on a small patch of dark ground. Plain flat solid very dark brown background, no scenery. The figure fills most of the picture with a small margin on every side. No text, no letters, no border, no frame.",
     "scenePrompt": "Game location illustration, wide view at dusk: {subject}. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
-    "portraitPrompt": "Game character portrait, head and shoulders: {subject}, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame."
+    "portraitPrompt": "Game character portrait, head and shoulders: {subject}, turned three-quarters to the right, calm determined look. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. A soft warm amber glow behind the head. Plain solid very dark brown background. No text, no letters, no border, no frame.",
+    "mapPrompt": "Backdrop for a fantasy game world map, seen from high above like an old hand-printed map: {subject}. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Printed on aged parchment, muted and low in contrast, with soft edges that fade into the parchment, so that markers drawn on top stay easy to read. No roads, no paths, no text, no letters, no labels, no compass rose, no border, no frame."
   },
   "model": {
     "id": "z-image-turbo",
@@ -691,6 +692,279 @@
       "generated": "2026-11-25"
     },
     {
+      "id": "brackwell_square",
+      "kind": "scene",
+      "subject": "a muddy village square at the centre of a small medieval fantasy village, with a tall dead unlit iron lantern post in the middle, a stone well, timber-framed cottages with thatched roofs around it and a few lit windows",
+      "file": "scenes/brackwell_square.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a muddy village square at the centre of a small medieval fantasy village, with a tall dead unlit iron lantern post in the middle, a stone well, timber-framed cottages with thatched roofs around it and a few lit windows. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3101
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brackwell_market",
+      "kind": "scene",
+      "subject": "a small village market at the edge of a muddy square: three wooden stalls with patched cloth awnings and a loaded hand cart, with crates, sacks, bottles and plain weapons laid out, a lantern hanging from a stall",
+      "file": "scenes/brackwell_market.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a small village market at the edge of a muddy square: three wooden stalls with patched cloth awnings and a loaded hand cart, with crates, sacks, bottles and plain weapons laid out, a lantern hanging from a stall. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3102
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brackwell_smithy",
+      "kind": "scene",
+      "subject": "a village smithy with an open front: a glowing forge, an anvil on a stump, hammers and tongs on the wall, a rack of plain swords and a water trough, sparks in the air",
+      "file": "scenes/brackwell_smithy.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a village smithy with an open front: a glowing forge, an anvil on a stump, hammers and tongs on the wall, a rack of plain swords and a water trough, sparks in the air. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3103
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brackwell_warehouse",
+      "kind": "scene",
+      "subject": "the inside of a big timber barn used as a warehouse: rows of numbered wooden stalls full of crates, barrels and sacks, a ledger on a tall desk, one lantern hanging from a beam",
+      "file": "scenes/brackwell_warehouse.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: the inside of a big timber barn used as a warehouse: rows of numbered wooden stalls full of crates, barrels and sacks, a ledger on a tall desk, one lantern hanging from a beam. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3104
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "brackwell_notice_board",
+      "kind": "scene",
+      "subject": "a big weathered wooden notice board under a small shingle roof at the side of a village lane, covered three deep in pinned parchment notices and bounty sheets, a lantern on a hook beside it",
+      "file": "scenes/brackwell_notice_board.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a big weathered wooden notice board under a small shingle roof at the side of a village lane, covered three deep in pinned parchment notices and bounty sheets, a lantern on a hook beside it. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3105
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "mossgate_drowned_mill",
+      "kind": "scene",
+      "subject": "a ruined stone watermill half sunk in a flooded river, its broken wheel fallen in the reeds, dark water through the open door, dead willows around it",
+      "file": "scenes/mossgate_drowned_mill.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a ruined stone watermill half sunk in a flooded river, its broken wheel fallen in the reeds, dark water through the open door, dead willows around it. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3106
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "mossgate_burrows",
+      "kind": "scene",
+      "subject": "a bare grassy hillside riddled with dark tunnel mouths and heaps of fresh earth, one tunnel far larger than the rest, a few broken fence posts",
+      "file": "scenes/mossgate_burrows.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a bare grassy hillside riddled with dark tunnel mouths and heaps of fresh earth, one tunnel far larger than the rest, a few broken fence posts. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3107
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "thornwood_bramble_edge",
+      "kind": "scene",
+      "subject": "the edge of a dark forest where open fields end at a wall of huge thorny brambles and twisted trees, with a rutted cart track running along it",
+      "file": "scenes/thornwood_bramble_edge.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: the edge of a dark forest where open fields end at a wall of huge thorny brambles and twisted trees, with a rutted cart track running along it. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3108
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "thornwood_spider_dell",
+      "kind": "scene",
+      "subject": "a sunken forest hollow strung with thick spider webs as heavy as rope between old twisted trees, pale cocoons hanging from the branches, glowing mushrooms on the ground",
+      "file": "scenes/thornwood_spider_dell.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a sunken forest hollow strung with thick spider webs as heavy as rope between old twisted trees, pale cocoons hanging from the branches, glowing mushrooms on the ground. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3109
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "thornwood_hermits_rise",
+      "kind": "scene",
+      "subject": "a steep rocky hill above a dark forest with a narrow path winding up to a small stone hut near the top, one lamp glowing in its window",
+      "file": "scenes/thornwood_hermits_rise.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a steep rocky hill above a dark forest with a narrow path winding up to a small stone hut near the top, one lamp glowing in its window. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3110
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "cinder_ash_gate",
+      "kind": "scene",
+      "subject": "a huge broken stone arch standing alone over flat grey ash-covered ground where nothing grows, burnt dead trees, low burial mounds on the horizon, ash drifting in the air",
+      "file": "scenes/cinder_ash_gate.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a huge broken stone arch standing alone over flat grey ash-covered ground where nothing grows, burnt dead trees, low burial mounds on the horizon, ash drifting in the air. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3111
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "cinder_bone_gallery",
+      "kind": "scene",
+      "subject": "a long underground stone hall lined on both sides with rows of burial niches, most of them empty, a few holding skulls and bones, cracked flagstones and one guttering torch",
+      "file": "scenes/cinder_bone_gallery.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a long underground stone hall lined on both sides with rows of burial niches, most of them empty, a few holding skulls and bones, cracked flagstones and one guttering torch. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3112
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
+      "id": "cinder_wardens_crypt",
+      "kind": "scene",
+      "subject": "a deep vaulted stone crypt with a great throne heaped with grey ash at the far end, a big dead unlit iron lantern hanging on a chain above it, embers glowing faintly on the floor",
+      "file": "scenes/cinder_wardens_crypt.webp",
+      "model": "z-image-turbo",
+      "prompt": "Game location illustration, wide view at dusk: a deep vaulted stone crypt with a great throne heaped with grey ash at the far end, a big dead unlit iron lantern hanging on a chain above it, embers glowing faintly on the floor. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Dark sky, deep shadows, light only from the low sun or a lantern. The lower middle of the picture is open ground with nothing important on it. No people, no creatures, no text, no letters, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 3113
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 960,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
+    },
+    {
       "id": "human_warrior",
       "kind": "portrait",
       "subject": "a human warrior, a weathered man with short brown hair and stubble, wearing plain riveted iron mail over wool",
@@ -905,6 +1179,27 @@
         "quality": 80
       },
       "generated": "2026-11-25"
+    },
+    {
+      "id": "hollowreach",
+      "kind": "map",
+      "subject": "a frontier land: in the west a small village among ploughed fields, in the north-west a marsh with a river and a ruined mill, a low hill full of burrows in the north, a wide dark thorny forest across the middle and the south, a rocky hill in the south-east, and in the east grey ash hills dotted with burial mounds and a ruined gate",
+      "file": "maps/hollowreach.webp",
+      "model": "z-image-turbo",
+      "prompt": "Backdrop for a fantasy game world map, seen from high above like an old hand-printed map: a frontier land: in the west a small village among ploughed fields, in the north-west a marsh with a river and a ruined mill, a low hill full of burrows in the north, a wide dark thorny forest across the middle and the south, a rocky hill in the south-east, and in the east grey ash hills dotted with burial mounds and a ruined gate. Style: hand-carved linocut print illustration, bold black ink outlines, flat colour fills with carved line hatching, limited palette of parchment cream, warm amber, rust red and deep teal. Printed on aged parchment, muted and low in contrast, with soft edges that fade into the parchment, so that markers drawn on top stay easy to read. No roads, no paths, no text, no letters, no labels, no compass rose, no border, no frame.",
+      "parameters": {
+        "width": 1280,
+        "height": 720,
+        "steps": 8,
+        "seed": 5001
+      },
+      "postprocess": {
+        "cropInset": 0.05,
+        "size": 1280,
+        "format": "webp",
+        "quality": 80
+      },
+      "generated": null
     }
   ]
 }
