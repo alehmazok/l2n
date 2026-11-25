@@ -1,0 +1,14 @@
+# Local development database only. The password here is a dev default, not a secret.
+services:
+  db:
+    image: postgres:17
+    environment:
+      POSTGRES_USER: l2n
+      POSTGRES_PASSWORD: l2n
+      POSTGRES_DB: l2n
+    ports:
+      - "5432:5432"
+    volumes:
+      - l2n-db:/var/lib/postgresql/data
+volumes:
+  l2n-db:
