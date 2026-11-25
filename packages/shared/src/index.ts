@@ -6,3 +6,5 @@ export { RACES } from "./data/races.js";
 export { ARCHETYPES } from "./data/archetypes.js";
 export { SKILLS, skillById } from "./data/skills.js";
 export * from "./character.js";
+export * from "./progression.js";
+export * from "./data/world.js";

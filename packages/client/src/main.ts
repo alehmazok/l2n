@@ -2,7 +2,7 @@ import { api, ApiError, type AccountInfo } from "./api.js";
 import { renderAuth } from "./screens/auth.js";
 import { renderCharacters } from "./screens/characters.js";
 import { renderCreate } from "./screens/create.js";
-import { renderSheet } from "./screens/sheet.js";
+import { renderGame } from "./screens/game.js";
 import { $, esc } from "./ui.js";
 import "./style.css";
 
@@ -28,7 +28,7 @@ function drawHeader() {
     });
 }
 
-/** Hash routes: #/ (characters), #/new (create), #/c/:id (sheet). */
+/** Hash routes: #/ (characters), #/new (create), #/c/:id (game). */
 async function route() {
   drawHeader();
   if (!account) {
@@ -39,7 +39,7 @@ async function route() {
   try {
     const sheet = /^\/c\/(\d+)$/.exec(hash);
     if (hash === "/new") renderCreate(screen, (id) => (location.hash = `#/c/${id}`));
-    else if (sheet) await renderSheet(screen, Number(sheet[1]));
+    else if (sheet) await renderGame(screen, Number(sheet[1]));
     else await renderCharacters(screen);
   } catch (err) {
     if (err instanceof ApiError && err.status === 401) {

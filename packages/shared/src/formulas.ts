@@ -75,6 +75,10 @@ export function critChance(agility: number, bonus = 0): number {
   return clamp(0.05 + (agility - BASE_STAT) * 0.005 + bonus, 0.01, 0.3);
 }
 
+export function fleeChance(playerAgi: number, enemyAgi: number): number {
+  return clamp(0.5 + (playerAgi - enemyAgi) * 0.02, 0.05, 0.95);
+}
+
 export const CRIT_MULTIPLIER = 1.75;
 /** Bonus to basic attacks while a charge (whetstone or ember vial) is active. */
 export const CHARGE_MULTIPLIER = 1.3;
@@ -113,3 +117,7 @@ export function craftChance(base: number, bonus = 0): number {
 
 /** Death penalty: share of the current level's XP bar lost. Never drops a level. */
 export const DEATH_XP_LOSS = 0.04;
+/** After death the character respawns in Brackwell with this share of max HP and Mana. */
+export const RESPAWN_SHARE = 0.3;
+/** Auto-battle is allowed against mobs at least this many levels below the player. */
+export const AUTO_BATTLE_LEVEL_GAP = 4;

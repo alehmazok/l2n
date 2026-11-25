@@ -28,15 +28,21 @@ updated in the same PRs.
 Left for later: deleting characters, password reset (needs email sending),
 applying racial passives to numbers (stage 2).
 
-## Stage 2 — Real fights and leveling
+## Stage 2 — Real fights and leveling (done)
 
-- Node map for Brackwell and Mossgate Fields.
-- Server-side fights bound to a character: state persisted between rounds,
-  client sends actions only.
-- XP, level-ups, HP and mana carried between fights, resting in town.
-- Remaining warrior and mage skill effects (stun, buffs, bleed, shields).
-- Death penalty and respawn.
-- Auto-battle for weak mobs.
+- [x] Node map for Brackwell and Mossgate Fields, moving along roads, hunting
+      with level-weighted encounters.
+- [x] Server-side fights bound to a character: state persisted in Postgres
+      between rounds, client sends actions only and never sees the RNG state.
+- [x] XP, level-ups, HP and mana carried between fights, resting in town.
+- [x] Racial passives applied to the numbers.
+- [x] Remaining warrior and mage skill effects (stun, buffs, bleed and burn,
+      ward, execute).
+- [x] Death penalty and respawn.
+- [x] Auto-battle for mobs 4+ levels below.
+
+Left for later: town services behind the Market, Smithy, Warehouse and Notice
+Board nodes; a provisional starter kit stands in for gear until stage 3.
 
 ## Stage 3 — Loot, gear and town
 

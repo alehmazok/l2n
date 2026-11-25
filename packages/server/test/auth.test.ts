@@ -90,8 +90,8 @@ describe("characters", () => {
     });
     expect(create.statusCode).toBe(201);
     const { character, sheet } = create.json();
-    expect(character).toMatchObject({ name: "Grosh", level: 1, hp: 72, resource: 0, location: "brackwell" });
-    expect(sheet.maxHp).toBe(72);
+    expect(character).toMatchObject({ name: "Grosh", level: 1, hp: 78, resource: 0, location: "brackwell_square" });
+    expect(sheet.maxHp).toBe(78); // Thick Hide: +8%
 
     const list = (await app.inject({ method: "GET", url: "/api/characters", headers: { cookie } })).json();
     expect(list).toEqual({ characters: [character], maxCharacters: 4 });

@@ -1,4 +1,4 @@
-import type { ArchetypeId, CharacterSheet, CharacterSummary, FightState, RaceId } from "@l2n/shared";
+import type { ArchetypeId, CharacterSheet, CharacterSummary, FightResult, PublicFightState, RaceId } from "@l2n/shared";
 
 export class ApiError extends Error {
   constructor(
@@ -35,6 +35,21 @@ export interface CharacterWithSheet {
   character: CharacterSummary;
   sheet: CharacterSheet;
 }
+export interface FightView {
+  id: number;
+  mobId: string;
+  nodeId: string;
+  state: PublicFightState;
+  canAuto: boolean;
+}
+/** Answer to every game action: the character after it, and the fight in progress if any. */
+export interface GameView extends CharacterWithSheet {
+  fight: FightView | null;
+  /** Present when the action ended a fight: what it gave or cost, and its final state. */
+  result?: FightResult;
+  ended?: FightView;
+}
+export type FightAction = { type: "attack" | "flee" | "auto" } | { type: "skill"; skillId: string };
 
 export const api = {
   me: () => call<{ account: AccountInfo }>("GET", "/api/auth/me"),
@@ -42,9 +57,11 @@ export const api = {
   login: (email: string, password: string) => call<{ account: AccountInfo }>("POST", "/api/auth/login", { email, password }),
   logout: () => call<{ ok: true }>("POST", "/api/auth/logout"),
   characters: () => call<{ characters: CharacterSummary[]; maxCharacters: number }>("GET", "/api/characters"),
-  character: (id: number) => call<CharacterWithSheet>("GET", `/api/characters/${id}`),
+  character: (id: number) => call<GameView>("GET", `/api/characters/${id}`),
   createCharacter: (name: string, race: RaceId, archetype: ArchetypeId) =>
     call<CharacterWithSheet>("POST", "/api/characters", { name, race, archetype }),
-  demoFight: (race: RaceId, archetype: ArchetypeId, level: number) =>
-    call<FightState>("GET", `/api/demo-fight?${new URLSearchParams({ race, archetype, level: String(level) })}`),
+  move: (id: number, to: string) => call<GameView>("POST", `/api/characters/${id}/move`, { to }),
+  rest: (id: number) => call<GameView>("POST", `/api/characters/${id}/rest`),
+  hunt: (id: number) => call<GameView>("POST", `/api/characters/${id}/hunt`),
+  act: (id: number, action: FightAction) => call<GameView>("POST", `/api/characters/${id}/fight`, { action }),
 };

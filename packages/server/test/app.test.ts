@@ -12,17 +12,9 @@ describe("server", () => {
     expect(Object.keys(res.json().races)).toHaveLength(5);
   });
 
-  it("runs a deterministic demo fight", async () => {
-    const app = buildApp();
-    const url = "/api/demo-fight?race=orc&archetype=warrior&level=5&seed=7";
-    const a = (await app.inject({ method: "GET", url })).json();
-    const b = (await app.inject({ method: "GET", url })).json();
-    expect(a).toEqual(b);
-    expect(a.outcome).toBe("won");
-  });
-
-  it("rejects an unknown race", async () => {
-    const res = await buildApp().inject({ method: "GET", url: "/api/demo-fight?race=goblin" });
-    expect(res.statusCode).toBe(400);
+  it("serves the world map in meta", async () => {
+    const meta = (await buildApp().inject({ method: "GET", url: "/api/meta" })).json();
+    expect(meta.nodes.brackwell_square.links).toContain("mossgate_old_road");
+    expect(meta.mobs.mire_rat.level).toBe(1);
   });
 });
