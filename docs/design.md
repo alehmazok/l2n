@@ -326,8 +326,7 @@ were given that kit as worn common gear by the stage 3 migration.
 
 ### Rarity
 
-**Proposal: keep item rarity** (built in stage 3, awaiting Aleh's confirmation).
-Common (×1.00), Uncommon (×1.08) and Rare (×1.16) multiply the item's base
+**Item rarity** (decided 2026-11-25). Common (×1.00), Uncommon (×1.08) and Rare (×1.16) multiply the item's base
 stats. Rare items also roll one bonus, +2% crit chance or +3% max HP, with equal
 odds. Dropped equipment is 80% common, 17% uncommon, 3% rare. Shop gear is
 always common; crafts will roll rarity in stage 4.
