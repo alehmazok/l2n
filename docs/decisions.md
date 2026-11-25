@@ -22,6 +22,4 @@ decided yet live in [design.md](design.md), marked **Proposal**.
 | 2026-11-25 | Death penalty: lose 4% of the current level's XP bar (never a level), respawn in Brackwell Square with 30% HP and Mana. Auto-battle allowed against mobs 4+ levels below. | Chosen by Aleh for stage 2: dying should hurt, farming weak mobs should be quick. |
 | 2026-11-25 | Every game action on a character runs in one database transaction holding the character's row lock; at most one fight in progress per character (unique partial index). The fight's RNG state stays on the server. | No double-resolved rounds or races between moving, resting and fighting; the client cannot predict rolls. |
 | 2026-11-25 | Until equipment exists, characters fight with a provisional kit equal to Ironbound/Steelsworn gear of their level. | Keeps stage 2 fights at the balance targets without inventing an item system early. |
-
-Open: whether the repository becomes public and under which licence. No
-LICENSE file until that is decided.
+| 2026-11-25 | The repository is public under the MIT licence (`LICENSE`, copyright Aleh). It covers everything in the repo, code and game content alike. A separate content licence (e.g. CC BY-SA for lore, texts and data) may be added later. | Chosen by Aleh; simple and permissive for a hobby project. |
