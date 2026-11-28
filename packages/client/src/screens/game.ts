@@ -409,7 +409,11 @@ function placeSceneHtml(view: GameView) {
     </div>`;
 }
 
-/** The action bar away from a fight: hunt or rest, and the doors of the town. */
+/**
+ * The action bar away from a fight: hunt, the doors of the town, and Rest
+ * when the hero is in town but not whole (walking into town already rests,
+ * so this is for a respawn after death or new gear that raised max HP).
+ */
 function placeActions(view: GameView) {
   const c = view.character;
   const node = NODES[c.location];
@@ -430,7 +434,7 @@ function placeActions(view: GameView) {
     ${node.kind === "hunt" ? `<button id="hunt" class="big primary">Hunt</button>` : ""}
     ${boss ? `<button id="challenge" class="big danger${node.kind === "hunt" ? "" : " primary"}" title="${esc(boss.description)}">Challenge ${esc(boss.name)}</button>` : ""}
     ${service ? `<button class="big primary" data-open="place">${esc(node.name)}</button>` : ""}
-    ${node.kind === "town" ? `<button id="rest" class="big${service ? " quiet" : " primary"}" ${full ? "disabled" : ""}>${full ? "Rested" : "Rest"}</button>` : ""}
+    ${node.kind === "town" && !full ? `<button id="rest" class="big${service ? " quiet" : " primary"}">Rest</button>` : ""}
     ${roads}
     ${node.kind === "hunt" ? `<button class="big quiet" data-open="map">Travel</button>` : ""}`;
 }

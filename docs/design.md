@@ -72,9 +72,11 @@ Market   Smithy   Warehouse   Notice Board
 ```
 
 - **Town nodes** are safe. Resting there restores HP and Mana to full, free
-  and instantly. The Market and Warehouse are open (stage 3, see "Items" and
-  "Economy"), the Smithy opened in stage 4 (see "Crafting") and the Notice
-  Board in stage 5 (see "Quests").
+  and instantly, and walking into any town node rests on its own. The Rest
+  button shows only in town when HP or Mana is not full, which happens after
+  a respawn or when new gear raises max HP. The Market and Warehouse are
+  open (stage 3, see "Items" and "Economy"), the Smithy opened in stage 4
+  (see "Crafting") and the Notice Board in stage 5 (see "Quests").
 - **Hunting nodes** have a pool of mobs. Hunting starts a fight with one of
   them, weighted towards the player's level: a mob at or below your level has
   weight 3, one level above 2, two or more levels above 1. Elites always
@@ -743,9 +745,9 @@ over it.
 - **Bottom left**: the chat window with three tabs: Chat, Combat and
   Chronicle. The fight log is the Combat tab, which comes forward when a
   fight begins.
-- **Bottom centre**: the action bar. Away from a fight it has Hunt, Rest,
-  Challenge and the doors of the town; in a fight, a square for the attack,
-  each skill and each draught, then Flee and Auto.
+- **Bottom centre**: the action bar. Away from a fight it has Hunt, Rest
+  (only when not full), Challenge and the doors of the town; in a fight, a
+  square for the attack, each skill and each draught, then Flee and Auto.
 - **Bottom right**: the dock: Hero, Bag, Quests, Map, Menu. Each opens a
   window over the scene; one window is open at a time. A town service
   (market, smithy, warehouse, notice board) is a window too, opened on
