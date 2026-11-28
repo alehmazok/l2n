@@ -30,6 +30,18 @@ describe("map", () => {
     expect((await post("/rest")).json().error).toBe("not_in_town");
   });
 
+  it("rests on walking into town, but not on the roads outside it", async () => {
+    const { post, force } = await setup({ race: "dawn_elf", archetype: "mage" });
+    const full = { hp: characterMaxHp("dawn_elf", "mage", 1), resource: characterMaxMana("dawn_elf", "mage", 1) };
+    await force({ location: "mossgate_old_road", hp: 3, resource: 1 });
+    expect((await post("/move", { to: "mossgate_drowned_mill" })).json().character).toMatchObject({ hp: 3, resource: 1 });
+    await post("/move", { to: "mossgate_old_road" });
+    expect((await post("/move", { to: "brackwell_square" })).json().character).toMatchObject({ location: "brackwell_square", ...full });
+    // Moving between the places of the town rests too, e.g. after a respawn at 30%.
+    await force({ hp: 3, resource: 1 });
+    expect((await post("/move", { to: "brackwell_market" })).json().character).toMatchObject(full);
+  });
+
   it("returns 404 for someone else's character", async () => {
     const a = await setup();
     const res = await a.app.inject({ method: "POST", url: `/api/characters/${a.id + 999}/rest`, headers: { cookie: a.cookie } });

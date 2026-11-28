@@ -49,6 +49,12 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
     await tx.createFight({ mobId: mob.id, nodeId: node.id, state });
   }
 
+  /** Refill HP and Mana, as resting in town does. */
+  async function rest(tx: CharacterTx) {
+    const c = tx.character;
+    await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus, c.profession));
+  }
+
   app.post<{ Params: { id: string }; Body: { to: string } }>(
     "/api/characters/:id/move",
     {
@@ -65,6 +71,8 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
         if (!Object.hasOwn(NODES, to)) throw new GameError(400, "unknown_node", "No such place.");
         if (here && !here.links.includes(to)) throw new GameError(400, "not_adjacent", `You cannot go to ${NODES[to]!.name} from here.`);
         await tx.updateCharacter({ location: to });
+        // Coming into town is resting: nobody walks back to Brackwell to stay hurt.
+        if (NODES[to]!.kind === "town") await rest(tx);
         await questEvent(tx, { type: "visit", nodeId: to });
       }),
   );
@@ -72,9 +80,8 @@ export async function gameRoutes(app: FastifyInstance, opts: { store: Store; ran
   app.post<{ Params: { id: string } }>("/api/characters/:id/rest", { schema: { params: idParam } }, (req, reply) =>
     act(req, reply, async (tx) => {
       notFighting(tx);
-      const c = tx.character;
-      if (NODES[c.location]?.kind !== "town") throw new GameError(400, "not_in_town", "You can only rest in town.");
-      await tx.updateCharacter(restedVitals(c.race, c.archetype, c.level, gearStats(tx.items).hpBonus, c.profession));
+      if (NODES[tx.character.location]?.kind !== "town") throw new GameError(400, "not_in_town", "You can only rest in town.");
+      await rest(tx);
     }),
   );
 
