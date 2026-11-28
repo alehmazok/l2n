@@ -1,6 +1,6 @@
 /**
- * Quest panels of the game screen: the notice board, the quest tracker shown
- * everywhere else, and what a notice board action did. Buttons carry
+ * Quest panels of the game screen: the notice board, the tracker over the
+ * scene, the quests window, and what a notice board action did. Buttons carry
  * `data-quest` attributes; game.ts wires them up.
  */
 import {
@@ -102,16 +102,35 @@ export function boardHtml(c: CharacterSummary, items: Item[]) {
     </section>`;
 }
 
-/** Active quests and their progress, shown away from the notice board. */
+const activeQuests = (c: CharacterSummary) => QUEST_LIST.filter((q) => c.quests[q.id]?.status === "active");
+
+/** How many active quests are ready to be turned in. */
+export const readyQuests = (c: CharacterSummary, items: Item[]) => activeQuests(c).filter((q) => isQuestComplete(q, c.quests[q.id]!, items)).length;
+
+/** Active quests and their progress, as a few lines over the scene. */
 export function trackerHtml(c: CharacterSummary, items: Item[]) {
-  const active = QUEST_LIST.filter((q) => c.quests[q.id]?.status === "active");
+  const active = activeQuests(c);
   if (!active.length) return "";
-  return `<details class="panel" open><summary>Quests</summary>${active
+  return `<div class="hud tracker">${active
     .map((q) => {
       const ready = isQuestComplete(q, c.quests[q.id]!, items);
-      return `<div class="tracked"><b>${esc(q.name)}</b>${ready ? ` <span class="good small">ready to turn in at the Notice Board</span>` : ""}${objectivesHtml(q, c, items)}</div>`;
+      return `<div class="tracked"><b>${esc(q.name)}</b>${ready ? `<div class="good small">Ready to turn in at the Notice Board</div>` : objectivesHtml(q, c, items)}</div>`;
     })
-    .join("")}</details>`;
+    .join("")}</div>`;
+}
+
+/** The quests window away from the notice board: what the character is on, to read. */
+export function journalHtml(c: CharacterSummary, items: Item[]) {
+  const active = activeQuests(c);
+  const entry = (q: Quest) => {
+    const ready = isQuestComplete(q, c.quests[q.id]!, items);
+    return `<li class="quest"><b>${esc(q.name)}</b> <span class="muted small">L${q.level}</span>${ready ? ` <span class="good small">ready</span>` : ""}
+      <p class="small">${esc(q.story)}</p>
+      ${objectivesHtml(q, c, items)}
+      <p class="small muted">Reward: ${esc(rewardText(q, c))}</p></li>`;
+  };
+  return `${active.length ? `<ul class="quests">${active.map(entry).join("")}</ul>` : `<p class="muted small">You are on no quest.</p>`}
+    <p class="small muted">Quests are taken and turned in at the Notice Board in Brackwell.</p>`;
 }
 
 /** What taking, abandoning or turning in a quest did. */

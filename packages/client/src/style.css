@@ -76,8 +76,6 @@ ul.skills { list-style: none; padding-left: 0; margin: 0; }
 button.road, button.quiet { background: #16120d; color: var(--text); border: 1px solid #4a3f30; }
 .effects { display: flex; flex-wrap: wrap; gap: 6px; margin: 4px 0; }
 .effects span { border: 1px solid #4a3f30; border-radius: 4px; padding: 0 6px; color: var(--muted); }
-.fight hr { border: none; border-top: 1px solid #4a3f30; margin: 10px 0; }
-.fight .log, .result .log { max-height: 220px; overflow-y: auto; font-size: 0.9em; }
 .result { border: 1px solid var(--accent); }
 ul.mobs { margin: 0 0 8px; padding-left: 1.2em; }
 details > summary { cursor: pointer; color: var(--accent); }
@@ -105,16 +103,11 @@ ul.quests { list-style: none; margin: 0; padding: 0; display: flex; flex-directi
 li.quest { border-bottom: 1px solid #3a3226; padding-bottom: 10px; }
 li.quest p { margin: 4px 0; }
 ul.objectives { list-style: none; margin: 4px 0; padding: 0; }
-.tracked { margin-bottom: 8px; }
 .professions { display: flex; flex-wrap: wrap; gap: 12px; margin: 8px 0; }
 .profession { flex: 1 1 240px; border: 1px solid var(--accent); border-radius: 6px; padding: 8px 10px; }
 .profession h4 { margin: 0; color: var(--accent); font-weight: normal; }
 .profession ul { list-style: none; padding-left: 0; margin: 4px 0 8px; }
 
-/* Living world: chat and chronicle beside (wide) or below (narrow) the game panels. */
-.game-layout { display: grid; gap: 0 12px; grid-template-columns: minmax(0, 1fr); }
-.world .tabs { margin-bottom: 8px; }
-.world-body { max-height: 260px; min-height: 120px; overflow-y: auto; overflow-wrap: anywhere; }
 ol.chat, ol.chronicle { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 4px; font-size: 0.9em; }
 ol.chat .chat-global b { color: var(--accent); }
 ol.chat .chat-zone b { color: var(--good); }
@@ -130,31 +123,6 @@ ol.chronicle li.first { color: var(--accent); }
 .online-here:empty { display: none; }
 .fallen-mark { color: var(--bad); }
 ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
-.world-toggle, .world-close { display: none; }
-.badge:not(:empty) { display: inline-block; min-width: 1.4em; margin-left: 4px; padding: 0 4px; border-radius: 9px; background: var(--bad); color: var(--text); font-size: 0.8em; }
-@media (max-width: 999px) {
-  main:has(.game-layout) { padding-bottom: 72px; }
-  .world-toggle {
-    display: block; position: fixed; z-index: 4;
-    right: max(12px, env(safe-area-inset-right)); bottom: max(12px, env(safe-area-inset-bottom));
-    box-shadow: 0 2px 10px #000a; border-radius: 22px; padding: 8px 16px;
-  }
-  .game-world .world {
-    display: none; position: fixed; z-index: 5; left: 0; right: 0; bottom: 0; margin: 0;
-    max-height: 75vh; flex-direction: column; border-radius: 12px 12px 0 0; border-top: 1px solid var(--accent);
-    box-shadow: 0 -4px 18px #000c; padding-bottom: max(12px, env(safe-area-inset-bottom));
-  }
-  .game-world.open .world { display: flex; }
-  .game-world.open .world-toggle { display: none; }
-  .world-close { display: block; margin-left: auto; }
-  .world-body { max-height: none; flex: 1 1 auto; height: 45vh; }
-}
-@media (min-width: 1000px) {
-  main:has(.game-layout) { max-width: 1040px; }
-  .game-layout { grid-template-columns: minmax(0, 1fr) 360px; align-items: start; }
-  .game-world { position: sticky; top: 12px; }
-  .world-body { max-height: calc(100vh - 220px); height: 420px; }
-}
 
 /* Phones: bigger tap targets, full-width fight buttons, a tighter header. */
 @media (max-width: 520px) {
@@ -170,19 +138,6 @@ ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
 }
 .offline-banner { position: sticky; top: 0; z-index: 2; background: #5a1f17; color: var(--text); text-align: center; padding: 4px 8px; border-radius: 0 0 6px 6px; font-size: 0.875em; }
 
-/* The fight scene: the node's picture behind, the hero on the left, the mob on the right. */
-.scene { position: relative; aspect-ratio: 16 / 9; margin: 8px 0; border-radius: 8px; border: 1px solid #4a3f30; overflow: hidden; background: #16120d radial-gradient(ellipse at 50% 120%, #4a3a22, #16120d 70%) center / cover no-repeat; }
-.scene::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(27 23 18 / 0.85), rgb(27 23 18 / 0.1) 65%); }
-.fighter { position: absolute; bottom: 7%; }
-.fighter-player { left: 7%; width: 22%; }
-.fighter-enemy { right: 7%; width: 36%; }
-.role-elite .fighter-enemy { width: 40%; }
-.role-boss .fighter-enemy { width: 45%; }
-.fighter .portrait, .mob-card { display: grid; place-items: center; width: 100%; height: auto; aspect-ratio: 1; border-radius: 8px; border: 2px solid #4a3f30; box-shadow: 0 6px 16px rgb(0 0 0 / 0.65); overflow: hidden; font-size: 2em; color: var(--muted); background: var(--panel); }
-.fighter .portrait { color: #1b1712; }
-.mob-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
-.role-elite .mob-card { border-color: var(--accent); }
-.role-boss .mob-card { border-color: var(--bad); box-shadow: 0 0 22px rgb(208 112 90 / 0.55), 0 6px 16px rgb(0 0 0 / 0.65); }
 .float { position: absolute; left: 50%; top: 12%; z-index: 2; pointer-events: none; white-space: nowrap; font-weight: bold; font-size: 1.35em; color: var(--text); text-shadow: 0 2px 3px #000, 0 0 6px #000; }
 .fighter-player .float-hit, .fighter-player .float-crit { color: var(--bad); }
 .fighter-enemy .float-crit { color: var(--accent); }
@@ -194,16 +149,9 @@ ul.fallen { list-style: none; margin: 0 0 8px; padding: 0; color: var(--bad); }
 .scene-won.scene-settled .fighter-enemy, .scene-lost.scene-settled .fighter-player { transform: translateY(10%) rotate(9deg); filter: grayscale(1) brightness(0.45); }
 .scene-fled.scene-settled .fighter-player { transform: translateX(-60%); opacity: 0; }
 @media (prefers-reduced-motion: no-preference) {
-  .fight .scene .mob-card { animation: breathe 3.2s ease-in-out infinite; }
+  .stage[data-mode="fight"] .mob-card { animation: breathe 3.2s ease-in-out infinite; }
 }
 @keyframes breathe { 50% { transform: scale(1.025); } }
-
-/* A place: its picture across the top of the panel, and thumbnails of what lives there. */
-.panel:has(> .place-art) { overflow: hidden; }
-.place-art { aspect-ratio: 21 / 9; margin: -12px -16px 10px; background: #16120d center 40% / cover no-repeat; }
-ul.mobs:has(.mob-thumb) { list-style: none; padding-left: 0; display: flex; flex-direction: column; gap: 4px; }
-.mob-thumb { width: 36px; height: 36px; margin-right: 8px; vertical-align: middle; border-radius: 5px; border: 1px solid #4a3f30; object-fit: cover; }
-.mob-thumb.role-elite { border-color: var(--accent); }
 
 /* The world map: a picture, the roads drawn over it and a marker for every place. */
 .map { position: relative; aspect-ratio: 3 / 2; border-radius: 8px; border: 1px solid #4a3f30; overflow: hidden; background: #3a2f22 radial-gradient(ellipse at 30% 40%, #5a4a34, #2a2219 75%) center / cover no-repeat; }
@@ -258,4 +206,249 @@ a.button { box-shadow: 0 2px 0 rgb(0 0 0 / 0.45), inset 0 1px 0 rgb(255 255 255 
 @media (max-width: 520px) {
   h1 { font-size: 1.7em; }
   .brand .mark { width: 24px; margin-bottom: 0.7em; }
+}
+
+/*
+ * The game screen. The place's picture fills the screen (the stage) and the
+ * rest floats over it as a HUD: the hero's frame top left, the place or the
+ * foe top centre, the minimap top right, the chat window bottom left, the
+ * action bar bottom centre, the dock bottom right, and windows opened from
+ * the dock over the scene. Further down: a phone held sideways gets every
+ * piece a size smaller, and a phone held upright gets them in a column.
+ */
+body.in-game .top { display: none; }
+body.in-game main { max-width: none; padding: 0; }
+body.in-game .offline-banner { position: fixed; left: 0; right: 0; z-index: 9; }
+.stage { --slot: 58px; --gap: 12px; --glass: rgb(22 18 13 / 0.82); --line: #4a3f30; font-size: 15px; line-height: 1.4; }
+.game-main { display: contents; }
+.frame { background: var(--glass); border: 1px solid var(--line); border-radius: 8px; box-shadow: inset 0 0 0 3px rgb(22 18 13 / 0.5), inset 0 0 0 4px rgb(216 180 106 / 0.14), 0 4px 14px rgb(0 0 0 / 0.55); backdrop-filter: blur(3px); }
+.stage h2, .stage p { margin: 0; }
+
+/* The hero's frame. */
+.unit { display: flex; gap: 10px; align-items: center; padding: 8px 12px 8px 8px; }
+.unit .face { position: relative; flex: none; }
+.unit .portrait { width: 62px; height: 62px; border-radius: 50%; border: 2px solid var(--accent); box-shadow: 0 0 0 3px rgb(0 0 0 / 0.5); }
+.lvl { position: absolute; right: -6px; bottom: -4px; min-width: 24px; height: 24px; padding: 0 4px; border-radius: 12px; display: grid; place-items: center; background: #16120d; border: 1px solid var(--accent); color: var(--accent); font-size: 0.78em; }
+.unit .who { flex: 1; min-width: 0; }
+.unit h2 { font-size: 1.25em; line-height: 1.1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.stage .bar { height: 16px; margin: 4px 0 0; background: #100d09; }
+.stage .bar .label { display: block; padding: 0; text-align: center; font-size: 10.5px; line-height: 14px; }
+.stage .bar-xp { height: 5px; }
+.stage .bar-xp .label { display: none; }
+.bar-enemy .fill { background-color: #7a2f25; }
+.stage .effects { margin: 4px 0 0; font-size: 0.74em; }
+.stage .effects span { background: rgb(0 0 0 / 0.3); }
+
+/* The plate: the place, or the foe in a fight. */
+.plate { text-align: center; padding: 6px 26px 8px; }
+.plate h2 { font-size: 1.55em; line-height: 1.15; }
+.plate .over { text-transform: uppercase; letter-spacing: 0.14em; font-size: 0.68em; color: var(--muted); }
+.plate .online-here { color: var(--muted); }
+.plate .online-here:not(:empty)::before { content: "● "; color: var(--good); }
+.plate .bar { height: 18px; }
+.plate .bar .label { line-height: 16px; font-size: 11px; }
+.plate .effects { justify-content: center; }
+.target.role-elite { border-color: var(--accent); }
+.target.role-boss { border-color: var(--bad); }
+
+/* The minimap and the purse under it. */
+.mini { width: 168px; height: 168px; padding: 0; border-radius: 50%; border: 2px solid var(--accent); overflow: hidden; background: #3a2f22; box-shadow: 0 0 0 4px rgb(22 18 13 / 0.8), 0 4px 14px rgb(0 0 0 / 0.6); }
+.mini-map { position: absolute; aspect-ratio: 3 / 2; background: center / cover no-repeat; }
+.mini-pin { position: absolute; width: 14px; height: 14px; margin: -7px; border-radius: 50%; background: var(--good); border: 2px solid var(--text); box-shadow: 0 0 0 4px rgb(143 191 115 / 0.35); }
+.purse { padding: 1px 12px; border-radius: 12px; font-size: 0.82em; white-space: nowrap; }
+.purse::before { content: ""; display: inline-block; width: 9px; height: 9px; margin-right: 6px; border-radius: 50%; background: #c9c9c9; box-shadow: inset -1px -1px 0 #777; }
+
+/* The quest tracker: words on the picture, no frame. */
+.tracker { font-size: 0.86em; text-shadow: 0 1px 3px #000, 0 0 8px #000; }
+.tracker b { font-family: "IM Fell English", Georgia, serif; font-weight: normal; font-size: 1.2em; color: var(--accent); }
+.tracked { margin-bottom: 6px; }
+.tracker ul.objectives { margin: 0; }
+
+/* The scene: who lives at a place, or the two fighters. */
+.fighter { position: absolute; bottom: 7%; }
+.fighter-player { left: 7%; width: 22%; }
+.fighter-enemy { right: 7%; width: 36%; }
+.role-elite .fighter-enemy { width: 40%; }
+.role-boss .fighter-enemy { width: 45%; }
+.fighter .portrait, .mob-card { display: grid; place-items: center; width: 100%; height: auto; aspect-ratio: 1; border-radius: 10px; border: 2px solid var(--line); box-shadow: 0 14px 30px rgb(0 0 0 / 0.75); overflow: hidden; font-size: 2em; color: var(--muted); background: var(--panel); }
+.fighter .portrait { color: #1b1712; }
+.mob-card img { width: 100%; height: 100%; display: block; object-fit: cover; }
+.role-elite .mob-card { border-color: var(--accent); }
+.role-boss .mob-card { border-color: var(--bad); box-shadow: 0 0 22px rgb(208 112 90 / 0.55), 0 14px 30px rgb(0 0 0 / 0.75); }
+.dwellers { display: flex; gap: 14px; align-items: flex-end; }
+.dweller { width: 92px; margin: 0; text-align: center; font-size: 0.76em; line-height: 1.2; text-shadow: 0 1px 3px #000, 0 0 8px #000; }
+.dweller img, .dweller .mob-card { width: 100%; aspect-ratio: 1; object-fit: cover; display: block; border-radius: 8px; border: 2px solid var(--line); box-shadow: 0 8px 18px rgb(0 0 0 / 0.7); margin-bottom: 3px; }
+.dweller.role-elite img { border-color: var(--accent); }
+.dweller.role-boss { width: 108px; }
+.dweller.role-boss img { border-color: var(--bad); }
+.caption { text-align: center; text-shadow: 0 1px 3px #000, 0 0 10px #000, 0 0 16px #000; }
+.caption > p:first-child { font-family: "IM Fell English", Georgia, serif; font-style: italic; font-size: 1.1em; line-height: 1.3; }
+.caption ul.fallen { margin: 2px 0 0; }
+.round { font-size: 0.8em; color: var(--muted); text-shadow: 0 1px 3px #000, 0 0 8px #000; white-space: nowrap; }
+
+/* How a fight ended, and other news. */
+.banner { padding: 12px 22px 14px; text-align: center; border-color: var(--accent); transition: opacity 0.35s; }
+.banner h2 { font-size: 2.2em; line-height: 1.1; margin-bottom: 4px; }
+.banner-lost h2 { color: var(--bad); }
+.banner p { margin: 3px 0; }
+.scene-fight:not(.scene-settled) ~ .banner { opacity: 0; }
+.notices .panel, .notice { margin: 0 0 8px; }
+.notices .notice, .notices .panel { background: var(--glass); border: 1px solid var(--accent); border-radius: 8px; padding: 8px 14px; box-shadow: 0 4px 14px rgb(0 0 0 / 0.55); }
+.notices .notice { border-color: var(--bad); }
+
+/* The action bar. */
+.actions { display: flex; gap: 8px; padding: 8px; align-items: flex-start; }
+.actions:empty { display: none; }
+.big { height: var(--slot); padding: 0 22px; font-family: "IM Fell English", Georgia, serif; font-size: 1.3em; white-space: nowrap; }
+.big.quiet { font-size: 1.05em; padding: 0 14px; }
+.actions > .slot { flex: none; }
+.slot { display: flex; flex-direction: column; align-items: center; gap: 2px; width: var(--slot); padding: 0; background: none; color: var(--text); box-shadow: none !important; }
+.slot-art { position: relative; display: grid; place-items: center; width: var(--slot); height: var(--slot); border-radius: 7px; border: 2px solid var(--line); background: #100d09; overflow: hidden; box-shadow: 0 2px 0 rgb(0 0 0 / 0.5); }
+.slot.primary .slot-art { border-color: var(--accent); }
+.slot-art .icon { display: block; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 0; }
+.slot-art svg, .dock svg { width: 24px; height: 24px; fill: none; stroke: var(--accent); stroke-width: 1.7; stroke-linecap: round; stroke-linejoin: round; }
+.slot-art kbd { position: absolute; left: 3px; top: 0; font: 10px/1.4 Georgia, serif; text-shadow: 0 0 3px #000, 0 0 3px #000; }
+.slot-badge { position: absolute; right: 0; bottom: 0; padding: 0 4px; border-radius: 5px 0 0 0; background: rgb(16 13 9 / 0.9); color: var(--accent); font-size: 10.5px; line-height: 1.4; }
+.slot-name { width: calc(var(--slot) + 6px); height: 2.2em; overflow: hidden; font-size: 9.5px; line-height: 1.1; color: var(--muted); text-shadow: 0 1px 2px #000; }
+.slot:disabled { opacity: 1; }
+.slot:disabled .slot-art img { filter: grayscale(1) brightness(0.45); }
+.sep { width: 1px; height: var(--slot); background: var(--line); }
+
+/* The dock. */
+.dock { display: flex; gap: 6px; padding: 6px; }
+.dock button { position: relative; display: grid; place-items: center; align-content: center; gap: 1px; width: 54px; height: 54px; padding: 0; border: 1px solid var(--line); background: #100d09; color: var(--muted); font-size: 10px; }
+.dock button.on { border-color: var(--accent); background: var(--panel); color: var(--text); }
+.dock button:disabled { opacity: 0.4; }
+.dock .badge { position: absolute; right: -5px; top: -5px; margin: 0; }
+.badge { display: inline-block; min-width: 1.5em; padding: 0 4px; border-radius: 9px; background: var(--bad); color: var(--text); font-size: 10px; line-height: 1.5; text-align: center; }
+
+/* The chat window. */
+.game-world { display: flex; flex-direction: column; padding: 6px 8px 8px; }
+.chat-tabs { display: flex; gap: 2px; margin-bottom: 4px; }
+.chat-tab { padding: 1px 9px; border-radius: 0; background: none; color: var(--muted); border-bottom: 2px solid transparent; box-shadow: none !important; }
+.chat-tab.active { color: var(--accent); border-color: var(--accent); }
+.world-close { display: none; margin-left: auto; padding: 0 8px; }
+.world-body { flex: 1 1 0; min-height: 0; overflow-y: auto; overflow-wrap: anywhere; line-height: 1.35; }
+.world-body ol.log { list-style: none; margin: 0; padding: 0; font-size: 0.9em; }
+.game-world .chat-form { margin-top: 5px; }
+.game-world .chat-form > * { padding: 2px 8px; font-size: 0.86em; min-height: 0; }
+
+/* A window over the scene. */
+.window { display: flex; flex-direction: column; background: rgb(34 29 22 / 0.96); }
+.window > header { display: flex; align-items: center; gap: 8px; padding: 8px 10px 6px 16px; border-bottom: 1px solid var(--line); }
+.window > header h3 { flex: 1; margin: 0; font-size: 1.4em; }
+.window-close { width: 30px; height: 30px; padding: 0; }
+.window-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: 10px 14px; }
+.window-body .panel { background: none; border: none; box-shadow: none; padding: 0; margin: 0 0 14px; }
+.window-body .panel.result, .window-body .notice { border: 1px solid var(--accent); border-radius: 6px; padding: 8px 10px; background: #16120d; }
+.window-body .notice { border-color: var(--bad); margin: 0 0 14px; }
+.window-body .panel + .panel { border-top: 1px solid var(--line); border-radius: 0; padding-top: 10px; }
+.window h4 { margin: 0 0 6px; font-weight: normal; color: var(--muted); font-size: 0.78em; text-transform: uppercase; letter-spacing: 0.12em; }
+.window .map { margin-bottom: 6px; }
+.cells { display: grid; grid-template-columns: repeat(8, 1fr); gap: 5px; margin-bottom: 12px; }
+.cell { position: relative; display: grid; place-items: center; aspect-ratio: 1; min-height: 0; padding: 0; border-radius: 6px; border: 2px solid var(--line); background: #100d09; overflow: hidden; color: var(--muted); font-size: 9px; }
+.cell .icon { display: block; width: 100%; height: 100%; margin: 0; border: 0; border-radius: 0; }
+.cell em { position: absolute; right: 2px; bottom: 0; font-style: normal; font-size: 11px; color: var(--text); text-shadow: 0 0 3px #000, 0 0 3px #000; }
+.cell-empty { border-style: dashed; }
+.cell.picked { outline: 2px solid var(--accent); outline-offset: 1px; }
+.cell.rarity-uncommon { border-color: #5f9c5a; }
+.cell.rarity-rare { border-color: #4f7fc4; }
+.item-card { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin: 0 0 12px; padding: 8px 10px; border: 1px solid var(--line); border-radius: 6px; background: #16120d; }
+div.item-card { border-color: var(--accent); }
+
+@media (orientation: landscape) {
+  body.in-game { overflow: hidden; }
+  .stage { position: fixed; inset: 0; overflow: hidden; background: #16120d var(--scene-art, none) center 55% / cover no-repeat; }
+  .stage::before { content: ""; position: absolute; inset: 0; pointer-events: none; background: linear-gradient(to bottom, rgb(12 9 6 / 0.72), transparent 24%, transparent 52%, rgb(12 9 6 / 0.88)), radial-gradient(ellipse at center, transparent 55%, rgb(12 9 6 / 0.55)); }
+  .hud { position: absolute; z-index: 2; }
+  .unit { top: var(--gap); left: var(--gap); width: 300px; }
+  .plate { top: var(--gap); left: 50%; transform: translateX(-50%); min-width: 300px; max-width: 40vw; }
+  .mini { top: var(--gap); right: var(--gap); }
+  .purse { top: calc(var(--gap) + 152px); right: calc(var(--gap) + 84px); transform: translateX(50%); }
+  .tracker { top: calc(var(--gap) + 196px); right: var(--gap); width: 240px; text-align: right; }
+  .stage:has(.window) .tracker { display: none; }
+  .scene { position: absolute; inset: 0; z-index: 1; pointer-events: none; }
+  .fighter { bottom: 27%; }
+  .fighter-player { left: 24%; width: 24vh; }
+  .fighter-enemy { right: 22%; width: 42vh; }
+  .role-elite .fighter-enemy { width: 46vh; }
+  .role-boss .fighter-enemy { width: 50vh; }
+  .dwellers { position: absolute; right: 24%; bottom: 31%; pointer-events: auto; }
+  .caption { left: 50%; bottom: calc(var(--gap) + var(--slot) + 28px); transform: translateX(-50%); width: min(560px, 44vw); }
+  .round { left: 50%; bottom: calc(var(--gap) + var(--slot) + 52px); transform: translateX(-50%); }
+  .banner { z-index: 4; left: 50%; top: 128px; transform: translateX(-50%); width: min(460px, 60vw); max-height: 50vh; overflow-y: auto; }
+  .notices { z-index: 4; left: 50%; top: 112px; transform: translateX(-50%); width: min(460px, 50vw); }
+  .actions { left: 50%; bottom: var(--gap); transform: translateX(-50%); }
+  .dock { right: var(--gap); bottom: var(--gap); }
+  .game-world { left: var(--gap); bottom: var(--gap); width: 370px; height: 210px; }
+  .window { z-index: 5; top: var(--gap); right: var(--gap); bottom: var(--gap); width: 430px; }
+  .window-map { bottom: auto; width: min(900px, calc((100vh - 130px) * 1.5), calc(100vw - 2 * var(--gap))); }
+  .window-menu { top: auto; bottom: calc(var(--gap) + 76px); width: 280px; }
+}
+
+/* A phone held sideways, or a small window: every piece a size down, the dock upright on the right, the chat as three lines until it is tapped. */
+@media (orientation: landscape) and (max-height: 520px), (orientation: landscape) and (max-width: 1099px) {
+  .stage { --slot: 44px; --gap: 8px; font-size: 13px; }
+  .unit { width: 214px; padding: 5px 9px 5px 5px; gap: 8px; }
+  .unit .portrait { width: 46px; height: 46px; }
+  .lvl { min-width: 20px; height: 20px; }
+  .stage .bar { height: 13px; margin-top: 3px; }
+  .stage .bar .label { font-size: 9.5px; line-height: 11px; }
+  .stage .bar-xp { height: 4px; }
+  .plate { padding: 3px 18px 5px; min-width: 220px; }
+  .plate h2 { font-size: 1.35em; }
+  .mini { width: 96px; height: 96px; }
+  .purse { top: calc(var(--gap) + 86px); right: calc(var(--gap) + 48px); }
+  .tracker { display: none; }
+  .fighter { bottom: 33%; }
+  .fighter-player { left: 22%; width: 26vh; }
+  .dwellers { right: 20%; bottom: 36%; gap: 8px; }
+  .dweller { width: 62px; }
+  .dweller.role-boss { width: 72px; }
+  .caption { left: 270px; right: 64px; width: auto; transform: none; bottom: calc(var(--gap) + var(--slot) + 18px); }
+  .stage:has(.window) .caption, .stage:has(.game-world.open) .caption { display: none; }
+  .round { left: auto; right: calc(var(--gap) + 58px); transform: none; bottom: calc(var(--gap) + var(--slot) + 44px); }
+  .actions { left: auto; right: calc(var(--gap) + 54px); transform: none; padding: 5px; gap: 5px; max-width: calc(100vw - 330px); flex-wrap: wrap-reverse; justify-content: flex-end; }
+  .big { padding: 0 16px; font-size: 1.2em; }
+  .big.quiet { padding: 0 10px; font-size: 1em; }
+  .slot-art kbd { display: none; }
+  .dock { flex-direction: column; padding: 4px; gap: 4px; }
+  .dock button { width: 40px; height: 40px; }
+  .dock button > span:not(.badge) { display: none; }
+  .game-world { width: 250px; height: 92px; padding: 4px 7px 5px; cursor: pointer; }
+  .game-world:not(.open) .chat-form, .game-world:not(.open) .chat-tab:not(.active), .game-world:not(.open) .chat-notice { display: none; }
+  .game-world:not(.open) .world-body { overflow: hidden; }
+  .game-world:not(.open) .chat-tabs { margin: 0; }
+  .game-world.open { z-index: 6; top: 76px; width: min(440px, 62vw); height: auto; cursor: auto; background: rgb(34 29 22 / 0.96); }
+  .game-world.open .world-close { display: block; }
+  .window { right: calc(var(--gap) + 54px); width: 54vw; }
+  .window-map { width: min(calc((100vh - 96px) * 1.5), calc(100vw - 2 * var(--gap) - 54px)); }
+  .window-menu { bottom: var(--gap); width: 240px; }
+  .banner { top: 66px; padding: 6px 18px 8px; }
+  .banner h2 { font-size: 1.8em; }
+  .notices { top: 70px; }
+}
+
+/* A phone held upright: the same pieces in a column, the scene as a picture among them, the dock along the bottom. */
+@media (orientation: portrait) {
+  .stage { display: flex; flex-direction: column; gap: 8px; min-height: 100dvh; padding: max(8px, env(safe-area-inset-top)) 8px 0; }
+  .unit { order: 1; }
+  .plate { order: 2; }
+  .scene { order: 3; position: relative; aspect-ratio: 16 / 9; border-radius: 8px; border: 1px solid var(--line); overflow: hidden; background: #16120d var(--scene-art, none) center / cover no-repeat; }
+  .scene::before { content: ""; position: absolute; inset: 0; background: linear-gradient(to top, rgb(27 23 18 / 0.85), rgb(27 23 18 / 0.1) 65%); }
+  .dwellers { position: absolute; left: 0; right: 0; bottom: 6%; justify-content: center; gap: 8px; }
+  .dweller { width: 17%; }
+  .dweller.role-boss { width: 20%; }
+  .banner { order: 4; }
+  .notices { order: 5; }
+  .round { order: 6; text-align: center; }
+  .actions { order: 7; flex-wrap: wrap; justify-content: center; }
+  .caption { order: 8; padding: 0 8px; }
+  .window { order: 9; }
+  .tracker { order: 10; padding: 0 8px; }
+  .game-world { order: 11; height: 230px; }
+  .dock { order: 12; position: sticky; bottom: 0; z-index: 3; justify-content: space-around; margin: auto -8px 0; border-radius: 8px 8px 0 0; padding-bottom: max(6px, env(safe-area-inset-bottom)); background: rgb(22 18 13 / 0.96); }
+  .mini, .purse { display: none; }
+  .window-body { max-height: 70vh; }
+  .cells { grid-template-columns: repeat(7, 1fr); }
 }

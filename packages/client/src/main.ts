@@ -2,7 +2,7 @@ import { api, ApiError, type AccountInfo } from "./api.js";
 import { renderAuth } from "./screens/auth.js";
 import { renderCharacters } from "./screens/characters.js";
 import { renderCreate } from "./screens/create.js";
-import { renderGame } from "./screens/game.js";
+import { leaveGame, renderGame } from "./screens/game.js";
 import { stopWorld } from "./screens/world.js";
 import { $, esc } from "./ui.js";
 import "@fontsource/im-fell-english/latin-400.css";
@@ -36,6 +36,7 @@ function drawHeader() {
 /** Hash routes: #/ (characters), #/new (create), #/c/:id (game). */
 async function route() {
   stopWorld();
+  leaveGame();
   drawHeader();
   if (!account) {
     renderAuth(screen, () => void start());
