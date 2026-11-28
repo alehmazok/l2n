@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { NODES } from "@l2n/shared";
-import { MAP_PLACES, mapHtml, mapPlace, mapRoads } from "../src/map.js";
+import { MAP_PLACES, mapHtml, mapPlace, mapRoads, miniMap, miniMapHtml } from "../src/map.js";
 
 describe("world map", () => {
   it("places every hunting node and the town square, inside the picture and apart from each other", () => {
@@ -48,5 +48,30 @@ describe("world map", () => {
     expect(go(mapHtml("brackwell_smithy"))).toEqual([]);
     expect(mapHtml("brackwell_smithy")).toMatch(/place-here[^>]*title="Brackwell,/);
     expect(mapHtml("cinder_wardens_crypt")).toMatch(/place-here[^>]*title="Warden&#39;s Crypt,/);
+  });
+
+  it("centres the minimap on the place, and moves the pin instead where the map ends", () => {
+    // Bramble Edge is far from every edge: the pin is in the middle.
+    const mid = miniMap("thornwood_bramble_edge");
+    expect(mid.pinX).toBeCloseTo(50);
+    expect(mid.pinY).toBeCloseTo(50);
+    for (const id of Object.keys(NODES)) {
+      const m = miniMap(id);
+      // The map always covers the frame, and the pin stays inside it.
+      expect(m.left, id).toBeLessThanOrEqual(0);
+      expect(m.left, id).toBeGreaterThanOrEqual(-300);
+      expect(m.top, id).toBeLessThanOrEqual(0);
+      expect(m.top, id).toBeGreaterThanOrEqual(100 - 800 / 3);
+      for (const v of [m.pinX, m.pinY]) {
+        expect(v, id).toBeGreaterThan(10);
+        expect(v, id).toBeLessThan(90);
+      }
+    }
+    // The crypt is at the top edge: the map stops and the pin goes up.
+    expect(miniMap("cinder_wardens_crypt").top).toBe(0);
+    expect(miniMap("cinder_wardens_crypt").pinY).toBeLessThan(50);
+    // Town nodes share the square's place.
+    expect(miniMap("brackwell_market")).toEqual(miniMap("brackwell_square"));
+    expect(miniMapHtml("mossgate_old_road")).toContain('data-open="map"');
   });
 });

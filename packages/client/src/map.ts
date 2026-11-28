@@ -36,6 +36,34 @@ export function mapRoads(): [string, string][] {
   return roads;
 }
 
+/** How many times wider than its frame the map is drawn in the minimap. */
+export const MINI_ZOOM = 4;
+
+/**
+ * Where the map sits inside the minimap's square frame so that the place of
+ * `location` is in the middle, and where the pin goes. The map does not slide
+ * past its own edge, so near an edge the pin leaves the middle instead.
+ * Everything is a percentage of the frame's side.
+ */
+export function miniMap(location: string, zoom = MINI_ZOOM): { left: number; top: number; pinX: number; pinY: number } {
+  const p = MAP_PLACES[mapPlace(location) ?? "brackwell_square"]!;
+  // The map is 3:2, so it is `zoom` frames wide and two thirds of that high.
+  const [w, h] = [zoom * 100, (zoom * 100 * 2) / 3];
+  const slide = (at: number, size: number) => Math.min(0, Math.max(100 - size, 50 - (at / 100) * size));
+  const [left, top] = [slide(p.x, w), slide(p.y, h)];
+  return { left, top, pinX: left + (p.x / 100) * w, pinY: top + (p.y / 100) * h };
+}
+
+/** The minimap: the stretch of the map around the character, in a round frame that opens the whole map. */
+export function miniMapHtml(location: string) {
+  const m = miniMap(location);
+  const back = ART.maps?.hollowreach;
+  // Build-time URL from Vite, never user input, so it needs no escaping.
+  return `<button class="hud mini" data-open="map" title="Map (M)" aria-label="Open the map">
+    <span class="mini-map" style="width:${MINI_ZOOM * 100}%;left:${m.left.toFixed(1)}%;top:${m.top.toFixed(1)}%;${back ? `background-image:url('${back}')` : ""}"></span>
+    <span class="mini-pin" style="left:${m.pinX.toFixed(1)}%;top:${m.pinY.toFixed(1)}%"></span></button>`;
+}
+
 /**
  * The map with the character at `location`. Places one road away are buttons
  * that travel there (`data-go`); the rest are shown but cannot be pressed.

@@ -1,6 +1,6 @@
 /**
- * Item panels of the game screen: worn gear and bag, the market and the
- * warehouse. Buttons carry `data-item` attributes; game.ts wires them up.
+ * Item panels of the game screen: the bag window, the market, the warehouse
+ * and the smithy. Buttons carry `data-item` attributes; game.ts wires them up.
  */
 import {
   ARCHETYPES,
@@ -66,43 +66,59 @@ const btn = (label: string, attrs: Record<string, string | number>, disabled = f
 
 const byPlace = (items: Item[], location: Item["location"]) => items.filter((i) => i.location === location);
 
-/** Worn gear, the bag, silver and the charge setting. */
-export function inventoryHtml(c: CharacterSummary, items: Item[]) {
+const slotOf = (i: Item) => (itemTemplate(i.templateId) as { slot?: Slot } | undefined)?.slot;
+
+/** One square of the bag window: an item to pick, or an empty place. */
+const cell = (i: Item | undefined, picked: number | null, empty = "") =>
+  i
+    ? `<button class="cell rarity-${i.rarity ?? "common"}${i.id === picked ? " picked" : ""}" data-pick="${i.id}" title="${esc(itemName(i))}" aria-pressed="${i.id === picked}">${itemIcon(i)}${i.quantity > 1 ? `<em>${i.quantity}</em>` : ""}</button>`
+    : `<span class="cell cell-empty">${esc(empty)}</span>`;
+
+/** What can be done with a bag or worn item, and why not when it cannot. */
+function itemActions(c: CharacterSummary, i: Item): { buttons: string; problem: string } {
+  const t = itemTemplate(i.templateId);
+  if (i.location === "equipped") return { buttons: btn("Take off", { item: "unequip", slot: slotOf(i) ?? "" }), problem: "" };
+  if (isEquipment(t)) {
+    const problem = equipProblem(i, c.archetype, c.level);
+    return { buttons: btn("Wear", { item: "equip", id: i.id }, problem !== null), problem: problem ?? "" };
+  }
+  if (t?.kind === "draught") {
+    const usable = t.restores === "hp" || ARCHETYPES[c.archetype].resource === "mana";
+    return { buttons: btn("Drink", { item: "use", id: i.id }, !usable), problem: usable ? "" : "Only mages use mana." };
+  }
+  if (t?.kind === "recipe") {
+    const known = c.recipes.includes(t.recipe);
+    return { buttons: btn(known ? "Known" : "Learn", { item: "use", id: i.id }, known), problem: "" };
+  }
+  return { buttons: "", problem: "" };
+}
+
+/**
+ * The bag window: worn gear and the bag as squares, the picked item's card
+ * with what can be done with it, and the charge setting. `picked` is the id
+ * of the item whose card is shown.
+ */
+export function bagHtml(c: CharacterSummary, items: Item[], picked: number | null) {
   const worn = byPlace(items, "equipped");
-  const slots = SLOTS.map((slot) => {
-    const i = worn.find((w) => (itemTemplate(w.templateId) as { slot?: Slot } | undefined)?.slot === slot);
-    return i
-      ? line(i, btn("Take off", { item: "unequip", slot }), ` <span class="muted small">${SLOT_NAMES[slot]}</span>`)
-      : `<li class="item"><span class="icon icon-empty" aria-hidden="true"></span><div class="grow muted">${SLOT_NAMES[slot]}: nothing</div></li>`;
-  }).join("");
   const order = { equipment: 0, draught: 1, charge: 2, quest: 3, recipe: 4, resource: 5 } as const;
   const rank = (i: Item) => order[itemTemplate(i.templateId)?.kind ?? "resource"];
   const bag = byPlace(items, "bag").sort((a, b) => rank(a) - rank(b) || a.id - b.id);
-  const bagLines = bag
-    .map((i) => {
-      const t = itemTemplate(i.templateId);
-      let actions = "";
-      if (isEquipment(t)) {
-        const problem = equipProblem(i, c.archetype, c.level);
-        actions = btn("Wear", { item: "equip", id: i.id }, problem !== null, problem ?? "");
-      } else if (t?.kind === "draught") {
-        const usable = t.restores === "hp" || ARCHETYPES[c.archetype].resource === "mana";
-        actions = btn("Drink", { item: "use", id: i.id }, !usable);
-      } else if (t?.kind === "recipe") {
-        const known = c.recipes.includes(t.recipe);
-        actions = btn(known ? "Known" : "Learn", { item: "use", id: i.id }, known);
-      }
-      return line(i, actions);
-    })
-    .join("");
+  const slots = SLOTS.map((slot) => cell(worn.find((w) => slotOf(w) === slot), picked, SLOT_NAMES[slot])).join("");
+  const cells = [...bag.map((i) => cell(i, picked)), ...Array.from({ length: Math.max(0, BAG_SLOTS - bag.length) }, () => cell(undefined, picked))].join("");
+  const it = [...worn, ...bag].find((i) => i.id === picked);
+  let card = `<p class="muted small item-card">Pick an item to see what it is.</p>`;
+  if (it) {
+    const { buttons, problem } = itemActions(c, it);
+    const slot = it.location === "equipped" ? slotOf(it) : undefined;
+    card = `<div class="item-card">${itemIcon(it)}<div class="grow"><b class="rarity-text-${it.rarity ?? "common"}">${esc(itemName(it))}</b>${it.quantity > 1 ? ` <span class="muted">×${it.quantity}</span>` : ""}${slot ? ` <span class="muted small">worn · ${SLOT_NAMES[slot]}</span>` : ""}
+      <div class="small muted">${itemFacts(it)}</div>${problem ? `<div class="small bad">${esc(problem)}</div>` : ""}</div>${buttons ? `<div class="row">${buttons}</div>` : ""}</div>`;
+  }
   return `
-    <details class="panel" open><summary>Gear and bag</summary>
-      <h3>Worn</h3><ul class="items">${slots}</ul>
-      <h3>Bag <span class="muted small">${bag.length} / ${BAG_SLOTS}</span></h3>
-      ${bag.length ? `<ul class="items">${bagLines}</ul>` : `<p class="muted small">Empty.</p>`}
-      <label class="row small"><input type="checkbox" data-item="charges" ${c.autoCharges ? "checked" : ""} />
-        Use charges automatically (they must match your weapon's grade)</label>
-    </details>`;
+    ${card}
+    <h4>Worn</h4><div class="cells">${slots}</div>
+    <h4>Bag <span class="muted">${bag.length} / ${BAG_SLOTS}</span></h4><div class="cells">${cells}</div>
+    <label class="row small"><input type="checkbox" data-item="charges" ${c.autoCharges ? "checked" : ""} />
+      Use charges automatically (they must match your weapon's grade)</label>`;
 }
 
 const stockLabel = (s: StockEntry) => itemName({ templateId: s.templateId, rarity: null });

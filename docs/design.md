@@ -698,14 +698,15 @@ greys out above the result. The log stays as text below.
 
 ### Places and the world map
 
-Every node has a scene: a wide picture across the top of its panel, also the
-backdrop of fights there. The mobs "seen here" are listed with thumbnails.
+Every node has a scene: it fills the game screen while the character is
+there, and is the backdrop of fights there. The mobs that live at a node
+stand in its scene as small cards.
 
 Travel is done on a map of Hollowreach (`packages/client/src/map.ts`): a
 picture with the roads drawn over it and a marker for each of ten places,
 the nine hunting nodes and Brackwell. The town is one place on the map; its
-market, smithy, warehouse and notice board are a list of buttons shown while
-in town. Places one road away are lit and can be tapped to go there, the
+market, smithy, warehouse and notice board are buttons on the action bar
+while in town. Places one road away are lit and can be tapped to go there, the
 character's own place is green, and the rest are shown dimmed with their
 level range. Markers carry the living world: a green count of other players
 there and a red mark where someone fell. The backdrop is a muted parchment
@@ -724,6 +725,45 @@ mark. A visitor who is not signed in sees a scene (the town square, or the
 Old Road until that is drawn) with one line of the premise above the
 sign-in form. Screens fade in when the route changes, unless the system
 asks for reduced motion.
+
+### The game screen
+
+The game screen is laid out like a game, not a page (`screens/game.ts`,
+`hud.ts`). In landscape, on a desktop or a phone held sideways, nothing
+scrolls: the scene of the place fills the screen and the interface floats
+over it.
+
+- **Top left**: the hero's frame, with portrait, level, HP, Mana or Focus,
+  and a thin XP bar.
+- **Top centre**: the plate with the zone and place, and who else is there.
+  In a fight the foe takes its place: name, level, HP and effects.
+- **Top right**: a round minimap, the stretch of the world map around the
+  character; it opens the whole map. The purse hangs under it, and under
+  that the quest tracker, as plain words on the picture.
+- **Bottom left**: the chat window with three tabs: Chat, Combat and
+  Chronicle. The fight log is the Combat tab, which comes forward when a
+  fight begins.
+- **Bottom centre**: the action bar. Away from a fight it has Hunt, Rest,
+  Challenge and the doors of the town; in a fight, a square for the attack,
+  each skill and each draught, then Flee and Auto.
+- **Bottom right**: the dock: Hero, Bag, Quests, Map, Menu. Each opens a
+  window over the scene; one window is open at a time. A town service
+  (market, smithy, warehouse, notice board) is a window too, opened on
+  arrival.
+
+In a fight the hero stands on the left of the scene and the foe on the
+right. When it ends, a banner tells the outcome and the loot, and the bar
+offers Hunt again and Continue. The bag is a grid of squares; picking one
+shows the item's card with what can be done with it.
+
+Keys on a desktop: Space is the main button of the moment (Hunt, Attack,
+Continue), 1–9 the fight actions, C, B, J and M the windows, Enter starts a
+chat line and Escape closes what is open. The Menu offers full screen.
+
+A phone held sideways gets every piece a size smaller, the dock upright on
+the right edge, and the chat as three lines that open over the scene when
+tapped. Held upright, the same pieces are stacked in a scrolling column with
+the scene as a picture among them and the dock along the bottom.
 
 ## 15. Technical shape
 

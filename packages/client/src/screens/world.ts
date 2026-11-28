@@ -1,7 +1,8 @@
 /**
- * The living-world panel of the game screen: chat, the chronicle, and the
- * player counts and fallen markers sprinkled over the map panel. It polls the
- * server while the game screen is open and the tab is visible.
+ * The living-world panel of the game screen: the chat window with its chat,
+ * combat and chronicle tabs, and the player counts and fallen markers
+ * sprinkled over the scene and the map. It polls the server while the game
+ * screen is open and the tab is visible.
  */
 import {
   NODES,
@@ -32,13 +33,19 @@ export function stopWorld() {
 }
 
 export interface WorldPanel {
-  /** Fill in player counts and fallen markers on the freshly drawn game panel. */
+  /** Fill in player counts and fallen markers on the freshly drawn game screen. */
   decorate(): void;
+  /** Show a fight's log in the combat tab; `jump` turns to that tab, for a fight that has just begun. */
+  combat(html: string, jump: boolean): void;
+  /** Put the cursor in the chat box. */
+  focus(): void;
+  /** Shrink the window back to a few lines where it was opened over the scene. True if it was open. */
+  shrink(): boolean;
 }
 
 /**
- * Start the panel in `aside` for character `id`. `game` is the element the
- * game screen draws into; `location` tells where the character stands now.
+ * Start the chat window in `aside` for character `id`. `game` is the element
+ * the game screen draws into; `location` tells where the character stands now.
  */
 export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, location: () => string): WorldPanel {
   stopWorld();
@@ -51,34 +58,30 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
   let lastChronicle: number | undefined;
   /** Server clock minus ours, so "min ago" matches the server. */
   let skew = 0;
-  let tab: "chat" | "chronicle" = "chat";
+  let tab: "chat" | "combat" | "chronicle" = "chat";
+  let combatLog = "";
   let notice = "";
   let unreadChronicle = 0;
   let unreadChat = 0;
-  const toggle = () => aside.querySelector<HTMLButtonElement>(".world-toggle")!;
-  /** Whether the sheet is open; always true where the panel is a sidebar. */
-  const visible = () => aside.classList.contains("open") || getComputedStyle(toggle()).display === "none";
   let timer: ReturnType<typeof setTimeout> | undefined;
   let stopped = false;
   let failures = 0;
 
-  // On phones the panel is a bottom sheet opened by a floating button; on wide screens it is a sidebar (see style.css).
+  // On a phone held sideways the window is a few lines of the current tab; a tap opens it over the scene (see style.css).
   aside.innerHTML = `
-    <button class="world-toggle" aria-expanded="false">Chat <span class="badge"></span></button>
-    <section class="panel world">
-      <div class="tabs small" role="tablist">
-        <button class="tab active" data-tab="chat" role="tab">Chat</button>
-        <button class="tab" data-tab="chronicle" role="tab">Chronicle <span class="unread"></span></button>
-        <button class="quiet world-close" aria-label="Close chat">✕</button>
-      </div>
-      <div class="world-body" aria-live="polite"></div>
-      <form class="chat-form row">
-        <select name="channel" aria-label="Channel"><option value="zone">Zone</option><option value="global">Global</option></select>
-        <input name="text" class="grow" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="Say something… (/help)" aria-label="Chat message" />
-        <button type="submit">Send</button>
-      </form>
-      <p class="small muted chat-notice" role="status"></p>
-    </section>`;
+    <div class="chat-tabs small" role="tablist">
+      <button class="chat-tab active" data-tab="chat" role="tab">Chat <span class="unread" data-unread="chat"></span></button>
+      <button class="chat-tab" data-tab="combat" role="tab">Combat</button>
+      <button class="chat-tab" data-tab="chronicle" role="tab">Chronicle <span class="unread" data-unread="chronicle"></span></button>
+      <button class="quiet world-close" aria-label="Shrink chat">✕</button>
+    </div>
+    <div class="world-body" aria-live="polite"></div>
+    <form class="chat-form row">
+      <select name="channel" aria-label="Channel"><option value="zone">Zone</option><option value="global">Global</option></select>
+      <input name="text" class="grow" maxlength="200" autocomplete="off" enterkeyhint="send" placeholder="Say something… (/help)" aria-label="Chat message" />
+      <button type="submit">Send</button>
+    </form>
+    <p class="small muted chat-notice" role="status"></p>`;
   const body = aside.querySelector<HTMLElement>(".world-body")!;
   const form = aside.querySelector<HTMLFormElement>(".chat-form")!;
   const input = form.querySelector<HTMLInputElement>("input")!;
@@ -101,6 +104,8 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
             )
             .join("")}</ol>`
         : `<p class="muted small">It is quiet. Say hello: zone chat reaches everyone in ${esc(ZONES[NODES[location()]?.zone ?? "brackwell"]?.name ?? "this zone")}.</p>`;
+    } else if (tab === "combat") {
+      body.innerHTML = combatLog || `<p class="muted small">No fight yet. Every blow struck and taken is written here.</p>`;
     } else {
       body.innerHTML = chronicle.length
         ? `<ol class="chronicle">${[...chronicle]
@@ -109,11 +114,11 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
             .join("")}</ol>`
         : `<p class="muted small">No deeds yet. Defeat the Ashen Warden, take a profession or forge a Rare piece to be the first in the chronicle.</p>`;
     }
-    if (tab === "chat" && atBottom) body.scrollTop = body.scrollHeight;
+    if (tab === "combat" || (tab === "chat" && atBottom)) body.scrollTop = body.scrollHeight;
     aside.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((b) => b.classList.toggle("active", b.dataset.tab === tab));
-    aside.querySelector(".unread")!.textContent = unreadChronicle ? `(${unreadChronicle})` : "";
-    if (visible() && tab === "chat") unreadChat = 0;
-    aside.querySelector(".badge")!.textContent = unreadChat ? String(unreadChat) : "";
+    if (tab === "chat") unreadChat = 0;
+    aside.querySelector('[data-unread="chat"]')!.textContent = unreadChat ? `(${unreadChat})` : "";
+    aside.querySelector('[data-unread="chronicle"]')!.textContent = unreadChronicle ? `(${unreadChronicle})` : "";
     noticeEl.textContent = notice;
   };
 
@@ -150,7 +155,7 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
     fallen = w.fallen;
     if (w.chat.length) {
       const fresh = w.chat.filter((m) => !chat.some((x) => x.id === m.id));
-      if (lastChat !== undefined) unreadChat += fresh.filter((m) => !ignored.has(m.name)).length;
+      if (lastChat !== undefined && tab !== "chat") unreadChat += fresh.filter((m) => !ignored.has(m.name)).length;
       chat = [...chat, ...fresh].slice(-KEEP_CHAT);
       lastChat = chat.at(-1)!.id;
     }
@@ -184,21 +189,22 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
     schedule(failures ? POLL_IDLE_MS : POLL_MS);
   };
 
+  const setOpen = (open: boolean) => {
+    if (aside.classList.contains("open") === open) return false;
+    aside.classList.toggle("open", open);
+    drawBody();
+    body.scrollTop = body.scrollHeight;
+    return true;
+  };
   aside.querySelectorAll<HTMLButtonElement>("[data-tab]").forEach((b) =>
     b.addEventListener("click", () => {
       tab = b.dataset.tab as typeof tab;
       if (tab === "chronicle") unreadChronicle = 0;
+      setOpen(true);
       drawBody();
     }),
   );
-
-  const setOpen = (open: boolean) => {
-    aside.classList.toggle("open", open);
-    toggle().setAttribute("aria-expanded", String(open));
-    drawBody();
-    if (open) body.scrollTop = body.scrollHeight;
-  };
-  toggle().addEventListener("click", () => setOpen(!aside.classList.contains("open")));
+  body.addEventListener("click", () => setOpen(true));
   aside.querySelector(".world-close")!.addEventListener("click", () => setOpen(false));
 
   form.addEventListener("submit", async (e) => {
@@ -239,5 +245,17 @@ export function startWorld(aside: HTMLElement, game: HTMLElement, id: number, lo
 
   drawBody();
   void poll();
-  return { decorate };
+  return {
+    decorate,
+    combat(html, jump) {
+      combatLog = html;
+      if (jump) tab = "combat";
+      drawBody();
+    },
+    focus() {
+      setOpen(true);
+      input.focus();
+    },
+    shrink: () => setOpen(false),
+  };
 }
